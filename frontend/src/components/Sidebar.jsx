@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, ClipboardList, Users, Zap, BarChart3,
   CalendarDays, Bell, CheckSquare, LogOut, Briefcase,
-  UserCircle, MessageSquare, ScrollText, UserCog, TrendingUp
+  UserCircle, MessageSquare, ScrollText, UserCog, TrendingUp, UserCheck
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { initials, avatarColors } from "../data/mockData";
@@ -27,13 +27,13 @@ export default function Sidebar() {
   ];
 
   const managerLinks = [
-    { to: "/admin/dashboard",   icon: <LayoutDashboard size={17} />, label: "Dashboard" },
-    { to: "/admin/tasks",       icon: <ClipboardList size={17} />,   label: "Tasks" },
-    { to: "/admin/employees",   icon: <Users size={17} />,           label: "Employees" },
-    { to: "/admin/assignments", icon: <CheckSquare size={17} />,     label: "Assignments" },
-    { to: "/manager/progress",  icon: <TrendingUp size={17} />,      label: "Progress Reports" },
-    { to: "/manager/feedback",  icon: <MessageSquare size={17} />,   label: "Feedback" },
-    { to: "/manager/log",       icon: <ScrollText size={17} />,      label: "Activity Log" },
+    { to: "/manager/dashboard",   icon: <LayoutDashboard size={17} />, label: "Dashboard" },
+    { to: "/manager/tasks",       icon: <ClipboardList size={17} />,   label: "Tasks & Assign" },
+    { to: "/manager/employees",   icon: <Users size={17} />,           label: `${managedDept || "Dept"} Team` },
+    { to: "/manager/assignments", icon: <UserCheck size={17} />,       label: "Assignments" },
+    { to: "/manager/progress",    icon: <TrendingUp size={17} />,      label: "Progress Reports" },
+    { to: "/manager/feedback",    icon: <MessageSquare size={17} />,   label: "Feedback" },
+    { to: "/manager/log",         icon: <ScrollText size={17} />,      label: "Activity Log" },
   ];
 
   const employeeLinks = [
@@ -43,8 +43,8 @@ export default function Sidebar() {
     { to: "/employee/notifications", icon: <Bell size={17} />,            label: "Notifications" },
   ];
 
-  const links = user.role === "admin" ? adminLinks : user.role === "manager" ? managerLinks : employeeLinks;
-  const sectionLabel = user.role === "admin" ? "Admin" : user.role === "manager" ? `Manager${managedDept ? ` · ${managedDept}` : ""}` : "Employee";
+  const links       = user.role === "admin" ? adminLinks : user.role === "manager" ? managerLinks : employeeLinks;
+  const sectionLabel = user.role === "admin" ? "Admin Panel" : user.role === "manager" ? `Manager · ${managedDept || "Dept"}` : "Employee";
 
   return (
     <aside className="app-sidebar">
@@ -70,7 +70,7 @@ export default function Sidebar() {
           <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user.name)}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="sb-user-name">{user.name}</div>
-            <div className="sb-user-role">{user.role}</div>
+            <div className="sb-user-role" style={{ textTransform: "capitalize" }}>{user.role}</div>
           </div>
         </div>
         <button className="sb-link" style={{ color: "#ef4444", marginTop: 4 }}

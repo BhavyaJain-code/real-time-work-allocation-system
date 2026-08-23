@@ -6,7 +6,7 @@ import Login    from "./pages/Login";
 import Register from "./pages/Register";
 import Profile  from "./pages/Profile";
 
-// Admin pages
+// ── Admin pages ─────────────────────────────────────────
 import AdminDashboard  from "./pages/AdminDashboard";
 import Tasks           from "./pages/Tasks";
 import CreateTask      from "./pages/CreateTask";
@@ -20,7 +20,13 @@ import ProgressReport  from "./pages/ProgressReport";
 import Feedback        from "./pages/Feedback";
 import ActivityLog     from "./pages/ActivityLog";
 
-// Employee pages
+// ── Manager pages (separate) ────────────────────────────
+import ManagerDashboard   from "./pages/ManagerDashboard";
+import ManagerTasks       from "./pages/ManagerTasks";
+import ManagerEmployees   from "./pages/ManagerEmployees";
+import ManagerAssignments from "./pages/ManagerAssignments";
+
+// ── Employee pages ──────────────────────────────────────
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import MyTasks           from "./pages/MyTasks";
 import Availability      from "./pages/Availability";
@@ -29,7 +35,8 @@ import Notifications     from "./pages/Notifications";
 function RootRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role === "admin" || user.role === "manager") return <Navigate to="/admin/dashboard" replace />;
+  if (user.role === "manager") return <Navigate to="/manager/dashboard" replace />;
+  if (user.role === "admin")   return <Navigate to="/admin/dashboard" replace />;
   return <Navigate to="/employee/dashboard" replace />;
 }
 
@@ -43,31 +50,35 @@ function App() {
           <Route path="/"         element={<RootRedirect />} />
 
           <Route element={<Layout />}>
-            {/* Shared */}
+            {/* Shared profile */}
             <Route path="/profile" element={<Profile />} />
 
-            {/* Admin + Manager shared */}
+            {/* ── Admin ──────────────────────────────────── */}
             <Route path="/admin/dashboard"     element={<AdminDashboard />} />
             <Route path="/admin/tasks"         element={<Tasks />} />
             <Route path="/admin/tasks/create"  element={<CreateTask />} />
             <Route path="/admin/assignments"   element={<Assignments />} />
             <Route path="/admin/employees"     element={<Employees />} />
             <Route path="/admin/employees/:id" element={<EmployeeProfile />} />
+            <Route path="/admin/skills"        element={<Skills />} />
+            <Route path="/admin/analytics"     element={<Analytics />} />
+            <Route path="/admin/users"         element={<UserManagement />} />
+            <Route path="/admin/progress"      element={<ProgressReport />} />
+            <Route path="/admin/feedback"      element={<Feedback />} />
+            <Route path="/admin/log"           element={<ActivityLog />} />
 
-            {/* Admin only */}
-            <Route path="/admin/skills"      element={<Skills />} />
-            <Route path="/admin/analytics"   element={<Analytics />} />
-            <Route path="/admin/users"       element={<UserManagement />} />
-            <Route path="/admin/progress"    element={<ProgressReport />} />
-            <Route path="/admin/feedback"    element={<Feedback />} />
-            <Route path="/admin/log"         element={<ActivityLog />} />
+            {/* ── Manager (fully separate) ───────────────── */}
+            <Route path="/manager/dashboard"   element={<ManagerDashboard />} />
+            <Route path="/manager/tasks"       element={<ManagerTasks />} />
+            <Route path="/manager/employees"   element={<ManagerEmployees />} />
+            <Route path="/manager/assignments" element={<ManagerAssignments />} />
+            <Route path="/manager/progress"    element={<ProgressReport />} />
+            <Route path="/manager/feedback"    element={<Feedback />} />
+            <Route path="/manager/log"         element={<ActivityLog />} />
+            {/* Manager can view employee profile */}
+            <Route path="/admin/employees/:id" element={<EmployeeProfile />} />
 
-            {/* Manager */}
-            <Route path="/manager/progress"  element={<ProgressReport />} />
-            <Route path="/manager/feedback"  element={<Feedback />} />
-            <Route path="/manager/log"       element={<ActivityLog />} />
-
-            {/* Employee */}
+            {/* ── Employee ───────────────────────────────── */}
             <Route path="/employee/dashboard"     element={<EmployeeDashboard />} />
             <Route path="/employee/tasks"         element={<MyTasks />} />
             <Route path="/employee/availability"  element={<Availability />} />

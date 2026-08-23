@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Users, X } from "lucide-react";
-import { TASKS, EMPLOYEES, getTaskSkills, getMatchedEmployees, getEmployeeUser, getEmployeeSkills, initials, avatarColors, TASK_TYPE_LABEL, TASK_TYPE_BADGE } from "../data/mockData";
+import { Search, Plus, Users, X, UserCheck } from "lucide-react";
+import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getTaskSkills, getMatchedEmployees, getEmployeeUser, getEmployeeSkills, initials, avatarColors, TASK_TYPE_LABEL, TASK_TYPE_BADGE } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
+import AssignTaskModal from "../components/AssignTaskModal";
 
 export default function Tasks() {
   const navigate  = useNavigate();
@@ -13,6 +14,16 @@ export default function Tasks() {
   const [typeF,     setTypeF]     = useState("all");
   const [view,      setView]      = useState("grid");
   const [selected,  setSelected]  = useState(null); // task for skill-match panel
+  const [showAssign, setShowAssign] = useState(false);
+  const [assignments, setAssignments] = useState(TASK_ASSIGNMENTS);
+
+  const handleAssign = (taskId, empId) => {
+    setAssignments(a => [...a, {
+      id: Date.now(), task_id: taskId, employee_id: empId,
+      assigned_at: new Date().toISOString().split("T")[0],
+      started_at: null, completed_at: null, assignment_score: null, status: "assigned",
+    }]);
+  };
 
   const filtered = TASKS.filter(t => {
     const q = search.toLowerCase();
@@ -25,15 +36,21 @@ export default function Tasks() {
   const matched = selected ? getMatchedEmployees(selected.id) : [];
 
   return (
-    <div>
+    <>
+      <div>
       <div className="page-header">
         <div>
           <div className="page-title">Tasks</div>
           <div className="page-subtitle">{TASKS.length} total tasks</div>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate("/admin/tasks/create")}>
-          <Plus size={16} /> Create Task
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn btn-secondary" onClick={() => setShowAssign(true)}>
+            <UserCheck size={16} /> Assign Task
+          </button>
+          <button className="btn btn-primary" onClick={() => navigate("/admin/tasks/create")}>
+            <Plus size={16} /> Create Task
+          </button>
+        </div>
       </div>
 
       <div className="filter-bar">
@@ -169,6 +186,14 @@ export default function Tasks() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+
+      {showAssign && (
+        <AssignTaskModal
+          onClose={() => setShowAssign(false)}
+          onAssign={handleAssign}
+        />
+      )}
+    </>
   );
 }
