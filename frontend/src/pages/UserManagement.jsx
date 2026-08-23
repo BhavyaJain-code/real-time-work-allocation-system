@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { UserPlus, Eye, EyeOff, X, ToggleLeft, ToggleRight, RefreshCw, TrendingUp } from "lucide-react";
+import { UserPlus, Eye, EyeOff, X, RefreshCw } from "lucide-react";
 import { USERS, EMPLOYEES, initials, avatarColors } from "../data/mockData";
-import StatusBadge from "../components/StatusBadge";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 import { motion } from "framer-motion";
 
 function genPassword() {
@@ -42,19 +40,12 @@ export default function UserManagement() {
 
   const emp = (userId) => EMPLOYEES.find(e => e.user_id === userId);
 
-  const stats = [
-    { label: "Managed Accounts", value: users.length, trend: "Secure system" },
-    { label: "Managers",         value: users.filter(u => u.role === "manager").length, trend: "Dept heads" },
-    { label: "Active Employees", value: users.filter(u => u.role === "employee" && u.is_active).length, trend: "Allocated team" },
-    { label: "Disabled Accounts",value: users.filter(u => !u.is_active).length, trend: "Inactive" },
-  ];
-
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">User Account Control</div>
-          <div className="page-subtitle">Admin-only · {users.length} registered accounts</div>
+          <div className="page-title">User Accounts & Access</div>
+          <div className="page-subtitle">Admin-only · {users.length} managed user accounts</div>
         </div>
         <motion.button
           className="btn btn-primary"
@@ -65,29 +56,6 @@ export default function UserManagement() {
           <UserPlus size={16} /> Create User Account
         </motion.button>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="filter-bar">
         <div className="search-wrap">
@@ -110,7 +78,7 @@ export default function UserManagement() {
                 <th>Status</th>
                 <th>Temporary Password</th>
                 <th>Created Date</th>
-                <th>Quick Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>

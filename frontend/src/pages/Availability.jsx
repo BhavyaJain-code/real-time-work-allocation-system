@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Plus, X, Edit2, Check, TrendingUp } from "lucide-react";
+import { Plus, X, Edit2, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getEmployeeAvailability } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 import { motion } from "framer-motion";
 
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -52,22 +51,12 @@ export default function Availability() {
 
   const getSlot = (date) => records.find(r => r.date === date);
 
-  const availableDays = records.filter(r => r.status === "available").length;
-  const busyDays      = records.filter(r => r.status === "busy").length;
-
-  const stats = [
-    { label: "Available Days",  value: availableDays, trend: "Ready for allocation" },
-    { label: "High Workload",   value: busyDays,      trend: "Busy slots" },
-    { label: "Days Off",        value: records.filter(r => r.status === "off").length, trend: "Scheduled off" },
-    { label: "Total Logged",    value: records.length, trend: "Calendar entries" },
-  ];
-
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Personal Availability & Calendar</div>
-          <div className="page-subtitle">Schedule your weekly shifts, availability statuses, and capacity limits</div>
+          <div className="page-title">Personal Availability & Schedule</div>
+          <div className="page-subtitle">Set your weekly shifts, availability statuses, and daily capacity</div>
         </div>
         <motion.button
           className="btn btn-primary"
@@ -78,29 +67,6 @@ export default function Availability() {
           <Plus size={16} /> Add Schedule Slot
         </motion.button>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       {/* Calendar Week View */}
       <div className="card" style={{ marginBottom: 24 }}>
@@ -143,7 +109,7 @@ export default function Availability() {
                 <th>Date</th>
                 <th>Working Hours</th>
                 <th>Availability Status</th>
-                <th>Inline Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>

@@ -6,8 +6,7 @@ import {
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import AssignTaskModal from "../components/AssignTaskModal";
-import { UserCheck, TrendingUp } from "lucide-react";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { UserCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ManagerAssignments() {
@@ -17,13 +16,6 @@ export default function ManagerAssignments() {
 
   const myEmpIds = EMPLOYEES.filter(e => e.department === managedDept).map(e => e.id);
   const myAssignments = assignments.filter(a => myEmpIds.includes(a.employee_id));
-
-  const stats = [
-    { label: "Dept Assignments", value: myAssignments.length, trend: `${managedDept} team` },
-    { label: "Assigned Queue",   value: myAssignments.filter(a => a.status === "assigned").length, trend: "Ready to start" },
-    { label: "In Progress",      value: myAssignments.filter(a => a.status === "in_progress").length, trend: "Active work" },
-    { label: "Completed",        value: myAssignments.filter(a => a.status === "completed").length, trend: "Done" },
-  ];
 
   const handleAssign = (taskId, empId) => {
     const newA = {
@@ -38,7 +30,7 @@ export default function ManagerAssignments() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">{managedDept} Assignments Registry</div>
+          <div className="page-title">{managedDept} Assignments</div>
           <div className="page-subtitle">{myAssignments.length} total allocations for your managed team</div>
         </div>
         <motion.button
@@ -50,29 +42,6 @@ export default function ManagerAssignments() {
           <UserCheck size={16} /> Assign Task to Team
         </motion.button>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="card">
         <div className="table-wrap">

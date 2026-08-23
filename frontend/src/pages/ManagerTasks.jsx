@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UserCheck, Plus, X, Users, TrendingUp } from "lucide-react";
+import { Search, UserCheck, Plus, X, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   TASKS, EMPLOYEES, TASK_ASSIGNMENTS,
@@ -10,7 +10,6 @@ import {
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
 import AssignTaskModal from "../components/AssignTaskModal";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 import { motion } from "framer-motion";
 
 export default function ManagerTasks() {
@@ -26,8 +25,6 @@ export default function ManagerTasks() {
   const [showAssign,  setShowAssign]  = useState(false);
   const [assignTaskId,setAssignTaskId]= useState(null);
   const [assignments, setAssignments] = useState(TASK_ASSIGNMENTS);
-
-  const myEmpIds = managedDept ? EMPLOYEES.filter(e => e.department === managedDept).map(e => e.id) : EMPLOYEES.map(e => e.id);
 
   const filtered = TASKS.filter(t => {
     const q = search.toLowerCase();
@@ -48,18 +45,11 @@ export default function ManagerTasks() {
     setAssignments(a => [...a, newA]);
   };
 
-  const stats = [
-    { label: "Available Pool",    value: filtered.length, trend: `${managedDept} Tasks` },
-    { label: "High Priority",     value: filtered.filter(t => t.priority === "high" || t.priority === "critical").length, trend: "Requires focus" },
-    { label: "Assigned to Team",  value: filtered.filter(t => isAssigned(t.id)).length, trend: "In progress" },
-    { label: "Unassigned Queue",  value: filtered.filter(t => !isAssigned(t.id)).length, trend: "Ready to dispatch" },
-  ];
-
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Department Work Allocation</div>
+          <div className="page-title">Department Tasks</div>
           <div className="page-subtitle">{managedDept ? `Managing for ${managedDept}` : ""} · {TASKS.length} total tasks in pool</div>
         </div>
         <motion.button
@@ -71,29 +61,6 @@ export default function ManagerTasks() {
           <UserCheck size={16} /> Assign Task to Team
         </motion.button>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="filter-bar">
         <div className="search-wrap">

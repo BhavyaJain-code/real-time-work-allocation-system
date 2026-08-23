@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Printer, Download, ChevronDown, ChevronUp, Star, TrendingUp } from "lucide-react";
+import { Printer, ChevronDown, ChevronUp, Star } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   EMPLOYEES, TASKS, TASK_ASSIGNMENTS,
@@ -8,7 +8,6 @@ import {
   initials, avatarColors, getManagerEmployees
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 import { motion } from "framer-motion";
 
 function StarRating({ rating }) {
@@ -169,23 +168,12 @@ export default function ProgressReport() {
 
   const handlePrint = () => window.print();
 
-  const totalAssigned = TASK_ASSIGNMENTS.length;
-  const totalDone     = TASK_ASSIGNMENTS.filter(a => a.status === "completed").length;
-  const avgOrgScore   = 91;
-
-  const stats = [
-    { label: "Employees Audited", value: filtered.length,  trend: "Performance matrix" },
-    { label: "Tasks Evaluated",   value: totalDone,        trend: `${totalAssigned} total assigned` },
-    { label: "Avg Quality Score", value: avgOrgScore, suffix: "/100", trend: "High standard" },
-    { label: "On-Time Ratio",     value: 95, suffix: "%",  trend: "SLA met" },
-  ];
-
   return (
     <div>
       <div className="page-header">
         <div>
           <div className="page-title">Employee Progress Reports</div>
-          <div className="page-subtitle">Granular performance evaluations, completion metrics and feedback logs</div>
+          <div className="page-subtitle">Performance evaluations, completion metrics and feedback logs</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn btn-secondary" onClick={expandAll}>Expand All</button>
@@ -195,29 +183,6 @@ export default function ProgressReport() {
           </button>
         </div>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} suffix={s.suffix || ""} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       {/* Filter Bar */}
       <div className="filter-bar">

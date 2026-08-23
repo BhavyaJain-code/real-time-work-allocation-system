@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Star, Send, X, TrendingUp } from "lucide-react";
+import { Star, Send } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   EMPLOYEES, TASKS, FEEDBACK,
   getEmployeeUser, getTask, getUser,
-  initials, avatarColors, getManagerEmployees
+  initials, avatarColors
 } from "../data/mockData";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 import { motion } from "framer-motion";
 
 function StarPicker({ value, onChange }) {
@@ -64,17 +63,6 @@ export default function Feedback() {
     return f.to_employee_id === Number(filterEmp);
   });
 
-  const avgRating = feedbackList.length
-    ? (feedbackList.reduce((s, f) => s + f.rating, 0) / feedbackList.length).toFixed(1)
-    : "—";
-
-  const stats = [
-    { label: "Total Reviews",    value: feedbackList.length, trend: "Peer & Manager feedback" },
-    { label: "Average Rating",   value: avgRating, suffix: " / 5.0", trend: "Overall score" },
-    { label: "5-Star Ratings",   value: feedbackList.filter(f => f.rating === 5).length, trend: "Top performers" },
-    { label: "Active Feedback",  value: visibleEmps.length, trend: "Employees covered" },
-  ];
-
   return (
     <div>
       <div className="page-header">
@@ -83,29 +71,6 @@ export default function Feedback() {
           <div className="page-subtitle">Manager & Peer appraisals, rating scores, and constructive coaching</div>
         </div>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} suffix={s.suffix || ""} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="grid-2" style={{ alignItems: "start" }}>
         {/* Submit Feedback Form */}

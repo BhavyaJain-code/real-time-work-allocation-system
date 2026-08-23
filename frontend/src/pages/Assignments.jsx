@@ -1,48 +1,15 @@
 import { TASK_ASSIGNMENTS, EMPLOYEES, TASKS, getEmployeeUser, getTask, initials, avatarColors } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
-import { TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
 
 export default function Assignments() {
-  const stats = [
-    { label: "Assigned Queue",  value: TASK_ASSIGNMENTS.filter(a => a.status === "assigned").length,    trend: "Pending start" },
-    { label: "In Progress",     value: TASK_ASSIGNMENTS.filter(a => a.status === "in_progress").length, trend: "Active work" },
-    { label: "Completed",       value: TASK_ASSIGNMENTS.filter(a => a.status === "completed").length,   trend: "96% avg score" },
-    { label: "Cancelled",       value: TASK_ASSIGNMENTS.filter(a => a.status === "cancelled").length,   trend: "Archived" },
-  ];
-
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Work Assignments</div>
-          <div className="page-subtitle">{TASK_ASSIGNMENTS.length} total active & completed allocations</div>
+          <div className="page-title">Work Allocations Registry</div>
+          <div className="page-subtitle">{TASK_ASSIGNMENTS.length} total active and completed assignments</div>
         </div>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="card">
         <div className="table-wrap">

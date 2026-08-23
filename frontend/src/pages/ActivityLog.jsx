@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Search, TrendingUp } from "lucide-react";
+import { Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ACTIVITY_LOG, EMPLOYEES, TASKS, getEmployeeUser, getTask } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
-import { motion } from "framer-motion";
 
 const ACTION_META = {
   assigned:  { label: "Assigned",  cls: "badge-blue"   },
@@ -38,13 +36,6 @@ export default function ActivityLog() {
     })
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-  const stats = [
-    { label: "Audit Log Entries", value: logs.length, trend: "Timestamped" },
-    { label: "Completed Tasks",   value: logs.filter(l => l.action === "completed").length, trend: "Done" },
-    { label: "In Progress Logs",  value: logs.filter(l => l.action === "started" || l.action === "updated").length, trend: "Active updates" },
-    { label: "Allocations",       value: logs.filter(l => l.action === "assigned").length, trend: "New dispatches" },
-  ];
-
   return (
     <div>
       <div className="page-header">
@@ -53,29 +44,6 @@ export default function ActivityLog() {
           <div className="page-subtitle">{logs.length} logged actions across team allocations</div>
         </div>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="filter-bar">
         <div className="search-wrap">

@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Zap, Plus, Trash2, X, TrendingUp } from "lucide-react";
-import { SKILLS, EMPLOYEE_SKILLS, TASKS } from "../data/mockData";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { Zap, Plus, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { SKILLS, EMPLOYEE_SKILLS, TASKS } from "../data/mockData";
 
 export default function Skills() {
   const [skills, setSkills] = useState(SKILLS);
@@ -24,21 +23,12 @@ export default function Skills() {
   const empCount = (skillId) => EMPLOYEE_SKILLS.filter(e => e.skill_ids.includes(skillId)).length;
   const taskCount = (skillId) => TASKS.filter(t => t.required_skill_ids.includes(skillId)).length;
 
-  const categories = [...new Set(skills.map(s => s.category || "General"))];
-
-  const stats = [
-    { label: "Total Skills",     value: skills.length,      trend: "In registry" },
-    { label: "Skill Categories", value: categories.length,  trend: "Domain fields" },
-    { label: "Top Skill Match",  value: 4,                  trend: "React.js / Node.js" },
-    { label: "Total Mappings",   value: EMPLOYEE_SKILLS.reduce((s, e) => s + e.skill_ids.length, 0), trend: "Verified competencies" },
-  ];
-
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Skills Competency Matrix</div>
-          <div className="page-subtitle">{skills.length} skills in automated matching index</div>
+          <div className="page-title">Skills Registry</div>
+          <div className="page-subtitle">{skills.length} skills indexed for automated allocation</div>
         </div>
         <motion.button
           className="btn btn-primary"
@@ -49,29 +39,6 @@ export default function Skills() {
           <Plus size={16} /> Add New Skill
         </motion.button>
       </div>
-
-      {/* Cobalt Stat Cards */}
-      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-        {stats.map((s, i) => (
-          <StaggerItem key={i}>
-            <motion.div
-              className="stat-card"
-              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-            >
-              <div className="stat-card-header">
-                <span className="stat-label">{s.label}</span>
-                <span className="stat-dots">•••</span>
-              </div>
-              <div className="stat-value">
-                <AnimatedNumber value={s.value} />
-              </div>
-              <div className="stat-sub">
-                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-              </div>
-            </motion.div>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
 
       <div className="card">
         <div className="table-wrap">
@@ -137,7 +104,7 @@ export default function Skills() {
             <form onSubmit={handleAdd} className="form-grid">
               <div className="field form-grid-full">
                 <label>Skill Name</label>
-                <input className="field-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Next.js, Rust, TailwindCSS" />
+                <input className="field-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Next.js, Rust, GraphQL" />
               </div>
               <div className="field form-grid-full">
                 <label>Category</label>

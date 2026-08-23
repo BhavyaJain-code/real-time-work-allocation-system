@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Users, X, UserCheck, TrendingUp } from "lucide-react";
+import { Search, Plus, Users, X, UserCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getTaskSkills, getMatchedEmployees, getEmployeeUser, getEmployeeSkills, initials, avatarColors, TASK_TYPE_LABEL, TASK_TYPE_BADGE } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
 import AssignTaskModal from "../components/AssignTaskModal";
-import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 
 export default function Tasks() {
   const navigate  = useNavigate();
@@ -37,20 +36,13 @@ export default function Tasks() {
 
   const matched = selected ? getMatchedEmployees(selected.id) : [];
 
-  const taskStats = [
-    { label: "Total Tasks",      value: TASKS.length, trend: "In system" },
-    { label: "Critical Priority",value: TASKS.filter(t => t.priority === "critical").length, trend: "High urgency" },
-    { label: "In Progress",      value: TASKS.filter(t => t.status === "in_progress").length, trend: "Active work" },
-    { label: "Completed",        value: TASKS.filter(t => t.status === "done").length, trend: "Done" },
-  ];
-
   return (
     <>
       <div>
         <div className="page-header">
           <div>
             <div className="page-title">Tasks Management</div>
-            <div className="page-subtitle">Track, Filter and Allocate Workload</div>
+            <div className="page-subtitle">{TASKS.length} total tasks across all priority tiers</div>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             <motion.button
@@ -59,7 +51,7 @@ export default function Tasks() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              <UserCheck size={16} /> Assign Task
+              <UserCheck size={16} color="#ee27d7" /> Assign Task
             </motion.button>
             <motion.button
               className="btn btn-primary"
@@ -71,29 +63,6 @@ export default function Tasks() {
             </motion.button>
           </div>
         </div>
-
-        {/* Top Cobalt Metric Cards */}
-        <StaggerContainer className="stats-grid" staggerDelay={0.07}>
-          {taskStats.map((s, i) => (
-            <StaggerItem key={i}>
-              <motion.div
-                className="stat-card"
-                whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
-              >
-                <div className="stat-card-header">
-                  <span className="stat-label">{s.label}</span>
-                  <span className="stat-dots">•••</span>
-                </div>
-                <div className="stat-value">
-                  <AnimatedNumber value={s.value} />
-                </div>
-                <div className="stat-sub">
-                  <TrendingUp size={14} color="#ee27d7" /> {s.trend}
-                </div>
-              </motion.div>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
 
         <div className="filter-bar">
           <div className="search-wrap">
