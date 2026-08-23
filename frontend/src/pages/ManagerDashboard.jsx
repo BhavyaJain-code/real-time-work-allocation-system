@@ -29,12 +29,12 @@ export default function ManagerDashboard() {
 
   const stats = [
     { label: "Dept Employees",  value: myEmployees.length,  bg: "var(--primary-lt)",   color: "var(--primary)",   icon: <Users size={18} /> },
-    { label: "Active Tasks",    value: active.length,       bg: "var(--accent-lt)",    color: "var(--accent)",    icon: <ClipboardList size={18} /> },
+    { label: "Active Tasks",    value: active.length,       bg: "var(--secondary-lt)", color: "var(--secondary-vibrant)", icon: <ClipboardList size={18} /> },
     { label: "Completed",       value: completed.length,    bg: "var(--green-lt)",     color: "var(--green)",     icon: <CheckSquare size={18} /> },
-    { label: "Overdue",         value: overdue.length,      bg: "var(--secondary-lt)", color: "var(--secondary-vibrant, #ff6584)", icon: <AlertCircle size={18} /> },
+    { label: "Overdue",         value: overdue.length,      bg: "var(--accent-lt)",    color: "var(--accent)",    icon: <AlertCircle size={18} /> },
   ];
 
-  const wColor = (pct) => pct >= 85 ? "var(--secondary)" : pct >= 60 ? "var(--accent)" : "var(--green)";
+  const wColor = (pct) => pct >= 85 ? "var(--accent)" : pct >= 60 ? "var(--primary)" : "var(--green)";
 
   return (
     <div>
@@ -159,10 +159,10 @@ export default function ManagerDashboard() {
       {/* Overdue in dept */}
       {overdue.length > 0 && (
         <FadeIn delay={0.25}>
-          <div className="card" style={{ marginTop: 20, border: "1px solid rgba(185, 55, 90, 0.45)", boxShadow: "0 4px 20px rgba(118, 40, 61, 0.25)" }}>
-            <div className="card-header" style={{ background: "linear-gradient(135deg, rgba(118, 40, 61, 0.4) 0%, rgba(185, 55, 90, 0.2) 100%)", borderBottom: "1px solid rgba(185, 55, 90, 0.35)" }}>
-              <span className="card-title" style={{ color: "#ff7597", display: "flex", alignItems: "center", gap: 8 }}>
-                <AlertCircle size={18} color="#ff7597" /> Overdue in {managedDept} ({overdue.length})
+          <div className="card" style={{ marginTop: 20, border: "1px solid var(--accent-border)", boxShadow: "0 4px 20px rgba(238, 39, 215, 0.25)" }}>
+            <div className="card-header" style={{ background: "linear-gradient(135deg, rgba(238, 39, 215, 0.35) 0%, rgba(140, 15, 120, 0.2) 100%)", borderBottom: "1px solid var(--accent-border)" }}>
+              <span className="card-title" style={{ color: "#ff78ef", display: "flex", alignItems: "center", gap: 8 }}>
+                <AlertCircle size={18} color="#ff78ef" /> Overdue in {managedDept} ({overdue.length})
               </span>
             </div>
             <div className="table-wrap">
@@ -171,9 +171,9 @@ export default function ManagerDashboard() {
                 <tbody>
                   {overdue.map(({ task, assignee }) => (
                     <tr key={task.id}>
-                      <td className="td-bold" style={{ color: "#ff8da8" }}>{task.title}</td>
+                      <td className="td-bold" style={{ color: "#ff78ef" }}>{task.title}</td>
                       <td style={{ fontWeight: 600, fontSize: 13 }}>{assignee?.name || "Unassigned"}</td>
-                      <td style={{ color: "#ff7597", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
+                      <td style={{ color: "#ff78ef", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
                       <td><StatusBadge value={task.priority} type="priority" /></td>
                     </tr>
                   ))}

@@ -21,9 +21,9 @@ export default function AdminDashboard() {
 
   const stats = [
     { label: "Total Tasks",      value: totalTasks,      icon: <ClipboardList size={18} />, bg: "var(--primary-lt)",   color: "var(--primary)",   sub: `${activeTasks} in progress` },
-    { label: "Active Employees", value: activeEmployees, icon: <Users size={18} />,         bg: "var(--green-lt)",     color: "var(--green)",     sub: `${EMPLOYEES.length} total` },
+    { label: "Active Employees", value: activeEmployees, icon: <Users size={18} />,         bg: "var(--secondary-lt)", color: "var(--secondary-vibrant)", sub: `${EMPLOYEES.length} total` },
     { label: "In Progress Tasks",value: activeTasks,     icon: <CheckSquare size={18} />,   bg: "var(--accent-lt)",    color: "var(--accent)",    sub: `${completionRate}% completed` },
-    { label: "Overdue Tasks",    value: overdueCount,    icon: <AlertCircle size={18} />,   bg: "var(--secondary-lt)", color: "var(--secondary-vibrant, #ff6584)", sub: "Need attention" },
+    { label: "Overdue Tasks",    value: overdueCount,    icon: <AlertCircle size={18} />,   bg: "var(--accent-lt)",    color: "#ff78ef",          sub: "Need attention" },
   ];
 
   return (
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
               {EMPLOYEES.map(emp => {
                 const user = getEmployeeUser(emp);
                 const av   = avatarColors(user?.name || "");
-                const wColor = emp.workload_percentage >= 85 ? "var(--secondary)" : emp.workload_percentage >= 60 ? "var(--accent)" : "var(--green)";
+                const wColor = emp.workload_percentage >= 85 ? "var(--accent)" : emp.workload_percentage >= 60 ? "var(--primary)" : "var(--green)";
                 return (
                   <motion.div
                     key={emp.id}
@@ -180,13 +180,13 @@ export default function AdminDashboard() {
         </div>
       </FadeIn>
 
-      {/* Overdue Tasks — Highlighted in Rich Wine & Coral */}
+      {/* Overdue Tasks — Highlighted in Fuchsia Accent */}
       {overdueCount > 0 && (
         <FadeIn delay={0.28}>
-          <div className="card" style={{ marginTop: 20, border: "1px solid rgba(185, 55, 90, 0.45)", boxShadow: "0 4px 20px rgba(118, 40, 61, 0.25)" }}>
-            <div className="card-header" style={{ background: "linear-gradient(135deg, rgba(118, 40, 61, 0.4) 0%, rgba(185, 55, 90, 0.2) 100%)", borderBottom: "1px solid rgba(185, 55, 90, 0.35)" }}>
-              <span className="card-title" style={{ color: "#ff7597", display: "flex", alignItems: "center", gap: 8 }}>
-                <AlertCircle size={18} color="#ff7597" /> Overdue Tasks ({overdueCount})
+          <div className="card" style={{ marginTop: 20, border: "1px solid var(--accent-border)", boxShadow: "0 4px 20px rgba(238, 39, 215, 0.25)" }}>
+            <div className="card-header" style={{ background: "linear-gradient(135deg, rgba(238, 39, 215, 0.35) 0%, rgba(140, 15, 120, 0.2) 100%)", borderBottom: "1px solid var(--accent-border)" }}>
+              <span className="card-title" style={{ color: "#ff78ef", display: "flex", alignItems: "center", gap: 8 }}>
+                <AlertCircle size={18} color="#ff78ef" /> Overdue Tasks ({overdueCount})
               </span>
             </div>
             <div className="table-wrap">
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                 <tbody>
                   {overdueTasks.map(({ task, assignee }) => (
                     <tr key={task.id}>
-                      <td className="td-bold" style={{ color: "#ff8da8" }}>{task.title}</td>
+                      <td className="td-bold" style={{ color: "#ff78ef" }}>{task.title}</td>
                       <td>
                         {assignee ? (
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
                           </div>
                         ) : <span className="td-muted">Unassigned</span>}
                       </td>
-                      <td style={{ color: "#ff7597", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
+                      <td style={{ color: "#ff78ef", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
                       <td><StatusBadge value={task.priority} type="priority" /></td>
                       <td><StatusBadge value={task.status} /></td>
                     </tr>
