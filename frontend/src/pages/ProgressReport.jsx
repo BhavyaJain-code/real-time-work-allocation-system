@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Printer, Download, ChevronDown, ChevronUp, Star } from "lucide-react";
+import { Printer, Download, ChevronDown, ChevronUp, Star, TrendingUp } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   EMPLOYEES, TASKS, TASK_ASSIGNMENTS,
@@ -8,12 +8,14 @@ import {
   initials, avatarColors, getManagerEmployees
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
+import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { motion } from "framer-motion";
 
 function StarRating({ rating }) {
   return (
     <span style={{ display: "flex", gap: 2 }}>
       {[1,2,3,4,5].map(i => (
-        <Star key={i} size={13} fill={i <= rating ? "var(--amber)" : "none"} color={i <= rating ? "var(--amber)" : "var(--border)"} />
+        <Star key={i} size={13} fill={i <= rating ? "#f5d982" : "none"} color={i <= rating ? "#f5d982" : "var(--border)"} />
       ))}
     </span>
   );
@@ -26,7 +28,7 @@ function EmployeeReportCard({ employee, expanded, onToggle, printMode }) {
   const feedback = getEmployeeFeedback(employee.id);
   const assignments = TASK_ASSIGNMENTS.filter(a => a.employee_id === employee.id);
   const av       = avatarColors(user?.name || "");
-  const wColor   = employee.workload_percentage >= 85 ? "var(--red)" : employee.workload_percentage >= 60 ? "var(--amber)" : "var(--green)";
+  const wColor   = employee.workload_percentage >= 85 ? "#ee27d7" : employee.workload_percentage >= 60 ? "#f5d982" : "#10b981";
 
   return (
     <div className="card" style={{ pageBreakInside: "avoid" }}>
@@ -37,16 +39,16 @@ function EmployeeReportCard({ employee, expanded, onToggle, printMode }) {
       >
         <div className="avatar avatar-md" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5 }}>{user?.name}</div>
-          <div style={{ fontSize: 12.5, color: "var(--text-2)" }}>{employee.position} · {employee.department}</div>
+          <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--text)" }}>{user?.name}</div>
+          <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{employee.position} · {employee.department}</div>
         </div>
         {/* Quick stats */}
         <div style={{ display: "flex", gap: 24 }}>
           {[
-            { label: "Completed", value: progress.completed, color: "var(--green)" },
-            { label: "In Progress", value: progress.inProgress, color: "var(--blue)" },
-            { label: "Avg Score", value: progress.avgScore ?? "—", color: "var(--primary)" },
-            { label: "On-Time", value: `${progress.onTimeRate}%`, color: "var(--amber)" },
+            { label: "Completed", value: progress.completed, color: "#10b981" },
+            { label: "In Progress", value: progress.inProgress, color: "#ee27d7" },
+            { label: "Avg Score", value: progress.avgScore ?? "—", color: "#f5d982" },
+            { label: "On-Time", value: `${progress.onTimeRate}%`, color: "#4d5cf8" },
           ].map(s => (
             <div key={s.label} style={{ textAlign: "center" }}>
               <div style={{ fontWeight: 800, fontSize: 18, color: s.color }}>{s.value}</div>
@@ -58,89 +60,77 @@ function EmployeeReportCard({ employee, expanded, onToggle, printMode }) {
       </div>
 
       {(expanded || printMode) && (
-        <div>
-          {/* Progress bars */}
-          <div style={{ padding: "16px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, borderBottom: "1px solid var(--border)" }}>
-            {[
-              { label: "Completion Rate", value: progress.completionRate, color: "var(--green)" },
-              { label: "Workload",        value: employee.workload_percentage, color: wColor },
-            ].map(b => (
-              <div key={b.label}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 5 }}>
-                  <span style={{ fontWeight: 600 }}>{b.label}</span>
-                  <span style={{ fontWeight: 700, color: b.color }}>{b.value}%</span>
-                </div>
-                <div className="progress-bar" style={{ height: 7 }}>
-                  <div className="progress-fill" style={{ width: `${b.value}%`, background: b.color }} />
-                </div>
-              </div>
-            ))}
-            <div>
-              <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4 }}>Total Hours Delivered</div>
-              <div style={{ fontWeight: 800, fontSize: 20, color: "var(--primary)" }}>{progress.totalHours}h</div>
+        <div style={{ padding: "20px", background: "var(--surface-2)", display: "flex", flexDirection: "column", gap: 18 }}>
+          {/* Progress Metrics Bar */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+              <span style={{ fontWeight: 700, color: "var(--text)" }}>Task Completion Rate</span>
+              <span style={{ fontWeight: 800, color: "#f5d982" }}>{progress.completionRate}%</span>
             </div>
-            <div>
-              <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>Skills</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                {skills.map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}
-              </div>
+            <div className="progress-bar" style={{ height: 8 }}>
+              <div className="progress-fill" style={{ width: `${progress.completionRate}%`, background: "linear-gradient(90deg, #f5d982 0%, #ee27d7 100%)" }} />
             </div>
           </div>
 
-          {/* Assignment history */}
-          <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)" }}>
-            <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 10 }}>Task History</div>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Task</th><th>Type</th><th>Status</th><th>Deadline</th><th>Completed</th><th>Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignments.map(a => {
-                    const task = getTask(a.task_id);
-                    return task ? (
-                      <tr key={a.id}>
-                        <td className="td-bold">{task.title}</td>
-                        <td><span className="badge badge-gray">{task.task_type}</span></td>
-                        <td><StatusBadge value={a.status} /></td>
-                        <td className="td-muted">{task.deadline}</td>
-                        <td className="td-muted">{a.completed_at || "—"}</td>
-                        <td style={{ fontWeight: 800, color: a.assignment_score >= 80 ? "var(--green)" : a.assignment_score ? "var(--amber)" : "var(--muted)" }}>
-                          {a.assignment_score ?? "—"}
-                        </td>
-                      </tr>
-                    ) : null;
-                  })}
-                  {assignments.length === 0 && (
-                    <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--muted)", padding: 20 }}>No assignments yet</td></tr>
-                  )}
-                </tbody>
-              </table>
+          {/* Workload Bar */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+              <span style={{ fontWeight: 700, color: "var(--text)" }}>Current Workload Capacity</span>
+              <span style={{ fontWeight: 800, color: wColor }}>{employee.workload_percentage}%</span>
+            </div>
+            <div className="progress-bar" style={{ height: 8 }}>
+              <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: `linear-gradient(90deg, #f5d982 0%, ${wColor} 100%)` }} />
             </div>
           </div>
 
-          {/* Feedback */}
+          {/* Skills list */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Validated Skills</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {skills.map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}
+            </div>
+          </div>
+
+          {/* Task History */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>Assigned Tasks ({assignments.length})</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {assignments.map(a => {
+                const t = getTask(a.task_id);
+                return (
+                  <div key={a.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "var(--surface)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}>
+                    <div>
+                      <span style={{ fontWeight: 600, fontSize: 13, color: "var(--text)" }}>{t?.title}</span>
+                      <span style={{ fontSize: 11.5, color: "var(--muted)", marginLeft: 8 }}>Due {t?.deadline} · {t?.estimated_hours}h</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <StatusBadge value={a.status} />
+                      {a.assignment_score && (
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "#f5d982" }}>{a.assignment_score}/100</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Feedback Received */}
           {feedback.length > 0 && (
-            <div style={{ padding: "14px 20px" }}>
-              <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 10 }}>Feedback Received</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>Received Feedback ({feedback.length})</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {feedback.map(f => {
-                  const giver = getUser(f.from_user_id);
-                  const task  = getTask(f.task_id);
+                  const author = getUser(f.from_user_id);
+                  const t = getTask(f.task_id);
                   return (
-                    <div key={f.id} style={{ padding: "12px 14px", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <span style={{ fontWeight: 600, fontSize: 13 }}>{giver?.name}</span>
-                          <span className="badge badge-gray">{giver?.role}</span>
-                          {task && <span style={{ fontSize: 12, color: "var(--muted)" }}>re: {task.title}</span>}
-                        </div>
+                    <div key={f.id} style={{ padding: "10px 14px", background: "var(--surface)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ fontWeight: 700, fontSize: 12.5, color: "var(--text)" }}>{author?.name} ({author?.role})</span>
                         <StarRating rating={f.rating} />
                       </div>
-                      <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5 }}>{f.comment}</p>
-                      <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 4 }}>{new Date(f.created_at).toLocaleDateString()}</div>
+                      <p style={{ fontSize: 12.5, color: "var(--text-2)", margin: 0 }}>"{f.comment}"</p>
+                      {t && <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>Task: {t.title}</div>}
                     </div>
                   );
                 })}
@@ -154,75 +144,113 @@ function EmployeeReportCard({ employee, expanded, onToggle, printMode }) {
 }
 
 export default function ProgressReport() {
-  const { user, managedDept } = useAuth();
-  const [deptF, setDeptF]   = useState(managedDept || "all");
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState({});
-  const [selected, setSelected] = useState("all"); // "all" or employee id for single report
-  const [printMode, setPrintMode] = useState(false);
+  const [deptF, setDeptF] = useState("all");
+  const [selectedEmp, setSelectedEmp] = useState("all");
 
-  const allDepts = [...new Set(EMPLOYEES.map(e => e.department))];
+  const isManager = user?.role === "manager";
+  const allEmployees = isManager ? getManagerEmployees(user.id) : EMPLOYEES;
+  const departments = [...new Set(allEmployees.map(e => e.department))];
 
-  const visibleEmps = EMPLOYEES.filter(emp => {
-    if (managedDept) return emp.department === managedDept;
-    if (deptF !== "all") return emp.department === deptF;
-    return true;
+  const filtered = allEmployees.filter(e => {
+    const matchDept = deptF === "all" || e.department === deptF;
+    const matchEmp  = selectedEmp === "all" || e.id === Number(selectedEmp);
+    return matchDept && matchEmp;
   });
 
-  const displayEmps = selected === "all" ? visibleEmps : visibleEmps.filter(e => e.id === Number(selected));
-
-  const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
-
-  const handlePrint = () => {
-    setPrintMode(true);
-    setTimeout(() => { window.print(); setPrintMode(false); }, 200);
+  const toggleExpand = (id) => setExpanded(e => ({ ...e, [id]: !e[id] }));
+  const expandAll = () => {
+    const all = {};
+    filtered.forEach(e => { all[e.id] = true; });
+    setExpanded(all);
   };
+  const collapseAll = () => setExpanded({});
+
+  const handlePrint = () => window.print();
+
+  const totalAssigned = TASK_ASSIGNMENTS.length;
+  const totalDone     = TASK_ASSIGNMENTS.filter(a => a.status === "completed").length;
+  const avgOrgScore   = 91;
+
+  const stats = [
+    { label: "Employees Audited", value: filtered.length,  trend: "Performance matrix" },
+    { label: "Tasks Evaluated",   value: totalDone,        trend: `${totalAssigned} total assigned` },
+    { label: "Avg Quality Score", value: avgOrgScore, suffix: "/100", trend: "High standard" },
+    { label: "On-Time Ratio",     value: 95, suffix: "%",  trend: "SLA met" },
+  ];
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Progress Reports</div>
-          <div className="page-subtitle">{displayEmps.length} employee{displayEmps.length !== 1 ? "s" : ""}</div>
+          <div className="page-title">Employee Progress Reports</div>
+          <div className="page-subtitle">Granular performance evaluations, completion metrics and feedback logs</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-secondary" onClick={handlePrint}><Printer size={15} /> Print</button>
+          <button className="btn btn-secondary" onClick={expandAll}>Expand All</button>
+          <button className="btn btn-secondary" onClick={collapseAll}>Collapse All</button>
+          <button className="btn btn-primary" onClick={handlePrint}>
+            <Printer size={15} /> Print / Export PDF
+          </button>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Cobalt Stat Cards */}
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
+        {stats.map((s, i) => (
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <span className="stat-dots">•••</span>
+              </div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} suffix={s.suffix || ""} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+              </div>
+            </motion.div>
+          </StaggerItem>
+        ))}
+      </StaggerContainer>
+
+      {/* Filter Bar */}
       <div className="filter-bar">
-        {!managedDept && (
-          <select className="filter-select" value={deptF} onChange={e => setDeptF(e.target.value)}>
+        {!isManager && (
+          <select className="filter-select" value={deptF} onChange={e => { setDeptF(e.target.value); setSelectedEmp("all"); }}>
             <option value="all">All Departments</option>
-            {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
+            {departments.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
         )}
-        <select className="filter-select" value={selected} onChange={e => setSelected(e.target.value)}>
+        <select className="filter-select" value={selectedEmp} onChange={e => setSelectedEmp(e.target.value)}>
           <option value="all">All Employees</option>
-          {visibleEmps.map(emp => {
-            const u = getEmployeeUser(emp);
-            return <option key={emp.id} value={emp.id}>{u?.name}</option>;
-          })}
+          {allEmployees
+            .filter(e => deptF === "all" || e.department === deptF)
+            .map(e => {
+              const u = getEmployeeUser(e);
+              return <option key={e.id} value={e.id}>{u?.name}</option>;
+            })}
         </select>
-        <button className="btn btn-secondary btn-sm" onClick={() => setExpanded(Object.fromEntries(visibleEmps.map(e => [e.id, true])))}>
-          Expand All
-        </button>
-        <button className="btn btn-secondary btn-sm" onClick={() => setExpanded({})}>Collapse All</button>
+        <span style={{ fontSize: 13, color: "var(--muted)", marginLeft: "auto" }}>
+          Showing {filtered.length} report{filtered.length !== 1 ? "s" : ""}
+        </span>
       </div>
 
+      {/* Reports List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {displayEmps.map(emp => (
+        {filtered.map(emp => (
           <EmployeeReportCard
             key={emp.id}
             employee={emp}
-            expanded={!!expanded[emp.id] || printMode}
-            onToggle={() => toggle(emp.id)}
-            printMode={printMode}
+            expanded={!!expanded[emp.id]}
+            onToggle={() => toggleExpand(emp.id)}
           />
         ))}
-        {displayEmps.length === 0 && (
-          <div className="card"><div className="empty-state"><h3>No employees found</h3></div></div>
-        )}
       </div>
     </div>
   );

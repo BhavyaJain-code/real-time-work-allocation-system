@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Users, X, UserCheck } from "lucide-react";
+import { Search, Plus, Users, X, UserCheck, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getTaskSkills, getMatchedEmployees, getEmployeeUser, getEmployeeSkills, initials, avatarColors, TASK_TYPE_LABEL, TASK_TYPE_BADGE } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
 import AssignTaskModal from "../components/AssignTaskModal";
+import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
 
 export default function Tasks() {
   const navigate  = useNavigate();
@@ -35,165 +37,196 @@ export default function Tasks() {
 
   const matched = selected ? getMatchedEmployees(selected.id) : [];
 
+  const taskStats = [
+    { label: "Total Tasks",      value: TASKS.length, trend: "In system" },
+    { label: "Critical Priority",value: TASKS.filter(t => t.priority === "critical").length, trend: "High urgency" },
+    { label: "In Progress",      value: TASKS.filter(t => t.status === "in_progress").length, trend: "Active work" },
+    { label: "Completed",        value: TASKS.filter(t => t.status === "done").length, trend: "Done" },
+  ];
+
   return (
     <>
       <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">Tasks</div>
-          <div className="page-subtitle">{TASKS.length} total tasks</div>
+        <div className="page-header">
+          <div>
+            <div className="page-title">Tasks Management</div>
+            <div className="page-subtitle">Track, Filter and Allocate Workload</div>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <motion.button
+              className="btn btn-secondary"
+              onClick={() => setShowAssign(true)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <UserCheck size={16} /> Assign Task
+            </motion.button>
+            <motion.button
+              className="btn btn-primary"
+              onClick={() => navigate("/admin/tasks/create")}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <Plus size={16} /> Create Task
+            </motion.button>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-secondary" onClick={() => setShowAssign(true)}>
-            <UserCheck size={16} /> Assign Task
-          </button>
-          <button className="btn btn-primary" onClick={() => navigate("/admin/tasks/create")}>
-            <Plus size={16} /> Create Task
-          </button>
-        </div>
-      </div>
 
-      <div className="filter-bar">
-        <div className="search-wrap">
-          <Search size={15} className="search-icon" />
-          <input className="search-input" placeholder="Search tasks…" value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <select className="filter-select" value={statusF} onChange={e => setStatusF(e.target.value)}>
-          <option value="all">All Statuses</option>
-          <option value="todo">To Do</option>
-          <option value="in_progress">In Progress</option>
-          <option value="review">In Review</option>
-          <option value="done">Done</option>
-        </select>
-        <select className="filter-select" value={priorityF} onChange={e => setPriorityF(e.target.value)}>
-          <option value="all">All Priorities</option>
-          <option value="critical">Critical</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-        <select className="filter-select" value={typeF} onChange={e => setTypeF(e.target.value)}>
-          <option value="all">All Types</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="yearly">Yearly</option>
-        </select>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
-          <button className={`btn btn-sm ${view === "grid"  ? "btn-primary" : "btn-secondary"}`} onClick={() => setView("grid")}>Grid</button>
-          <button className={`btn btn-sm ${view === "table" ? "btn-primary" : "btn-secondary"}`} onClick={() => setView("table")}>Table</button>
-        </div>
-      </div>
+        {/* Top Cobalt Metric Cards */}
+        <StaggerContainer className="stats-grid" staggerDelay={0.07}>
+          {taskStats.map((s, i) => (
+            <StaggerItem key={i}>
+              <motion.div
+                className="stat-card"
+                whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+              >
+                <div className="stat-card-header">
+                  <span className="stat-label">{s.label}</span>
+                  <span className="stat-dots">•••</span>
+                </div>
+                <div className="stat-value">
+                  <AnimatedNumber value={s.value} />
+                </div>
+                <div className="stat-sub">
+                  <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+                </div>
+              </motion.div>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
 
-      <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-        {/* Main content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {filtered.length === 0 ? (
-            <div className="card"><div className="empty-state"><h3>No tasks found</h3><p>Try adjusting your filters.</p></div></div>
-          ) : view === "grid" ? (
-            <div className="grid-2">
-              {filtered.map(t => (
-                <div key={t.id} onClick={() => setSelected(s => s?.id === t.id ? null : t)} style={{ cursor: "pointer" }}>
-                  <div style={{ border: selected?.id === t.id ? "2px solid var(--primary)" : "2px solid transparent", borderRadius: "var(--radius-lg)" }}>
-                    <div style={{ padding: "4px 10px", background: "var(--surface-2)", borderRadius: "var(--radius-lg) var(--radius-lg) 0 0", display: "flex", gap: 6, borderBottom: "1px solid var(--border)" }}>
-                      <span className={`badge ${TASK_TYPE_BADGE[t.task_type] || "badge-gray"}`}>{TASK_TYPE_LABEL[t.task_type]}</span>
-                    </div>
-                    <TaskCard task={t} />
-                  </div>
+        <div className="filter-bar">
+          <div className="search-wrap">
+            <Search size={15} className="search-icon" />
+            <input className="search-input" placeholder="Search tasks…" value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+          <select className="filter-select" value={statusF} onChange={e => setStatusF(e.target.value)}>
+            <option value="all">All Statuses</option>
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="review">In Review</option>
+            <option value="done">Done</option>
+          </select>
+          <select className="filter-select" value={priorityF} onChange={e => setPriorityF(e.target.value)}>
+            <option value="all">All Priorities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select className="filter-select" value={typeF} onChange={e => setTypeF(e.target.value)}>
+            <option value="all">All Types</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+          <div style={{ display: "flex", border: "1px solid var(--border)", borderRadius: "var(--radius)", overflow: "hidden", marginLeft: "auto" }}>
+            <button
+              className={`btn btn-sm ${view === "grid" ? "btn-primary" : "btn-ghost"}`}
+              style={{ borderRadius: 0 }}
+              onClick={() => setView("grid")}
+            >Grid</button>
+            <button
+              className={`btn btn-sm ${view === "kanban" ? "btn-primary" : "btn-ghost"}`}
+              style={{ borderRadius: 0 }}
+              onClick={() => setView("kanban")}
+            >Kanban</button>
+          </div>
+        </div>
+
+        {view === "grid" ? (
+          filtered.length === 0 ? (
+            <div className="card"><div className="empty-state"><h3>No tasks found</h3><p>Try adjusting your search filters.</p></div></div>
+          ) : (
+            <div className="grid-3">
+              {filtered.map(task => (
+                <div key={task.id} style={{ display: "flex", flexDirection: "column" }}>
+                  <TaskCard task={task} />
+                  <motion.button
+                    className="btn btn-secondary btn-sm"
+                    style={{ marginTop: 8, width: "100%", borderColor: "var(--border)" }}
+                    onClick={() => setSelected(selected?.id === task.id ? null : task)}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Users size={13} color="#ee27d7" /> {selected?.id === task.id ? "Hide Matches" : "Match Employees"}
+                  </motion.button>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="card">
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Est. Hours</th><th>Skills</th></tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map(t => {
-                      const skills = getTaskSkills(t.id);
-                      return (
-                        <tr key={t.id} style={{ cursor: "pointer", background: selected?.id === t.id ? "var(--primary-lt)" : undefined }} onClick={() => setSelected(s => s?.id === t.id ? null : t)}>
-                          <td><div className="td-bold">{t.title}</div><div className="td-muted">{t.description.slice(0,50)}…</div></td>
-                          <td><span className={`badge ${TASK_TYPE_BADGE[t.task_type]}`}>{TASK_TYPE_LABEL[t.task_type]}</span></td>
-                          <td><StatusBadge value={t.priority} type="priority" /></td>
-                          <td><StatusBadge value={t.status} /></td>
-                          <td className="td-muted">{t.deadline}</td>
-                          <td className="td-bold">{t.estimated_hours}h</td>
-                          <td><div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{skills.map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}</div></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Skill-match side panel */}
-        {selected && (
-          <div style={{ width: 300, flexShrink: 0 }}>
-            <div className="card">
-              <div className="card-header">
-                <span className="card-title" style={{ display: "flex", alignItems: "center", gap: 7 }}><Users size={15} /> Skill-Matched</span>
-                <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}><X size={15} /></button>
-              </div>
-              <div style={{ padding: "10px 14px", background: "var(--surface-2)", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 700, fontSize: 13 }}>{selected.title}</div>
-                <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
-                  {getTaskSkills(selected.id).map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}
-                </div>
-              </div>
-              {matched.length === 0 ? (
-                <div className="empty-state" style={{ padding: 24 }}><p>No employees match these skills.</p></div>
-              ) : matched.map(({ employee, matchCount, totalRequired }) => {
-                const user   = getEmployeeUser(employee);
-                const skills = getEmployeeSkills(employee.id);
-                const av     = avatarColors(user?.name || "");
-                const matchPct = Math.round((matchCount / totalRequired) * 100);
-                return (
-                  <div key={employee.id} style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
-                      <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.name}</div>
-                        <div style={{ fontSize: 11.5, color: "var(--text-2)" }}>{employee.department}</div>
-                      </div>
-                      <StatusBadge value={employee.availability_status} />
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <div className="progress-bar" style={{ flex: 1 }}>
-                        <div className="progress-fill" style={{ width: `${matchPct}%`, background: matchPct === 100 ? "var(--green)" : "var(--amber)" }} />
-                      </div>
-                      <span style={{ fontSize: 11.5, fontWeight: 700, color: matchPct === 100 ? "var(--green)" : "var(--amber)" }}>{matchCount}/{totalRequired}</span>
-                    </div>
-                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                      {skills.map(s => {
-                        const required = selected.required_skill_ids.includes(s.id);
-                        return (
-                          <span key={s.id} className="skill-tag" style={{ background: required ? "var(--green-lt)" : "var(--primary-lt)", color: required ? "#065f46" : "var(--primary-dk)", fontWeight: required ? 700 : 500 }}>
-                            {s.name}
-                          </span>
-                        );
-                      })}
-                    </div>
+          )
+        ) : (
+          <div className="kanban">
+            {["todo", "in_progress", "done"].map(col => {
+              const colTasks = filtered.filter(t => t.status === col);
+              const labels = { todo: "To Do", in_progress: "In Progress", done: "Done" };
+              return (
+                <div key={col} className="kanban-col">
+                  <div className="kanban-col-header">
+                    <span>{labels[col]}</span>
+                    <span className="kanban-col-count">{colTasks.length}</span>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="kanban-col-body">
+                    {colTasks.map(task => <TaskCard key={task.id} task={task} />)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
-      </div>
 
-      {showAssign && (
-        <AssignTaskModal
-          onClose={() => setShowAssign(false)}
-          onAssign={handleAssign}
-        />
+      {/* Skill Matching Slide-in / Modal panel */}
+      {selected && (
+        <div className="modal-overlay" onClick={() => setSelected(null)}>
+          <div className="modal" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <div className="modal-title">Matched Employees</div>
+                <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{selected.title}</div>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}><X size={16} /></button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {matched.length === 0 ? (
+                <p style={{ color: "var(--muted)", fontSize: 13 }}>No employees currently match the required skills.</p>
+              ) : (
+                matched.map(({ employee, matchCount, totalRequired }) => {
+                  const u = getEmployeeUser(employee);
+                  const av = avatarColors(u?.name || "");
+                  const skills = getEmployeeSkills(employee.id);
+                  const isAssigned = assignments.some(a => a.task_id === selected.id && a.employee_id === employee.id);
+                  return (
+                    <div key={employee.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: "var(--surface-2)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
+                      <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 13.5, color: "var(--text)" }}>{u?.name}</div>
+                        <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{employee.department} · {employee.workload_percentage}% workload</div>
+                        <div style={{ display: "flex", gap: 4, marginTop: 5, flexWrap: "wrap" }}>
+                          {skills.map(s => <span key={s.id} className="skill-tag" style={{ fontSize: 10 }}>{s.name}</span>)}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                        <span className="badge badge-accent">{matchCount}/{totalRequired} skills</span>
+                        {isAssigned ? (
+                          <span style={{ fontSize: 11, color: "var(--green)", fontWeight: 700 }}>✓ Assigned</span>
+                        ) : (
+                          <button className="btn btn-primary btn-sm" onClick={() => handleAssign(selected.id, employee.id)}>
+                            Assign
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Assign Task Modal */}
+      {showAssign && <AssignTaskModal onClose={() => setShowAssign(false)} onAssign={handleAssign} />}
     </>
   );
 }

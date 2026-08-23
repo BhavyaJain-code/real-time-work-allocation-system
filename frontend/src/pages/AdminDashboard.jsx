@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Users, CheckSquare, TrendingUp, ArrowRight, AlertCircle } from "lucide-react";
+import { ClipboardList, Users, CheckSquare, TrendingUp, ArrowRight, AlertCircle, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, USERS, getEmployeeUser, getTask, initials, avatarColors, getOverdueTasks } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
@@ -20,43 +20,63 @@ export default function AdminDashboard() {
   const recentAssignments = TASK_ASSIGNMENTS.slice(0, 5);
 
   const stats = [
-    { label: "Total Tasks",      value: totalTasks,      icon: <ClipboardList size={18} />, bg: "var(--primary-lt)",   color: "var(--primary)",   sub: `${activeTasks} in progress` },
-    { label: "Active Employees", value: activeEmployees, icon: <Users size={18} />,         bg: "var(--secondary-lt)", color: "var(--secondary-vibrant)", sub: `${EMPLOYEES.length} total` },
-    { label: "In Progress Tasks",value: activeTasks,     icon: <CheckSquare size={18} />,   bg: "var(--accent-lt)",    color: "var(--accent)",    sub: `${completionRate}% completed` },
-    { label: "Overdue Tasks",    value: overdueCount,    icon: <AlertCircle size={18} />,   bg: "var(--accent-lt)",    color: "#ff78ef",          sub: "Need attention" },
+    { label: "Total Tasks",      value: totalTasks,      trend: "+40% this month" },
+    { label: "Active Team",      value: activeEmployees, trend: `${EMPLOYEES.length} registered` },
+    { label: "Tasks In Progress",value: activeTasks,     trend: `${completionRate}% done` },
+    { label: "Overdue Alerts",   value: overdueCount,    trend: "Needs attention" },
   ];
 
   return (
     <div>
-      {/* Stats with Stagger and Animated Numbers */}
+      <div className="page-header">
+        <div>
+          <div className="page-title">Executive Dashboard</div>
+          <div className="page-subtitle">Real-time Task & Team Workload Allocation</div>
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          <motion.button
+            className="btn btn-accent"
+            onClick={() => navigate("/admin/tasks")}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <ClipboardList size={16} /> Manage Tasks
+          </motion.button>
+          <motion.button
+            className="btn btn-primary"
+            onClick={() => navigate("/admin/tasks/create")}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            + Create Task
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Top Row: Cobalt Stat Cards with Fuchsia Dots & Subtext */}
       <StaggerContainer className="stats-grid" staggerDelay={0.07}>
         {stats.map((s, i) => (
           <StaggerItem key={i}>
             <motion.div
               className="stat-card"
-              whileHover={{ y: -3, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
             >
               <div className="stat-card-header">
                 <span className="stat-label">{s.label}</span>
-                <motion.div
-                  className="stat-icon"
-                  style={{ background: s.bg, color: s.color }}
-                  whileHover={{ rotate: 12, scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  {s.icon}
-                </motion.div>
+                <span className="stat-dots">•••</span>
               </div>
               <div className="stat-value">
                 <AnimatedNumber value={s.value} />
               </div>
-              <div className="stat-sub">{s.sub}</div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+              </div>
             </motion.div>
           </StaggerItem>
         ))}
       </StaggerContainer>
 
-      {/* Two-column layout */}
+      {/* Middle Layout: Two Column & Sunset Banner */}
       <FadeIn delay={0.15}>
         <div className="grid-2" style={{ alignItems: "start" }}>
           {/* Recent Tasks */}
@@ -76,8 +96,8 @@ export default function AdminDashboard() {
                   whileHover={{ backgroundColor: "var(--surface-2)", x: 3, transition: { duration: 0.15 } }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task.title}</div>
-                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>Due {task.deadline}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task.title}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>Due {task.deadline} · {task.estimated_hours}h</div>
                   </div>
                   <StatusBadge value={task.priority} type="priority" />
                   <StatusBadge value={task.status} />
@@ -98,7 +118,7 @@ export default function AdminDashboard() {
               {EMPLOYEES.map(emp => {
                 const user = getEmployeeUser(emp);
                 const av   = avatarColors(user?.name || "");
-                const wColor = emp.workload_percentage >= 85 ? "var(--accent)" : emp.workload_percentage >= 60 ? "var(--primary)" : "var(--green)";
+                const wColor = emp.workload_percentage >= 85 ? "#ee27d7" : emp.workload_percentage >= 60 ? "#f5d982" : "#10b981";
                 return (
                   <motion.div
                     key={emp.id}
@@ -107,7 +127,7 @@ export default function AdminDashboard() {
                   >
                     <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.name}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.name}</div>
                       <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp.department}</div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 120 }}>
@@ -117,10 +137,10 @@ export default function AdminDashboard() {
                           initial={{ width: 0 }}
                           animate={{ width: `${emp.workload_percentage}%` }}
                           transition={{ duration: 0.8, ease: "easeOut" }}
-                          style={{ background: wColor }}
+                          style={{ background: `linear-gradient(90deg, #f5d982 0%, ${wColor} 100%)` }}
                         />
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: wColor, minWidth: 32 }}>{emp.workload_percentage}%</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: wColor, minWidth: 32 }}>{emp.workload_percentage}%</span>
                     </div>
                   </motion.div>
                 );
@@ -130,11 +150,11 @@ export default function AdminDashboard() {
         </div>
       </FadeIn>
 
-      {/* Recent Assignments */}
+      {/* Recent Assignments Table */}
       <FadeIn delay={0.22}>
         <div className="card" style={{ marginTop: 20 }}>
           <div className="card-header">
-            <span className="card-title">Recent Assignments</span>
+            <span className="card-title">Live Assignments Log</span>
             <button className="btn btn-ghost btn-sm" onClick={() => navigate("/admin/assignments")}>
               View all <ArrowRight size={14} />
             </button>
@@ -147,7 +167,7 @@ export default function AdminDashboard() {
                   <th>Employee</th>
                   <th>Assigned At</th>
                   <th>Status</th>
-                  <th>Score</th>
+                  <th>Performance Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -161,16 +181,18 @@ export default function AdminDashboard() {
                       key={a.id}
                       whileHover={{ backgroundColor: "var(--surface-2)" }}
                     >
-                      <td className="td-bold">{task?.title}</td>
+                      <td className="td-bold" style={{ color: "#ffffff" }}>{task?.title}</td>
                       <td>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
-                          {user?.name}
+                          <span style={{ fontWeight: 600 }}>{user?.name}</span>
                         </div>
                       </td>
                       <td className="td-muted">{a.assigned_at}</td>
                       <td><StatusBadge value={a.status} /></td>
-                      <td className="td-bold">{a.assignment_score ?? "—"}</td>
+                      <td style={{ fontWeight: 800, color: a.assignment_score >= 85 ? "#f5d982" : "#ff78ef" }}>
+                        {a.assignment_score ? `${a.assignment_score} / 100` : "—"}
+                      </td>
                     </motion.tr>
                   );
                 })}
@@ -180,13 +202,13 @@ export default function AdminDashboard() {
         </div>
       </FadeIn>
 
-      {/* Overdue Tasks — Highlighted in Fuchsia Accent */}
+      {/* Overdue Alert Banner */}
       {overdueCount > 0 && (
         <FadeIn delay={0.28}>
-          <div className="card" style={{ marginTop: 20, border: "1px solid var(--accent-border)", boxShadow: "0 4px 20px rgba(238, 39, 215, 0.25)" }}>
+          <div className="card" style={{ marginTop: 20, border: "1.5px solid var(--accent-border)", boxShadow: "0 6px 24px rgba(238, 39, 215, 0.25)" }}>
             <div className="card-header" style={{ background: "linear-gradient(135deg, rgba(238, 39, 215, 0.35) 0%, rgba(140, 15, 120, 0.2) 100%)", borderBottom: "1px solid var(--accent-border)" }}>
               <span className="card-title" style={{ color: "#ff78ef", display: "flex", alignItems: "center", gap: 8 }}>
-                <AlertCircle size={18} color="#ff78ef" /> Overdue Tasks ({overdueCount})
+                <AlertCircle size={18} color="#ff78ef" /> Critical Attention: {overdueCount} Overdue Tasks
               </span>
             </div>
             <div className="table-wrap">
@@ -212,7 +234,7 @@ export default function AdminDashboard() {
                           </div>
                         ) : <span className="td-muted">Unassigned</span>}
                       </td>
-                      <td style={{ color: "#ff78ef", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
+                      <td style={{ color: "#ff78ef", fontWeight: 800, fontSize: 13 }}>{task.deadline}</td>
                       <td><StatusBadge value={task.priority} type="priority" /></td>
                       <td><StatusBadge value={task.status} /></td>
                     </tr>

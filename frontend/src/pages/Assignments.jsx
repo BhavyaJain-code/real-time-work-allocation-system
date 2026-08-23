@@ -1,30 +1,48 @@
 import { TASK_ASSIGNMENTS, EMPLOYEES, TASKS, getEmployeeUser, getTask, initials, avatarColors } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
+import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Assignments() {
+  const stats = [
+    { label: "Assigned Queue",  value: TASK_ASSIGNMENTS.filter(a => a.status === "assigned").length,    trend: "Pending start" },
+    { label: "In Progress",     value: TASK_ASSIGNMENTS.filter(a => a.status === "in_progress").length, trend: "Active work" },
+    { label: "Completed",       value: TASK_ASSIGNMENTS.filter(a => a.status === "completed").length,   trend: "96% avg score" },
+    { label: "Cancelled",       value: TASK_ASSIGNMENTS.filter(a => a.status === "cancelled").length,   trend: "Archived" },
+  ];
+
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Assignments</div>
-          <div className="page-subtitle">{TASK_ASSIGNMENTS.length} total assignments</div>
+          <div className="page-title">Work Assignments</div>
+          <div className="page-subtitle">{TASK_ASSIGNMENTS.length} total active & completed allocations</div>
         </div>
       </div>
 
-      {/* Summary stats */}
-      <div className="stats-grid" style={{ marginBottom: 24 }}>
-        {[
-          { label: "Assigned",    value: TASK_ASSIGNMENTS.filter(a => a.status === "assigned").length,    cls: "badge-indigo" },
-          { label: "In Progress", value: TASK_ASSIGNMENTS.filter(a => a.status === "in_progress").length, cls: "badge-blue" },
-          { label: "Completed",   value: TASK_ASSIGNMENTS.filter(a => a.status === "completed").length,   cls: "badge-green" },
-          { label: "Cancelled",   value: TASK_ASSIGNMENTS.filter(a => a.status === "cancelled").length,   cls: "badge-red" },
-        ].map(s => (
-          <div className="stat-card" key={s.label}>
-            <span className={`badge ${s.cls}`} style={{ alignSelf: "flex-start" }}>{s.label}</span>
-            <div className="stat-value">{s.value}</div>
-          </div>
+      {/* Cobalt Stat Cards */}
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
+        {stats.map((s, i) => (
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <span className="stat-dots">•••</span>
+              </div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+              </div>
+            </motion.div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       <div className="card">
         <div className="table-wrap">
@@ -32,13 +50,12 @@ export default function Assignments() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Task</th>
-                <th>Employee</th>
-                <th>Assigned At</th>
-                <th>Started At</th>
-                <th>Completed At</th>
+                <th>Task Details</th>
+                <th>Assigned Employee</th>
+                <th>Assigned Date</th>
+                <th>Completed Date</th>
                 <th>Status</th>
-                <th>Score</th>
+                <th>Evaluation Score</th>
               </tr>
             </thead>
             <tbody>
@@ -51,31 +68,29 @@ export default function Assignments() {
                   <tr key={a.id}>
                     <td className="td-muted">#{a.id}</td>
                     <td>
-                      <div className="td-bold">{task?.title || "—"}</div>
-                      <div className="td-muted">{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
+                      <div className="td-bold" style={{ color: "var(--text)" }}>{task?.title || "—"}</div>
+                      <div style={{ marginTop: 4 }}>{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: 13 }}>{user?.name || "—"}</div>
+                          <div style={{ fontWeight: 700, fontSize: 13 }}>{user?.name || "—"}</div>
                           <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp?.department}</div>
                         </div>
                       </div>
                     </td>
                     <td className="td-muted">{a.assigned_at}</td>
-                    <td className="td-muted">{a.started_at || "—"}</td>
-                    <td className="td-muted">{a.completed_at || "—"}</td>
+                    <td className="td-muted">{a.completed_at || "In Progress"}</td>
                     <td><StatusBadge value={a.status} /></td>
                     <td>
                       {a.assignment_score ? (
-                        <span style={{
-                          fontWeight: 800, fontSize: 15,
-                          color: a.assignment_score >= 80 ? "var(--green)" : a.assignment_score >= 60 ? "var(--amber)" : "var(--red)"
-                        }}>
-                          {a.assignment_score}
+                        <span style={{ fontWeight: 800, color: "#f5d982", fontSize: 13.5 }}>
+                          {a.assignment_score} / 100
                         </span>
-                      ) : "—"}
+                      ) : (
+                        <span className="td-muted">—</span>
+                      )}
                     </td>
                   </tr>
                 );

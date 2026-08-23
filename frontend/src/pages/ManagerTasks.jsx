@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UserCheck, Plus, X, Users } from "lucide-react";
+import { Search, UserCheck, Plus, X, Users, TrendingUp } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   TASKS, EMPLOYEES, TASK_ASSIGNMENTS,
@@ -10,6 +10,8 @@ import {
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
 import AssignTaskModal from "../components/AssignTaskModal";
+import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { motion } from "framer-motion";
 
 export default function ManagerTasks() {
   const { user, managedDept } = useAuth();
@@ -20,9 +22,9 @@ export default function ManagerTasks() {
   const [priorityF,   setPriorityF]   = useState("all");
   const [typeF,       setTypeF]       = useState("all");
   const [view,        setView]        = useState("table");
-  const [selected,    setSelected]    = useState(null);   // task for skill panel
+  const [selected,    setSelected]    = useState(null);
   const [showAssign,  setShowAssign]  = useState(false);
-  const [assignTaskId,setAssignTaskId]= useState(null);   // pre-selected task for assign modal
+  const [assignTaskId,setAssignTaskId]= useState(null);
   const [assignments, setAssignments] = useState(TASK_ASSIGNMENTS);
 
   const myEmpIds = managedDept ? EMPLOYEES.filter(e => e.department === managedDept).map(e => e.id) : EMPLOYEES.map(e => e.id);
@@ -44,20 +46,54 @@ export default function ManagerTasks() {
       started_at: null, completed_at: null, assignment_score: null, status: "assigned",
     };
     setAssignments(a => [...a, newA]);
-    alert(`Task assigned successfully!`);
   };
+
+  const stats = [
+    { label: "Available Pool",    value: filtered.length, trend: `${managedDept} Tasks` },
+    { label: "High Priority",     value: filtered.filter(t => t.priority === "high" || t.priority === "critical").length, trend: "Requires focus" },
+    { label: "Assigned to Team",  value: filtered.filter(t => isAssigned(t.id)).length, trend: "In progress" },
+    { label: "Unassigned Queue",  value: filtered.filter(t => !isAssigned(t.id)).length, trend: "Ready to dispatch" },
+  ];
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Tasks</div>
-          <div className="page-subtitle">{managedDept ? `Managing for ${managedDept}` : ""} · {TASKS.length} total</div>
+          <div className="page-title">Department Work Allocation</div>
+          <div className="page-subtitle">{managedDept ? `Managing for ${managedDept}` : ""} · {TASKS.length} total tasks in pool</div>
         </div>
-        <button className="btn btn-primary" onClick={() => { setAssignTaskId(null); setShowAssign(true); }}>
-          <UserCheck size={16} /> Assign Task
-        </button>
+        <motion.button
+          className="btn btn-primary"
+          onClick={() => { setAssignTaskId(null); setShowAssign(true); }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <UserCheck size={16} /> Assign Task to Team
+        </motion.button>
       </div>
+
+      {/* Cobalt Stat Cards */}
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
+        {stats.map((s, i) => (
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <span className="stat-dots">•••</span>
+              </div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+              </div>
+            </motion.div>
+          </StaggerItem>
+        ))}
+      </StaggerContainer>
 
       <div className="filter-bar">
         <div className="search-wrap">
@@ -85,126 +121,135 @@ export default function ManagerTasks() {
           <option value="quarterly">Quarterly</option>
           <option value="yearly">Yearly</option>
         </select>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
-          <button className={`btn btn-sm ${view === "table" ? "btn-primary" : "btn-secondary"}`} onClick={() => setView("table")}>Table</button>
-          <button className={`btn btn-sm ${view === "grid"  ? "btn-primary" : "btn-secondary"}`} onClick={() => setView("grid")}>Grid</button>
+        <div style={{ display: "flex", border: "1px solid var(--border)", borderRadius: "var(--radius)", overflow: "hidden", marginLeft: "auto" }}>
+          <button className={`btn btn-sm ${view === "table" ? "btn-primary" : "btn-ghost"}`} style={{ borderRadius: 0 }} onClick={() => setView("table")}>Table</button>
+          <button className={`btn btn-sm ${view === "grid"  ? "btn-primary" : "btn-ghost"}`} style={{ borderRadius: 0 }} onClick={() => setView("grid")}>Grid</button>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {filtered.length === 0 ? (
-            <div className="card"><div className="empty-state"><h3>No tasks found</h3></div></div>
-          ) : view === "table" ? (
-            <div className="card">
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Assigned</th><th>Action</th></tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map(t => {
-                      const skills  = getTaskSkills(t.id);
-                      const assigned = isAssigned(t.id);
-                      return (
-                        <tr key={t.id}
-                          style={{ background: selected?.id === t.id ? "var(--primary-lt)" : undefined, cursor: "pointer" }}
-                          onClick={() => setSelected(s => s?.id === t.id ? null : t)}>
-                          <td>
-                            <div className="td-bold">{t.title}</div>
-                            <div style={{ display: "flex", gap: 4, marginTop: 3, flexWrap: "wrap" }}>
-                              {skills.map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}
-                            </div>
-                          </td>
-                          <td><span className={`badge ${TASK_TYPE_BADGE[t.task_type]}`}>{TASK_TYPE_LABEL[t.task_type]}</span></td>
-                          <td><StatusBadge value={t.priority} type="priority" /></td>
-                          <td><StatusBadge value={t.status} /></td>
-                          <td className="td-muted">{t.deadline}</td>
-                          <td>
-                            {assigned
-                              ? <span className="badge badge-green">Assigned</span>
-                              : <span className="badge badge-gray">Unassigned</span>}
-                          </td>
-                          <td onClick={e => e.stopPropagation()}>
-                            {!assigned && t.status !== "done" && (
-                              <button className="btn btn-primary btn-sm"
-                                onClick={() => { setAssignTaskId(t.id); setShowAssign(true); }}>
-                                <UserCheck size={13} /> Assign
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+      {view === "table" ? (
+        <div className="card">
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Type</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Deadline</th>
+                  <th>Est. Hours</th>
+                  <th>Required Skills</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(task => {
+                  const skills = getTaskSkills(task.id);
+                  const assigned = isAssigned(task.id);
+                  return (
+                    <tr key={task.id}>
+                      <td>
+                        <div className="td-bold" style={{ color: "var(--text)" }}>{task.title}</div>
+                        <div className="td-muted" style={{ maxWidth: 280, fontSize: 12 }}>{task.description}</div>
+                      </td>
+                      <td>
+                        <span className={`badge ${TASK_TYPE_BADGE[task.task_type] || "badge-gray"}`}>
+                          {TASK_TYPE_LABEL[task.task_type] || task.task_type}
+                        </span>
+                      </td>
+                      <td><StatusBadge value={task.priority} type="priority" /></td>
+                      <td><StatusBadge value={task.status} /></td>
+                      <td className="td-muted">{task.deadline}</td>
+                      <td><strong>{task.estimated_hours}h</strong></td>
+                      <td>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                          {skills.map(s => <span key={s.id} className="skill-tag" style={{ fontSize: 11 }}>{s.name}</span>)}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => setSelected(selected?.id === task.id ? null : task)}
+                          >
+                            <Users size={13} color="#ee27d7" /> Matches
+                          </button>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => { setAssignTaskId(task.id); setShowAssign(true); }}
+                          >
+                            Assign
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="grid-3">
+          {filtered.map(task => (
+            <div key={task.id} style={{ display: "flex", flexDirection: "column" }}>
+              <TaskCard task={task} />
+              <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => setSelected(selected?.id === task.id ? null : task)}>
+                  <Users size={13} color="#ee27d7" /> Matches
+                </button>
+                <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { setAssignTaskId(task.id); setShowAssign(true); }}>
+                  Assign
+                </button>
               </div>
             </div>
-          ) : (
-            <div className="grid-2">
-              {filtered.map(t => {
-                const assigned = isAssigned(t.id);
+          ))}
+        </div>
+      )}
+
+      {/* Skill Match Slide-in modal */}
+      {selected && (
+        <div className="modal-overlay" onClick={() => setSelected(null)}>
+          <div className="modal" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <div className="modal-title">Matched Employees ({managedDept})</div>
+                <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{selected.title}</div>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}><X size={16} /></button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {getMatchedEmployees(selected.id).map(({ employee, matchCount, totalRequired }) => {
+                const u = getEmployeeUser(employee);
+                const av = avatarColors(u?.name || "");
                 return (
-                  <div key={t.id} style={{ position: "relative" }}>
-                    <div style={{
-                      border: selected?.id === t.id ? "2px solid var(--primary)" : "2px solid transparent",
-                      borderRadius: "var(--radius-lg)",
-                    }} onClick={() => setSelected(s => s?.id === t.id ? null : t)}>
-                      <div style={{ padding: "4px 10px", display: "flex", gap: 6, justifyContent: "space-between", background: "var(--surface-2)", borderRadius: "var(--radius-lg) var(--radius-lg) 0 0", borderBottom: "1px solid var(--border)" }}>
-                        <span className={`badge ${TASK_TYPE_BADGE[t.task_type]}`}>{TASK_TYPE_LABEL[t.task_type]}</span>
-                        {!assigned && t.status !== "done" && (
-                          <button className="btn btn-primary btn-sm" style={{ padding: "2px 10px" }}
-                            onClick={e => { e.stopPropagation(); setAssignTaskId(t.id); setShowAssign(true); }}>
-                            <UserCheck size={12} /> Assign
-                          </button>
-                        )}
-                      </div>
-                      <TaskCard task={t} />
+                  <div key={employee.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "var(--surface-2)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
+                    <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13.5, color: "var(--text)" }}>{u?.name}</div>
+                      <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{employee.department} · {employee.workload_percentage}% workload</div>
                     </div>
+                    <span className="badge badge-accent">{matchCount}/{totalRequired} skills</span>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => { handleAssign(selected.id, employee.id); setSelected(null); }}
+                    >
+                      Assign
+                    </button>
                   </div>
                 );
               })}
             </div>
-          )}
-        </div>
-
-        {/* Skill-match panel */}
-        {selected && (
-          <div style={{ width: 280, flexShrink: 0 }}>
-            <div className="card">
-              <div className="card-header">
-                <span className="card-title" style={{ display: "flex", gap: 6, alignItems: "center" }}><Users size={14} /> Matched</span>
-                <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}><X size={14} /></button>
-              </div>
-              {getMatchedEmployees(selected.id)
-                .filter(m => myEmpIds.includes(m.employee.id))
-                .map(({ employee, matchCount, totalRequired }) => {
-                  const u  = getEmployeeUser(employee);
-                  const av = avatarColors(u?.name || "");
-                  return (
-                    <div key={employee.id} style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)" }}>
-                      <div style={{ display: "flex", gap: 9, alignItems: "center" }}>
-                        <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 700, fontSize: 13 }}>{u?.name}</div>
-                          <div style={{ fontSize: 11, color: "var(--muted)" }}>{matchCount}/{totalRequired} skills match</div>
-                        </div>
-                        <StatusBadge value={employee.availability_status} />
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showAssign && (
         <AssignTaskModal
-          onClose={() => { setShowAssign(false); setAssignTaskId(null); }}
+          preselectedTaskId={assignTaskId}
+          onClose={() => setShowAssign(false)}
           onAssign={handleAssign}
-          limitEmpIds={myEmpIds}
-          initialTaskId={assignTaskId}
         />
       )}
     </div>

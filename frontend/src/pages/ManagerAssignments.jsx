@@ -6,7 +6,9 @@ import {
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import AssignTaskModal from "../components/AssignTaskModal";
-import { UserCheck } from "lucide-react";
+import { UserCheck, TrendingUp } from "lucide-react";
+import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { motion } from "framer-motion";
 
 export default function ManagerAssignments() {
   const { managedDept } = useAuth();
@@ -17,9 +19,10 @@ export default function ManagerAssignments() {
   const myAssignments = assignments.filter(a => myEmpIds.includes(a.employee_id));
 
   const stats = [
-    { label: "Assigned",    value: myAssignments.filter(a => a.status === "assigned").length,    cls: "badge-indigo" },
-    { label: "In Progress", value: myAssignments.filter(a => a.status === "in_progress").length, cls: "badge-blue" },
-    { label: "Completed",   value: myAssignments.filter(a => a.status === "completed").length,   cls: "badge-green" },
+    { label: "Dept Assignments", value: myAssignments.length, trend: `${managedDept} team` },
+    { label: "Assigned Queue",   value: myAssignments.filter(a => a.status === "assigned").length, trend: "Ready to start" },
+    { label: "In Progress",      value: myAssignments.filter(a => a.status === "in_progress").length, trend: "Active work" },
+    { label: "Completed",        value: myAssignments.filter(a => a.status === "completed").length, trend: "Done" },
   ];
 
   const handleAssign = (taskId, empId) => {
@@ -35,35 +38,59 @@ export default function ManagerAssignments() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">{managedDept} Assignments</div>
-          <div className="page-subtitle">{myAssignments.length} total</div>
+          <div className="page-title">{managedDept} Assignments Registry</div>
+          <div className="page-subtitle">{myAssignments.length} total allocations for your managed team</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAssign(true)}>
-          <UserCheck size={16} /> Assign Task
-        </button>
+        <motion.button
+          className="btn btn-primary"
+          onClick={() => setShowAssign(true)}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <UserCheck size={16} /> Assign Task to Team
+        </motion.button>
       </div>
 
-      <div className="stats-grid" style={{ marginBottom: 24 }}>
-        {stats.map(s => (
-          <div className="stat-card" key={s.label}>
-            <span className={`badge ${s.cls}`} style={{ alignSelf: "flex-start" }}>{s.label}</span>
-            <div className="stat-value">{s.value}</div>
-          </div>
+      {/* Cobalt Stat Cards */}
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
+        {stats.map((s, i) => (
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <span className="stat-dots">•••</span>
+              </div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+              </div>
+            </motion.div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       <div className="card">
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>#</th><th>Task</th><th>Employee</th>
-                <th>Assigned At</th><th>Status</th><th>Score</th>
+                <th>#</th>
+                <th>Task Details</th>
+                <th>Assigned Employee</th>
+                <th>Assigned Date</th>
+                <th>Completed Date</th>
+                <th>Status</th>
+                <th>Evaluation Score</th>
               </tr>
             </thead>
             <tbody>
               {myAssignments.length === 0 ? (
-                <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--muted)", padding: 28 }}>No assignments yet.</td></tr>
+                <tr><td colSpan={7} className="empty-state">No assignments recorded for your department yet.</td></tr>
               ) : myAssignments.map(a => {
                 const task = getTask(a.task_id);
                 const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
@@ -73,22 +100,29 @@ export default function ManagerAssignments() {
                   <tr key={a.id}>
                     <td className="td-muted">#{a.id}</td>
                     <td>
-                      <div className="td-bold">{task?.title || "—"}</div>
-                      {task && <StatusBadge value={task.priority} type="priority" />}
+                      <div className="td-bold" style={{ color: "var(--text)" }}>{task?.title || "—"}</div>
+                      <div style={{ marginTop: 4 }}>{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: 13 }}>{user?.name || "—"}</div>
+                          <div style={{ fontWeight: 700, fontSize: 13 }}>{user?.name || "—"}</div>
                           <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp?.position}</div>
                         </div>
                       </div>
                     </td>
                     <td className="td-muted">{a.assigned_at}</td>
+                    <td className="td-muted">{a.completed_at || "In Progress"}</td>
                     <td><StatusBadge value={a.status} /></td>
-                    <td style={{ fontWeight: 800, color: a.assignment_score >= 80 ? "var(--green)" : a.assignment_score ? "var(--amber)" : "var(--muted)" }}>
-                      {a.assignment_score ?? "—"}
+                    <td>
+                      {a.assignment_score ? (
+                        <span style={{ fontWeight: 800, color: "#f5d982", fontSize: 13.5 }}>
+                          {a.assignment_score} / 100
+                        </span>
+                      ) : (
+                        <span className="td-muted">—</span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -99,11 +133,7 @@ export default function ManagerAssignments() {
       </div>
 
       {showAssign && (
-        <AssignTaskModal
-          onClose={() => setShowAssign(false)}
-          onAssign={handleAssign}
-          limitEmpIds={myEmpIds}
-        />
+        <AssignTaskModal onClose={() => setShowAssign(false)} onAssign={handleAssign} />
       )}
     </div>
   );

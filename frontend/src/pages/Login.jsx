@@ -26,7 +26,6 @@ export default function Login() {
     }
   };
 
-  // Demo shortcuts
   const demoLogin = (demoRole) => {
     const user = login("", "", demoRole);
     if (user) {
@@ -49,7 +48,7 @@ export default function Login() {
             whileHover={{ scale: 1.1, rotate: 6 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <Briefcase size={20} />
+            <Briefcase size={20} color="#0d0a01" />
           </motion.div>
           <span className="auth-left-brand-name">WorkFlow</span>
         </div>
@@ -57,22 +56,28 @@ export default function Login() {
         <h2>
           <TextEffect text="Intelligent work allocation for modern teams." mode="word" delay={0.05} />
         </h2>
-        <p>Assign the right tasks to the right people, in real time — based on skills, availability, and workload.</p>
+        <p>Assign the right tasks to the right people in real time — based on verified skills, availability, and capacity balance.</p>
 
-        <StaggerContainer className="auth-features" staggerDelay={0.1} delayChildren={0.3}>
-          {[
-            { icon: <CheckCircle2 size={15} />, text: "Skill-based smart task assignment" },
-            { icon: <Users size={15} />,        text: "Real-time employee availability tracking" },
-            { icon: <BarChart3 size={15} />,    text: "Live analytics & workload insights" },
-          ].map((f, i) => (
-            <StaggerItem key={i}>
-              <div className="auth-feature">
-                <div className="auth-feature-icon">{f.icon}</div>
-                <span className="auth-feature-text">{f.text}</span>
-              </div>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        <div className="auth-features">
+          <div className="auth-feature">
+            <div className="auth-feature-icon" style={{ background: "rgba(245, 217, 130, 0.16)", borderColor: "rgba(245, 217, 130, 0.35)", color: "#f5d982" }}>
+              <CheckCircle2 size={18} />
+            </div>
+            <div className="auth-feature-text">Skill-based automated heuristic matching algorithm</div>
+          </div>
+          <div className="auth-feature">
+            <div className="auth-feature-icon" style={{ background: "rgba(77, 92, 248, 0.22)", borderColor: "rgba(77, 92, 248, 0.45)", color: "#7d8bff" }}>
+              <Users size={18} />
+            </div>
+            <div className="auth-feature-text">Multi-role hierarchy: Executive Admin, Dept Managers & Employees</div>
+          </div>
+          <div className="auth-feature">
+            <div className="auth-feature-icon" style={{ background: "rgba(238, 39, 215, 0.20)", borderColor: "rgba(238, 39, 215, 0.45)", color: "#ee27d7" }}>
+              <BarChart3 size={18} />
+            </div>
+            <div className="auth-feature-text">Live telemetry, capacity charts & performance auditing</div>
+          </div>
+        </div>
       </motion.div>
 
       {/* Right panel */}
@@ -83,25 +88,70 @@ export default function Login() {
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="auth-right-inner">
-          <h1>Welcome back</h1>
-          <p>Sign in to continue to your workspace.</p>
+          <h1>Sign in</h1>
+          <p>Access your workspace portal</p>
 
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={{ padding: "10px 14px", background: "var(--red-lt)", color: "#991b1b", borderRadius: "var(--radius)", fontSize: 13, marginBottom: 16 }}
-            >
-              {error}
-            </motion.div>
-          )}
+          {/* Quick role shortcuts */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>
+              Fast Demo Access
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => demoLogin("admin")}
+                style={{ borderColor: "rgba(245, 217, 130, 0.35)", color: "#f5d982" }}
+              >
+                👑 Admin
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => demoLogin("manager")}
+                style={{ borderColor: "rgba(238, 39, 215, 0.4)", color: "#ee27d7" }}
+              >
+                👔 Manager
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => demoLogin("employee")}
+                style={{ borderColor: "rgba(77, 92, 248, 0.4)", color: "#7d8bff" }}
+              >
+                💻 Employee
+              </button>
+            </div>
+          </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && (
+              <div style={{ padding: "10px 14px", borderRadius: "var(--radius-sm)", background: "rgba(238, 39, 215, 0.2)", border: "1px solid rgba(238, 39, 215, 0.5)", color: "#ff78ef", fontSize: 13 }}>
+                {error}
+              </div>
+            )}
+
             <div className="auth-input-group">
-              <label>Email address</label>
+              <label>Role</label>
+              <div className="auth-input-wrap">
+                <select value={role} onChange={e => setRole(e.target.value)}>
+                  <option value="admin">Administrator (Executive view)</option>
+                  <option value="manager">Department Manager</option>
+                  <option value="employee">Employee (Personal view)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="auth-input-group">
+              <label>Email Address</label>
               <div className="auth-input-wrap">
                 <Mail size={16} />
-                <input type="email" placeholder="you@workflow.io" value={email} onChange={e => setEmail(e.target.value)} />
+                <input
+                  type="email"
+                  placeholder="name@workflow.io"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
               </div>
             </div>
 
@@ -109,53 +159,43 @@ export default function Login() {
               <label>Password</label>
               <div className="auth-input-wrap">
                 <Lock size={16} />
-                <input type={showPass ? "text" : "password"} placeholder="Enter password" value={password} onChange={e => setPassword(e.target.value)} />
-                <button type="button" className="pass-toggle" onClick={() => setShowPass(!showPass)}>
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                <input
+                  type={showPass ? "text" : "password"}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="pass-toggle"
+                  onClick={() => setShowPass(!showPass)}
+                >
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} color="#ee27d7" />}
                 </button>
-              </div>
-            </div>
-
-            <div className="auth-input-group">
-              <label>Sign in as</label>
-              <div className="auth-input-wrap">
-                <select value={role} onChange={e => setRole(e.target.value)}>
-                  <option value="admin">Admin / Leadership</option>
-                  <option value="manager">Department Manager</option>
-                  <option value="employee">Employee</option>
-                </select>
               </div>
             </div>
 
             <div className="auth-options">
               <label className="auth-remember">
-                <input type="checkbox" /> Remember me
+                <input type="checkbox" defaultChecked />
+                <span>Keep me signed in</span>
               </label>
-              <a href="#" className="auth-forgot">Forgot password?</a>
+              <a href="#" className="auth-forgot">Forgot?</a>
             </div>
 
             <motion.button
               type="submit"
               className="auth-submit"
-              whileHover={{ scale: 1.015 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Sign in <ArrowRight size={17} />
+              Sign In <ArrowRight size={16} />
             </motion.button>
           </form>
 
-          {/* Demo shortcuts */}
-          <div style={{ marginTop: 20, padding: "14px", background: "var(--surface-2)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
-            <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Demo Quick Access</p>
-            <div style={{ display: "flex", gap: 8 }}>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => demoLogin("admin")}>Admin Demo</motion.button>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => demoLogin("manager")}>Manager Demo</motion.button>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => demoLogin("employee")}>Employee Demo</motion.button>
-            </div>
-          </div>
-
           <div className="auth-switch">
-            Don't have an account? <Link to="/register">Create account</Link>
+            Don't have an account?
+            <Link to="/register">Create one</Link>
           </div>
         </div>
       </motion.div>

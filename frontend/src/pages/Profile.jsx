@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { EMPLOYEES, USERS, getEmployeeUser, getEmployeeSkills, getEmployeeAvailability, initials, avatarColors, getDepartmentManager, DEPARTMENT_MANAGERS } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
-import { User, Mail, Briefcase, Building, Edit2, Check, X } from "lucide-react";
+import { User, Mail, Briefcase, Building, Edit2, Check, X, Shield, Zap } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Profile() {
   const { user, employee, managedDept } = useAuth();
@@ -24,16 +25,24 @@ export default function Profile() {
   const handleSave = () => { setSaved({ ...form }); setEditing(false); };
   const handleCancel = () => { setForm({ ...saved }); setEditing(false); };
 
-  const wColor = employee ? (employee.workload_percentage >= 85 ? "var(--red)" : employee.workload_percentage >= 60 ? "var(--amber)" : "var(--green)") : null;
+  const wColor = employee ? (employee.workload_percentage >= 85 ? "#ee27d7" : employee.workload_percentage >= 60 ? "#f5d982" : "#10b981") : null;
 
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">My Profile</div>
+        <div>
+          <div className="page-title">Personal Profile & Identity</div>
+          <div className="page-subtitle">Manage credentials, department association, and competency details</div>
+        </div>
         {!editing && (
-          <button className="btn btn-secondary" onClick={() => setEditing(true)}>
-            <Edit2 size={15} /> Edit Profile
-          </button>
+          <motion.button
+            className="btn btn-secondary"
+            onClick={() => setEditing(true)}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Edit2 size={15} color="#ee27d7" /> Edit Profile
+          </motion.button>
         )}
       </div>
 
@@ -42,15 +51,26 @@ export default function Profile() {
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div className="card">
             <div className="profile-header">
-              <div className="avatar avatar-xl" style={{ background: av.bg, color: av.color }}>
+              <div
+                className="avatar avatar-xl"
+                style={{
+                  background: "linear-gradient(135deg, #f5d982 0%, #ee27d7 100%)",
+                  color: "#0d0a01",
+                  boxShadow: "0 6px 20px rgba(238, 39, 215, 0.4)",
+                  fontSize: 24,
+                  fontWeight: 900
+                }}
+              >
                 {initials(saved.name)}
               </div>
               <div className="profile-info">
                 <h2>{saved.name}</h2>
-                <p style={{ textTransform: "capitalize" }}>{user.role}{saved.department ? ` · ${saved.department}` : ""}</p>
+                <p style={{ textTransform: "capitalize", color: "#f5d982", fontWeight: 700 }}>
+                  {user.role}{saved.department ? ` · ${saved.department}` : ""}
+                </p>
                 {user.role === "manager" && managedDept && (
                   <div className="profile-meta">
-                    <span className="badge badge-indigo"><Building size={11} /> Manages {managedDept}</span>
+                    <span className="badge badge-pink"><Building size={12} /> Manages {managedDept}</span>
                   </div>
                 )}
                 <div className="profile-meta" style={{ marginTop: 6 }}>
@@ -64,68 +84,81 @@ export default function Profile() {
 
             <div className="card-body">
               {editing ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  {[
-                    { label: "Full Name",  key: "name",       type: "text" },
-                    { label: "Email",      key: "email",      type: "email" },
-                    ...(employee ? [
-                      { label: "Position",   key: "position",   type: "text" },
-                      { label: "Department", key: "department", type: "text" },
-                    ] : []),
-                  ].map(f => (
-                    <div className="field" key={f.key}>
-                      <label>{f.label}</label>
-                      <input
-                        className="field-input"
-                        type={f.type}
-                        value={form[f.key]}
-                        onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                      />
-                    </div>
-                  ))}
-                  <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                    <button className="btn btn-secondary" onClick={handleCancel}><X size={14} /> Cancel</button>
-                    <button className="btn btn-primary" onClick={handleSave}><Check size={14} /> Save Changes</button>
+                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="form-grid">
+                  <div className="field form-grid-full">
+                    <label>Full Name</label>
+                    <input className="field-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
                   </div>
-                </div>
+                  <div className="field form-grid-full">
+                    <label>Email Address</label>
+                    <input className="field-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required />
+                  </div>
+                  {employee && (
+                    <>
+                      <div className="field">
+                        <label>Position / Title</label>
+                        <input className="field-input" value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} />
+                      </div>
+                      <div className="field">
+                        <label>Department</label>
+                        <select className="field-select" value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}>
+                          <option value="Engineering">Engineering</option>
+                          <option value="Design">Design</option>
+                          <option value="Data">Data</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+                  <div className="form-grid-full" style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
+                    <button type="button" className="btn btn-ghost" onClick={handleCancel}><X size={15} /> Cancel</button>
+                    <button type="submit" className="btn btn-primary"><Check size={15} /> Save Changes</button>
+                  </div>
+                </form>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  {[
-                    ["Full Name",    saved.name,       <User size={13} />],
-                    ["Email",        saved.email,       <Mail size={13} />],
-                    ["Role",         user.role,         <Briefcase size={13} />],
-                    ...(employee ? [
-                      ["Position",   saved.position,   <Briefcase size={13} />],
-                      ["Department", saved.department,  <Building size={13} />],
-                      ["Max Load",   `${employee.max_workload}%`, null],
-                    ] : []),
-                    ...(user.role === "manager" ? [
-                      ["Manages",    managedDept || "—", <Building size={13} />],
-                    ] : []),
-                  ].map(([k, v, icon]) => (
-                    <div key={k} style={{ padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{k}</div>
-                      <div style={{ fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>{icon}{v}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
+                    <Mail size={16} color="#ee27d7" />
+                    <span style={{ color: "var(--muted)" }}>Email:</span>
+                    <strong style={{ color: "var(--text)" }}>{saved.email}</strong>
+                  </div>
+                  {saved.position && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
+                      <Briefcase size={16} color="#ee27d7" />
+                      <span style={{ color: "var(--muted)" }}>Position:</span>
+                      <strong style={{ color: "var(--text)" }}>{saved.position}</strong>
                     </div>
-                  ))}
+                  )}
+                  {saved.department && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
+                      <Building size={16} color="#ee27d7" />
+                      <span style={{ color: "var(--muted)" }}>Department:</span>
+                      <strong style={{ color: "var(--text)" }}>{saved.department}</strong>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
+                    <Shield size={16} color="#ee27d7" />
+                    <span style={{ color: "var(--muted)" }}>Access Level:</span>
+                    <span className="badge badge-accent" style={{ textTransform: "capitalize" }}>{user.role}</span>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Workload (employee only) */}
+          {/* Workload card (if employee) */}
           {employee && (
             <div className="card">
-              <div className="card-header"><span className="card-title">Workload & Availability</span></div>
+              <div className="card-header"><span className="card-title">Live Workload Capacity</span></div>
               <div className="card-body">
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
-                  <span style={{ fontWeight: 600 }}>Current Workload</span>
-                  <span style={{ fontWeight: 700, color: wColor }}>{employee.workload_percentage}%</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontWeight: 700 }}>Allocated Load</span>
+                  <span style={{ fontWeight: 800, fontSize: 20, color: wColor }}>{employee.workload_percentage}%</span>
                 </div>
-                <div className="progress-bar" style={{ height: 8 }}>
-                  <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: wColor }} />
+                <div className="progress-bar" style={{ height: 10 }}>
+                  <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: `linear-gradient(90deg, #f5d982 0%, ${wColor} 100%)` }} />
                 </div>
-                <div style={{ marginTop: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12, color: "var(--muted)" }}>
+                  <span>Max Capacity: {employee.max_workload || 100}%</span>
                   <StatusBadge value={employee.availability_status} />
                 </div>
               </div>
@@ -133,43 +166,40 @@ export default function Profile() {
           )}
         </div>
 
-        {/* Skills + credentials panel */}
+        {/* Right side: Skills & Availability */}
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          {skills.length > 0 && (
+          {employee && (
             <div className="card">
-              <div className="card-header"><span className="card-title">My Skills</span></div>
+              <div className="card-header"><span className="card-title">Registered Competencies</span></div>
               <div className="card-body">
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {skills.map(s => (
-                    <span key={s.id} className="skill-tag" style={{ padding: "5px 14px", fontSize: 13 }}>{s.name}</span>
-                  ))}
-                </div>
+                {skills.length === 0 ? (
+                  <p style={{ color: "var(--muted)", fontSize: 13 }}>No skills recorded.</p>
+                ) : (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {skills.map(s => (
+                      <span key={s.id} className="skill-tag" style={{ fontSize: 12.5, padding: "5px 10px" }}>
+                        <Zap size={12} color="#f5d982" /> {s.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {user.temp_password && (
-            <div className="card" style={{ border: "1px solid var(--amber-lt)" }}>
-              <div className="card-header" style={{ background: "var(--amber-lt)" }}>
-                <span className="card-title" style={{ color: "#92400e" }}>⚠ Temporary Password</span>
-              </div>
-              <div className="card-body">
-                <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 10 }}>Your account was created by an admin. Please change your password after first login.</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#fff", borderRadius: "var(--radius)", border: "1px solid var(--amber-lt)" }}>
-                  <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: 2 }}>{user.temp_password}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {avail.length > 0 && (
+          {employee && (
             <div className="card">
-              <div className="card-header"><span className="card-title">Recent Availability</span></div>
-              <div style={{ padding: "4px 0" }}>
-                {avail.slice(0, 5).map(a => (
-                  <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 18px", borderBottom: "1px solid var(--border)" }}>
-                    <span style={{ fontWeight: 600, fontSize: 13 }}>{a.date}</span>
-                    <StatusBadge value={a.status} />
+              <div className="card-header"><span className="card-title">Recent Weekly Schedule</span></div>
+              <div className="card-body" style={{ padding: 0 }}>
+                {avail.length === 0 ? (
+                  <p style={{ color: "var(--muted)", fontSize: 13, padding: 18 }}>No schedule set.</p>
+                ) : avail.slice(0, 5).map(r => (
+                  <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderBottom: "1px solid var(--border)" }}>
+                    <div>
+                      <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>{r.date}</span>
+                      <span style={{ fontSize: 11.5, color: "var(--muted)", marginLeft: 8 }}>{r.start_time} - {r.end_time}</span>
+                    </div>
+                    <StatusBadge value={r.status} />
                   </div>
                 ))}
               </div>

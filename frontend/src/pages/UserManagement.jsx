@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { UserPlus, Eye, EyeOff, X, ToggleLeft, ToggleRight, RefreshCw } from "lucide-react";
+import { UserPlus, Eye, EyeOff, X, ToggleLeft, ToggleRight, RefreshCw, TrendingUp } from "lucide-react";
 import { USERS, EMPLOYEES, initials, avatarColors } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
+import { StaggerContainer, StaggerItem, AnimatedNumber } from "../components/motion/MotionPrimitives";
+import { motion } from "framer-motion";
 
 function genPassword() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!";
@@ -40,17 +42,52 @@ export default function UserManagement() {
 
   const emp = (userId) => EMPLOYEES.find(e => e.user_id === userId);
 
+  const stats = [
+    { label: "Managed Accounts", value: users.length, trend: "Secure system" },
+    { label: "Managers",         value: users.filter(u => u.role === "manager").length, trend: "Dept heads" },
+    { label: "Active Employees", value: users.filter(u => u.role === "employee" && u.is_active).length, trend: "Allocated team" },
+    { label: "Disabled Accounts",value: users.filter(u => !u.is_active).length, trend: "Inactive" },
+  ];
+
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">User Management</div>
-          <div className="page-subtitle">Admin-only · {users.length} accounts</div>
+          <div className="page-title">User Account Control</div>
+          <div className="page-subtitle">Admin-only · {users.length} registered accounts</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <UserPlus size={16} /> Create Account
-        </button>
+        <motion.button
+          className="btn btn-primary"
+          onClick={() => setShowModal(true)}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <UserPlus size={16} /> Create User Account
+        </motion.button>
       </div>
+
+      {/* Cobalt Stat Cards */}
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
+        {stats.map((s, i) => (
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <span className="stat-dots">•••</span>
+              </div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
+              </div>
+            </motion.div>
+          </StaggerItem>
+        ))}
+      </StaggerContainer>
 
       <div className="filter-bar">
         <div className="search-wrap">
@@ -58,8 +95,8 @@ export default function UserManagement() {
         </div>
         <select className="filter-select" value={roleF} onChange={e => setRoleF(e.target.value)}>
           <option value="all">All Roles</option>
-          <option value="manager">Manager</option>
-          <option value="employee">Employee</option>
+          <option value="manager">Department Managers</option>
+          <option value="employee">Employees</option>
         </select>
       </div>
 
@@ -68,49 +105,71 @@ export default function UserManagement() {
           <table>
             <thead>
               <tr>
-                <th>User</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Department</th>
-                <th>Temp Password</th>
-                <th>Created</th>
+                <th>User Details</th>
+                <th>Role & Department</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Temporary Password</th>
+                <th>Created Date</th>
+                <th>Quick Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(u => {
-                const e = emp(u.id);
                 const av = avatarColors(u.name);
+                const employeeRecord = emp(u.id);
+                const isPassVisible = showPass[u.id];
                 return (
                   <tr key={u.id}>
                     <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u.name)}</div>
-                        <span style={{ fontWeight: 600, fontSize: 13 }}>{u.name}</span>
+                        <div>
+                          <div className="td-bold">{u.name}</div>
+                          <div className="td-muted">{u.email}</div>
+                        </div>
                       </div>
                     </td>
-                    <td className="td-muted">{u.email}</td>
-                    <td><span className={`badge ${u.role === "manager" ? "badge-purple" : "badge-blue"}`}>{u.role}</span></td>
-                    <td className="td-muted">{e?.department || "—"}</td>
+                    <td>
+                      <span className={`badge ${u.role === "manager" ? "badge-pink" : "badge-blue"}`} style={{ textTransform: "capitalize" }}>
+                        {u.role}
+                      </span>
+                      {employeeRecord && (
+                        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 3 }}>
+                          {employeeRecord.department} · {employeeRecord.position}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`badge ${u.is_active ? "badge-green" : "badge-gray"}`}>
+                        {u.is_active ? "Active" : "Disabled"}
+                      </span>
+                    </td>
                     <td>
                       {u.temp_password ? (
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <code style={{ fontSize: 12, background: "var(--surface-2)", padding: "2px 7px", borderRadius: 5, border: "1px solid var(--border)", letterSpacing: 1 }}>
-                            {showPass[u.id] ? u.temp_password : "••••••••"}
-                          </code>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setShowPass(p => ({ ...p, [u.id]: !p[u.id] }))}>
-                            {showPass[u.id] ? <EyeOff size={13} /> : <Eye size={13} />}
+                          <span style={{ fontFamily: "monospace", fontSize: 13, color: "#f5d982", background: "rgba(245, 217, 130, 0.12)", padding: "2px 8px", borderRadius: 4 }}>
+                            {isPassVisible ? u.temp_password : "••••••••"}
+                          </span>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ padding: 4 }}
+                            onClick={() => setShowPass(p => ({ ...p, [u.id]: !p[u.id] }))}
+                          >
+                            {isPassVisible ? <EyeOff size={13} /> : <Eye size={13} color="#ee27d7" />}
                           </button>
                         </div>
-                      ) : <span className="td-muted">—</span>}
+                      ) : (
+                        <span className="td-muted">Managed by user</span>
+                      )}
                     </td>
                     <td className="td-muted">{u.created_at}</td>
-                    <td><StatusBadge value={u.is_active ? "available" : "offline"} /></td>
                     <td>
-                      <button className="btn btn-ghost btn-sm" title={u.is_active ? "Deactivate" : "Activate"}
-                        onClick={() => toggleActive(u.id)} style={{ color: u.is_active ? "var(--red)" : "var(--green)" }}>
-                        {u.is_active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        style={{ color: u.is_active ? "#ee27d7" : "var(--green)" }}
+                        onClick={() => toggleActive(u.id)}
+                      >
+                        {u.is_active ? "Deactivate" : "Activate"}
                       </button>
                     </td>
                   </tr>
@@ -121,55 +180,51 @@ export default function UserManagement() {
         </div>
       </div>
 
+      {/* Create Account Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">Create Account</span>
+              <div className="modal-title">Create New User Account</div>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={16} /></button>
             </div>
-            <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div className="form-grid">
-                <div className="field">
-                  <label>Full Name *</label>
-                  <input className="field-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required placeholder="Full name" />
-                </div>
-                <div className="field">
-                  <label>Email *</label>
-                  <input className="field-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required placeholder="user@workflow.io" />
-                </div>
-                <div className="field">
-                  <label>Role *</label>
-                  <select className="field-select" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
-                    <option value="employee">Employee</option>
-                    <option value="manager">Manager</option>
-                  </select>
-                </div>
-                <div className="field">
-                  <label>Department</label>
-                  <select className="field-select" value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}>
-                    <option value="">Select department</option>
-                    {["Engineering","Design","Data","Product","QA"].map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
-                <div className="field form-grid-full">
-                  <label>Position</label>
-                  <input className="field-input" value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} placeholder="e.g. Senior Developer" />
-                </div>
-                <div className="field form-grid-full">
-                  <label>Temporary Password</label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input className="field-input" style={{ flex: 1 }} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm(f => ({ ...f, password: genPassword() }))}>
-                      <RefreshCw size={14} /> Regenerate
-                    </button>
-                  </div>
-                  <span style={{ fontSize: 11.5, color: "var(--muted)" }}>This password will be given to the user. They should change it on first login.</span>
+            <form onSubmit={handleCreate} className="form-grid">
+              <div className="field form-grid-full">
+                <label>Full Name</label>
+                <input className="field-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Alex Morgan" />
+              </div>
+              <div className="field form-grid-full">
+                <label>Email Address</label>
+                <input className="field-input" type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="alex@workflow.io" />
+              </div>
+              <div className="field">
+                <label>System Role</label>
+                <select className="field-select" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
+                  <option value="employee">Employee</option>
+                  <option value="manager">Department Manager</option>
+                </select>
+              </div>
+              <div className="field">
+                <label>Department</label>
+                <select className="field-select" value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}>
+                  <option value="">Select Department</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Design">Design</option>
+                  <option value="Data">Data</option>
+                </select>
+              </div>
+              <div className="field form-grid-full">
+                <label>Temporary Generated Password</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input className="field-input" readOnly value={form.password} style={{ fontFamily: "monospace", color: "#f5d982" }} />
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm(f => ({ ...f, password: genPassword() }))}>
+                    <RefreshCw size={14} />
+                  </button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary"><UserPlus size={14} /> Create Account</button>
+              <div className="modal-footer form-grid-full">
+                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Create User</button>
               </div>
             </form>
           </div>

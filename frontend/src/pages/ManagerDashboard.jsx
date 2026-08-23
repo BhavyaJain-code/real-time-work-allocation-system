@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Users, CheckSquare, Bell, ArrowRight, AlertCircle } from "lucide-react";
+import { ClipboardList, Users, CheckSquare, TrendingUp, ArrowRight, AlertCircle, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -28,51 +28,58 @@ export default function ManagerDashboard() {
   });
 
   const stats = [
-    { label: "Dept Employees",  value: myEmployees.length,  bg: "var(--primary-lt)",   color: "var(--primary)",   icon: <Users size={18} /> },
-    { label: "Active Tasks",    value: active.length,       bg: "var(--secondary-lt)", color: "var(--secondary-vibrant)", icon: <ClipboardList size={18} /> },
-    { label: "Completed",       value: completed.length,    bg: "var(--green-lt)",     color: "var(--green)",     icon: <CheckSquare size={18} /> },
-    { label: "Overdue",         value: overdue.length,      bg: "var(--accent-lt)",    color: "var(--accent)",    icon: <AlertCircle size={18} /> },
+    { label: "Team Members",    value: myEmployees.length,  trend: `${managedDept} Dept` },
+    { label: "Active Tasks",    value: active.length,       trend: "+28% velocity" },
+    { label: "Completed Tasks", value: completed.length,    trend: "100% on schedule" },
+    { label: "Overdue Alerts",  value: overdue.length,      trend: "Requires review" },
   ];
 
-  const wColor = (pct) => pct >= 85 ? "var(--accent)" : pct >= 60 ? "var(--primary)" : "var(--green)";
+  const wColor = (pct) => pct >= 85 ? "#ee27d7" : pct >= 60 ? "#f5d982" : "#10b981";
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">{managedDept} Department</div>
-          <div className="page-subtitle">Manager Dashboard · {user?.name}</div>
+          <div className="page-title">{managedDept} Department Overview</div>
+          <div className="page-subtitle">Manager Portal · {user?.name}</div>
         </div>
-        <motion.button
-          className="btn btn-primary"
-          onClick={() => navigate("/manager/tasks")}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <ClipboardList size={15} /> Manage Tasks
-        </motion.button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <motion.button
+            className="btn btn-accent"
+            onClick={() => navigate("/manager/tasks")}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <ClipboardList size={15} /> Department Tasks
+          </motion.button>
+          <motion.button
+            className="btn btn-primary"
+            onClick={() => navigate("/manager/assignments")}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Assign Tasks
+          </motion.button>
+        </div>
       </div>
 
+      {/* Top Cobalt Stat Cards */}
       <StaggerContainer className="stats-grid" staggerDelay={0.07}>
         {stats.map((s, i) => (
           <StaggerItem key={i}>
             <motion.div
               className="stat-card"
-              whileHover={{ y: -3, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
             >
               <div className="stat-card-header">
                 <span className="stat-label">{s.label}</span>
-                <motion.div
-                  className="stat-icon"
-                  style={{ background: s.bg, color: s.color }}
-                  whileHover={{ rotate: 12, scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  {s.icon}
-                </motion.div>
+                <span className="stat-dots">•••</span>
               </div>
               <div className="stat-value">
                 <AnimatedNumber value={s.value} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={14} color="#ee27d7" /> {s.trend}
               </div>
             </motion.div>
           </StaggerItem>
@@ -81,10 +88,10 @@ export default function ManagerDashboard() {
 
       <FadeIn delay={0.15}>
         <div className="grid-2" style={{ alignItems: "start" }}>
-          {/* My Employees */}
+          {/* My Team Members */}
           <div className="card">
             <div className="card-header">
-              <span className="card-title">My Team</span>
+              <span className="card-title">My Department Team</span>
               <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/employees")}>
                 View all <ArrowRight size={14} />
               </button>
@@ -103,20 +110,20 @@ export default function ManagerDashboard() {
                 >
                   <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{u?.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>{u?.name}</div>
                     <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp.position}</div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 110 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 120 }}>
                     <div className="progress-bar" style={{ flex: 1 }}>
                       <motion.div
                         className="progress-fill"
                         initial={{ width: 0 }}
                         animate={{ width: `${emp.workload_percentage}%` }}
                         transition={{ duration: 0.85, ease: "easeOut" }}
-                        style={{ background: wc }}
+                        style={{ background: `linear-gradient(90deg, #f5d982 0%, ${wc} 100%)` }}
                       />
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: wc, minWidth: 30 }}>{emp.workload_percentage}%</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: wc, minWidth: 32 }}>{emp.workload_percentage}%</span>
                   </div>
                   <StatusBadge value={emp.availability_status} />
                 </motion.div>
@@ -134,19 +141,19 @@ export default function ManagerDashboard() {
             </div>
             {myAssignments.length === 0 ? (
               <div className="empty-state" style={{ padding: 32 }}><p>No assignments yet.</p></div>
-            ) : myAssignments.slice(0, 6).map(a => {
+            ) : myAssignments.slice(0, 5).map(a => {
               const task = getTask(a.task_id);
               const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
               const u    = emp ? getEmployeeUser(emp) : null;
               return (
                 <motion.div
                   key={a.id}
-                  style={{ padding: "11px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}
+                  style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}
                   whileHover={{ backgroundColor: "var(--surface-2)" }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task?.title}</div>
-                    <div style={{ fontSize: 12, color: "var(--muted)" }}>{u?.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text)" }}>{task?.title}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{u?.name} · Score: <span style={{ color: "#f5d982", fontWeight: 700 }}>{a.assignment_score ?? "—"}</span></div>
                   </div>
                   <StatusBadge value={a.status} />
                 </motion.div>
@@ -156,10 +163,10 @@ export default function ManagerDashboard() {
         </div>
       </FadeIn>
 
-      {/* Overdue in dept */}
+      {/* Overdue in dept banner */}
       {overdue.length > 0 && (
         <FadeIn delay={0.25}>
-          <div className="card" style={{ marginTop: 20, border: "1px solid var(--accent-border)", boxShadow: "0 4px 20px rgba(238, 39, 215, 0.25)" }}>
+          <div className="card" style={{ marginTop: 20, border: "1.5px solid var(--accent-border)", boxShadow: "0 6px 24px rgba(238, 39, 215, 0.25)" }}>
             <div className="card-header" style={{ background: "linear-gradient(135deg, rgba(238, 39, 215, 0.35) 0%, rgba(140, 15, 120, 0.2) 100%)", borderBottom: "1px solid var(--accent-border)" }}>
               <span className="card-title" style={{ color: "#ff78ef", display: "flex", alignItems: "center", gap: 8 }}>
                 <AlertCircle size={18} color="#ff78ef" /> Overdue in {managedDept} ({overdue.length})
@@ -173,7 +180,7 @@ export default function ManagerDashboard() {
                     <tr key={task.id}>
                       <td className="td-bold" style={{ color: "#ff78ef" }}>{task.title}</td>
                       <td style={{ fontWeight: 600, fontSize: 13 }}>{assignee?.name || "Unassigned"}</td>
-                      <td style={{ color: "#ff78ef", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
+                      <td style={{ color: "#ff78ef", fontWeight: 800, fontSize: 13 }}>{task.deadline}</td>
                       <td><StatusBadge value={task.priority} type="priority" /></td>
                     </tr>
                   ))}
