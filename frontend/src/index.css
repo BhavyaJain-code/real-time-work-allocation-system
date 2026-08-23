@@ -1,7 +1,7 @@
 /* =============================================
-   FULL THEME: Exact RealtimeColors Dashboard Replica
-   - Background: #0d0a01 (Obsidian Dark)
-   - Stat Cards: #0c1033 / #10164c (Deep Cobalt Navy)
+   FULL THEME: Royal Gold, Cobalt & Electric Fuchsia
+   - Background: #080129 (Midnight Royal Indigo)
+   - Stat Cards: #100a45 / #150f56 (Deep Indigo Navy)
    - Primary:    #f5d982 (Champagne Gold)
    - Secondary:  #0c1597 (Royal Cobalt)
    - Accent:     #ee27d7 (Electric Neon Fuchsia)
@@ -16,18 +16,18 @@
   /* RealtimeColors Tokens */
   --text:         #fbf0d2;
   --text-2:       #d9c89a;
-  --muted:        #948259;
+  --muted:        #8e82a8;
 
-  --bg:           #0d0a01;
-  --background:   #0d0a01;
-  --surface:      #120e03;
-  --surface-2:    #1d1706;
-  --surface-3:    #292109;
+  --bg:           #080129;
+  --background:   #080129;
+  --surface:      #11093b;
+  --surface-2:    #1a1052;
+  --surface-3:    #25186b;
 
   /* Cobalt Navy Stat Card Surface */
-  --card-cobalt:  #0c1038;
-  --card-cobalt-top: #121854;
-  --card-cobalt-border: rgba(77, 92, 248, 0.35);
+  --card-cobalt:  #100a45;
+  --card-cobalt-top: #19125e;
+  --card-cobalt-border: rgba(125, 139, 255, 0.35);
 
   --primary:      #f5d982;
   --primary-raw:  #f5d982;
@@ -62,11 +62,11 @@
   --purple-lt:    rgba(238, 39, 215, 0.20);
 
   /* Sidebar Tokens */
-  --sb-bg:        #090701;
-  --sb-surface:   #140f02;
+  --sb-bg:        #05001d;
+  --sb-surface:   #0e0633;
   --sb-text:      #d9c89a;
   --sb-hover:     rgba(251, 240, 210, 0.08);
-  --sb-active-bg: linear-gradient(135deg, #181e6e 0%, #0c1597 100%);
+  --sb-active-bg: linear-gradient(135deg, #1f2882 0%, #0c1597 100%);
   --sb-active:    #ffffff;
 
   /* Radii & Shadows */
@@ -144,7 +144,7 @@ img { display: block; max-width: 100%; }
   position: sticky;
   top: 0;
   height: var(--topbar-h);
-  background: rgba(18, 14, 3, 0.88);
+  background: rgba(17, 9, 59, 0.88);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -176,7 +176,7 @@ img { display: block; max-width: 100%; }
   border-radius: 12px;
   background: linear-gradient(135deg, var(--primary) 0%, #ee27d7 100%);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 15px; color: #0d0a01;
+  font-weight: 800; font-size: 15px; color: #080129;
   flex-shrink: 0;
   box-shadow: 0 4px 16px rgba(238, 39, 215, 0.4);
 }
@@ -238,8 +238,8 @@ img { display: block; max-width: 100%; }
   background: var(--sb-active-bg);
   color: #ffffff;
   font-weight: 700;
-  border: 1px solid rgba(77, 92, 248, 0.45);
-  box-shadow: 0 4px 16px rgba(12, 21, 151, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(77, 92, 248, 0.55);
+  box-shadow: 0 4px 16px rgba(12, 21, 151, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .sb-link.active svg {
@@ -371,7 +371,7 @@ img { display: block; max-width: 100%; }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
-  color: #0d0a01;
+  color: #080129;
   font-weight: 800;
   border-color: rgba(245, 217, 130, 0.4);
   box-shadow: 0 4px 14px rgba(245, 217, 130, 0.35);
@@ -379,7 +379,7 @@ img { display: block; max-width: 100%; }
 
 .btn-primary:hover {
   background: var(--primary-dk);
-  color: #0d0a01;
+  color: #080129;
   box-shadow: 0 6px 20px rgba(245, 217, 130, 0.5);
   transform: translateY(-1px);
 }
@@ -494,7 +494,7 @@ img { display: block; max-width: 100%; }
   border: 1px solid var(--card-cobalt-border);
   border-radius: var(--radius-lg);
   padding: 20px 22px;
-  box-shadow: 0 8px 24px rgba(12, 16, 56, 0.6);
+  box-shadow: 0 8px 24px rgba(8, 1, 41, 0.6);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -504,7 +504,7 @@ img { display: block; max-width: 100%; }
 
 .stat-card:hover {
   border-color: rgba(238, 39, 215, 0.6);
-  box-shadow: 0 12px 32px rgba(12, 16, 56, 0.8), 0 0 20px rgba(238, 39, 215, 0.2);
+  box-shadow: 0 12px 32px rgba(8, 1, 41, 0.8), 0 0 20px rgba(238, 39, 215, 0.2);
 }
 
 .stat-card-header {
@@ -551,7 +551,7 @@ img { display: block; max-width: 100%; }
   background: linear-gradient(180deg, #f5d982 0%, #ee27d7 100%);
   border-radius: var(--radius-lg);
   padding: 24px;
-  color: #0d0a01;
+  color: #080129;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -563,13 +563,13 @@ img { display: block; max-width: 100%; }
   font-size: 17px;
   font-weight: 800;
   line-height: 1.35;
-  color: #0d0a01;
+  color: #080129;
 }
 
 .promo-card p {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(13, 10, 1, 0.85);
+  color: rgba(8, 1, 41, 0.85);
   margin-top: 8px;
 }
 
@@ -577,7 +577,7 @@ img { display: block; max-width: 100%; }
   align-self: flex-start;
   margin-top: 18px;
   background: #f5d982;
-  color: #0d0a01;
+  color: #080129;
   font-weight: 800;
   font-size: 13px;
   padding: 8px 18px;
@@ -613,12 +613,12 @@ img { display: block; max-width: 100%; }
 }
 
 .badge-gray    { background: rgba(251, 240, 210, 0.08); color: #d9c89a; border: 1px solid rgba(251, 240, 210, 0.15); }
-.badge-blue    { background: rgba(77, 92, 248, 0.22);   color: #7d8bff; border: 1.5px solid var(--secondary-border); box-shadow: 0 0 12px rgba(77, 92, 248, 0.35); }
+.badge-blue    { background: rgba(77, 92, 248, 0.25);   color: #9cb0ff; border: 1.5px solid var(--secondary-border); box-shadow: 0 0 12px rgba(77, 92, 248, 0.35); }
 .badge-green   { background: rgba(16, 185, 129, 0.18);  color: #34d399; border: 1px solid rgba(16, 185, 129, 0.40); }
 .badge-amber   { background: rgba(245, 217, 130, 0.18); color: #fce79f; border: 1.5px solid rgba(245, 217, 130, 0.50); box-shadow: 0 0 12px rgba(245, 217, 130, 0.3); }
 .badge-red     { background: rgba(238, 39, 215, 0.20);  color: #ff6eec; border: 1.5px solid var(--accent-border); box-shadow: 0 0 12px rgba(238, 39, 215, 0.35); }
 .badge-purple  { background: rgba(238, 39, 215, 0.20);  color: #ff6eec; border: 1.5px solid var(--accent-border); box-shadow: 0 0 12px rgba(238, 39, 215, 0.35); }
-.badge-indigo  { background: rgba(77, 92, 248, 0.22);   color: #7d8bff; border: 1.5px solid var(--secondary-border); }
+.badge-indigo  { background: rgba(77, 92, 248, 0.22);   color: #9cb0ff; border: 1.5px solid var(--secondary-border); }
 .badge-wine    { background: linear-gradient(135deg, rgba(238, 39, 215, 0.35) 0%, rgba(140, 15, 120, 0.25) 100%); color: #ff78ef; border: 1.5px solid rgba(238, 39, 215, 0.6); box-shadow: 0 0 14px rgba(238, 39, 215, 0.4); }
 .badge-accent  { background: linear-gradient(135deg, rgba(238, 39, 215, 0.35) 0%, rgba(140, 15, 120, 0.25) 100%); color: #ff78ef; border: 1.5px solid rgba(238, 39, 215, 0.6); box-shadow: 0 0 14px rgba(238, 39, 215, 0.4); }
 .badge-gold    { background: rgba(245, 217, 130, 0.20); color: #fce79f; border: 1.5px solid rgba(245, 217, 130, 0.50); box-shadow: 0 0 12px rgba(245, 217, 130, 0.3); }
@@ -761,7 +761,7 @@ tbody tr:hover {
   font-weight: 500;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23948259' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e82a8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   transition: border-color 0.15s;
@@ -1040,7 +1040,7 @@ tbody tr:hover {
 
 .auth-left {
   flex: 1;
-  background: #090701;
+  background: #05001d;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -1054,7 +1054,7 @@ tbody tr:hover {
   content: '';
   position: absolute;
   width: 440px; height: 440px;
-  background: radial-gradient(circle, rgba(245, 217, 130, 0.16) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(238, 39, 215, 0.2) 0%, transparent 70%);
   top: 10%; right: -120px;
   border-radius: 50%;
   pointer-events: none;
@@ -1072,8 +1072,8 @@ tbody tr:hover {
   border-radius: 12px;
   background: linear-gradient(135deg, var(--primary) 0%, #ee27d7 100%);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 17px; color: #0d0a01;
-  box-shadow: 0 4px 18px rgba(245, 217, 130, 0.4);
+  font-weight: 800; font-size: 17px; color: #080129;
+  box-shadow: 0 4px 18px rgba(238, 39, 215, 0.4);
 }
 
 .auth-left-brand-name {
@@ -1236,7 +1236,7 @@ tbody tr:hover {
 .auth-submit {
   height: 46px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
-  color: #0d0a01;
+  color: #080129;
   border: none;
   border-radius: var(--radius);
   font-size: 14.5px;
@@ -1252,7 +1252,7 @@ tbody tr:hover {
 
 .auth-submit:hover {
   background: var(--primary-dk);
-  color: #0d0a01;
+  color: #080129;
   transform: translateY(-1px);
 }
 
@@ -1355,7 +1355,7 @@ tbody tr:hover {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13, 10, 1, 0.84);
+  background: rgba(8, 1, 41, 0.86);
   display: flex;
   align-items: center;
   justify-content: center;
