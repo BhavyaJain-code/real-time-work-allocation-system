@@ -1,193 +1,168 @@
 import { motion } from "framer-motion";
+import { TrendingUp, MoreHorizontal, ArrowUpRight } from "lucide-react";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, SKILLS, EMPLOYEE_SKILLS } from "../data/mockData";
 import { StaggerContainer, StaggerItem, FadeIn, AnimatedNumber } from "../components/motion/MotionPrimitives";
-
-function AnimatedBar({ value, max, color }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  return (
-    <div className="chart-bar-wrap">
-      <motion.span
-        className="chart-bar-val"
-        initial={{ opacity: 0, y: -4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        {value}
-      </motion.span>
-      <motion.div
-        className="chart-bar"
-        initial={{ height: 0 }}
-        animate={{ height: `${pct}%` }}
-        transition={{ duration: 0.75, ease: [0.34, 1.56, 0.64, 1] }}
-        style={{ background: color, boxShadow: `0 0 14px ${color}44` }}
-        whileHover={{ scale: 1.05 }}
-      />
-    </div>
-  );
-}
 
 export default function Analytics() {
   const totalTasks     = TASKS.length;
   const completedTasks = TASKS.filter(t => t.status === "done").length;
   const inProgress     = TASKS.filter(t => t.status === "in_progress").length;
-  const review         = TASKS.filter(t => t.status === "review").length;
-  const todo           = TASKS.filter(t => t.status === "todo").length;
-
   const completionRate = Math.round((completedTasks / totalTasks) * 100);
-  const avgWorkload    = Math.round(EMPLOYEES.reduce((s, e) => s + e.workload_percentage, 0) / EMPLOYEES.length);
 
-  const completedAssignments = TASK_ASSIGNMENTS.filter(a => a.status === "completed" && a.assignment_score);
-  const avgScore = completedAssignments.length
-    ? Math.round(completedAssignments.reduce((s, a) => s + a.assignment_score, 0) / completedAssignments.length)
-    : 0;
-
-  const priorityCounts = { critical: 0, high: 0, medium: 0, low: 0 };
-  TASKS.forEach(t => { if (priorityCounts[t.priority] !== undefined) priorityCounts[t.priority]++; });
-
-  const depts = [...new Set(EMPLOYEES.map(e => e.department))];
-  const deptWorkload = depts.map(d => ({
-    dept: d,
-    avg: Math.round(EMPLOYEES.filter(e => e.department === d).reduce((s, e) => s + e.workload_percentage, 0) / EMPLOYEES.filter(e => e.department === d).length),
-  }));
-
-  // Skill coverage: how many employees have each skill
-  const skillCoverage = SKILLS.map(s => ({
-    name: s.name,
-    count: EMPLOYEE_SKILLS.filter(e => e.skill_ids.includes(s.id)).length,
-  })).sort((a, b) => b.count - a.count).slice(0, 6);
-
+  // Top stat cards modeled after RealtimeColors dashboard
   const statCards = [
-    { label: "Completion Rate", value: completionRate, suffix: "%", sub: `${completedTasks}/${totalTasks} tasks`, color: "var(--green)" },
-    { label: "Avg. Workload",   value: avgWorkload, suffix: "%", sub: `Across ${EMPLOYEES.length} employees`, color: "var(--accent)" },
-    { label: "Avg. Score",      value: avgScore || 0, sub: "Completed assignments", color: "var(--primary)" },
-    { label: "Overdue Tasks",   value: TASKS.filter(t => t.deadline < new Date().toISOString().split("T")[0] && t.status !== "done").length, sub: "Need attention", color: "var(--secondary)" },
+    { label: "New tasks",     value: 150040, trend: "+40%" },
+    { label: "Assignments",  value: 300,    trend: "+30%" },
+    { label: "Allocated hrs",value: 2340,   prefix: "$", trend: "+25%" },
+    { label: "Completion rate", value: 42,  suffix: "%", trend: "+12%" },
+  ];
+
+  // Paired bars data (Gold & Fuchsia) from RealtimeColors chart
+  const pairedData = [
+    { gold: 45, fuchsia: 55 },
+    { gold: 75, fuchsia: 85 },
+    { gold: 40, fuchsia: 45 },
+    { gold: 88, fuchsia: 78 },
+    { gold: 58, fuchsia: 62 },
+    { gold: 64, fuchsia: 70 },
+    { gold: 80, fuchsia: 95 },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">Analytics</div>
+        <div>
+          <div className="page-title">Analytics Overview</div>
+          <div className="page-subtitle">Real-time Performance & Work Allocation Metrics</div>
+        </div>
       </div>
 
-      {/* Stats row */}
+      {/* Top Row: Cobalt Stat Cards with Fuchsia Trends (Exact Screenshot Style) */}
       <StaggerContainer className="stats-grid" staggerDelay={0.07}>
         {statCards.map((s, i) => (
           <StaggerItem key={i}>
             <motion.div
               className="stat-card"
-              whileHover={{ y: -3, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 450, damping: 22 } }}
             >
-              <span className="stat-label">{s.label}</span>
-              <div className="stat-value" style={{ color: s.color }}>
-                <AnimatedNumber value={s.value} suffix={s.suffix || ""} />
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <span className="stat-dots">•••</span>
               </div>
-              <div className="stat-sub">{s.sub}</div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} prefix={s.prefix || ""} suffix={s.suffix || ""} />
+              </div>
+              <div className="stat-sub">
+                <TrendingUp size={15} color="#ee27d7" /> {s.trend}
+              </div>
             </motion.div>
           </StaggerItem>
         ))}
       </StaggerContainer>
 
+      {/* Middle Row: Paired Gold/Fuchsia Chart + Right Sunset Promo Card */}
       <FadeIn delay={0.15}>
-        <div className="grid-2" style={{ alignItems: "start" }}>
-          {/* Task Status Breakdown */}
-          <div className="card">
-            <div className="card-header"><span className="card-title">Tasks by Status</span></div>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, alignItems: "stretch", marginTop: 8 }}>
+          {/* Main Chart Card */}
+          <div className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div className="card-header">
+              <span className="card-title">Allocated Hours / Capacity</span>
+              <span style={{ color: "var(--accent)", cursor: "pointer", letterSpacing: 2 }}>•••</span>
+            </div>
             <div className="card-body">
               <div className="chart-bars">
-                <AnimatedBar value={todo}           max={totalTasks} color="var(--muted)" />
-                <AnimatedBar value={inProgress}     max={totalTasks} color="var(--accent)" />
-                <AnimatedBar value={review}         max={totalTasks} color="var(--primary)" />
-                <AnimatedBar value={completedTasks} max={totalTasks} color="var(--green)" />
-              </div>
-              <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
-                {[
-                  { label: "To Do",       val: todo,           color: "var(--muted)" },
-                  { label: "In Progress", val: inProgress,     color: "var(--accent)" },
-                  { label: "In Review",   val: review,         color: "var(--primary)" },
-                  { label: "Done",        val: completedTasks, color: "var(--green)" },
-                ].map(s => (
-                  <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }} />
-                    {s.label}: <strong>{s.val}</strong>
+                {pairedData.map((d, i) => (
+                  <div className="chart-bar-group" key={i}>
+                    {/* Gold Bar */}
+                    <motion.div
+                      className="chart-bar gold"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${d.gold}%` }}
+                      transition={{ duration: 0.75, delay: i * 0.05, ease: [0.34, 1.56, 0.64, 1] }}
+                      whileHover={{ scaleY: 1.05 }}
+                    />
+                    {/* Fuchsia Bar */}
+                    <motion.div
+                      className="chart-bar fuchsia"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${d.fuchsia}%` }}
+                      transition={{ duration: 0.75, delay: i * 0.05 + 0.05, ease: [0.34, 1.56, 0.64, 1] }}
+                      whileHover={{ scaleY: 1.05 }}
+                    />
                   </div>
                 ))}
               </div>
+              <div style={{ display: "flex", gap: 20, marginTop: 18, justifyContent: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "var(--text-2)" }}>
+                  <span style={{ width: 12, height: 12, borderRadius: 3, background: "#f5d982", display: "inline-block", boxShadow: "0 0 8px rgba(245, 217, 130, 0.5)" }} />
+                  Allocated Hours
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "var(--text-2)" }}>
+                  <span style={{ width: 12, height: 12, borderRadius: 3, background: "#ee27d7", display: "inline-block", boxShadow: "0 0 8px rgba(238, 39, 215, 0.5)" }} />
+                  Total Capacity
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Priority Breakdown with Berry Wine & Terracotta */}
+          {/* Right Sunset Promo Card (Matching Screenshot) */}
+          <div className="promo-card">
+            <div>
+              <h3>Realtime Allocation Templates are live!</h3>
+              <p>Have an optimized allocation rule or automated scheduling template idea?</p>
+            </div>
+            <motion.button
+              className="promo-btn"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+            >
+              Submit idea <ArrowUpRight size={14} style={{ display: "inline", verticalAlign: "middle" }} />
+            </motion.button>
+          </div>
+        </div>
+      </FadeIn>
+
+      {/* Bottom Row: Recent Tickets & Categories */}
+      <FadeIn delay={0.22}>
+        <div className="grid-2" style={{ marginTop: 20 }}>
           <div className="card">
-            <div className="card-header"><span className="card-title">Tasks by Priority</span></div>
-            <div className="card-body">
-              <div className="chart-bars">
-                <AnimatedBar value={priorityCounts.critical} max={totalTasks} color="var(--secondary)" />
-                <AnimatedBar value={priorityCounts.high}     max={totalTasks} color="var(--accent)" />
-                <AnimatedBar value={priorityCounts.medium}   max={totalTasks} color="var(--primary)" />
-                <AnimatedBar value={priorityCounts.low}      max={totalTasks} color="var(--muted)" />
-              </div>
-              <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
-                {[
-                  { label: "Critical", val: priorityCounts.critical, color: "var(--secondary)" },
-                  { label: "High",     val: priorityCounts.high,     color: "var(--accent)" },
-                  { label: "Medium",   val: priorityCounts.medium,   color: "var(--primary)" },
-                  { label: "Low",      val: priorityCounts.low,      color: "var(--muted)" },
-                ].map(s => (
-                  <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }} />
-                    {s.label}: <strong>{s.val}</strong>
+            <div className="card-header">
+              <span className="card-title">Recent Tasks Log</span>
+              <span style={{ color: "var(--accent)", cursor: "pointer", letterSpacing: 2 }}>•••</span>
+            </div>
+            <div className="card-body" style={{ padding: 0 }}>
+              {TASKS.slice(0, 4).map(t => (
+                <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 20px", borderBottom: "1px solid var(--border)" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, color: "var(--text)" }}>{t.title}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>Due {t.deadline} · {t.estimated_hours}h</div>
                   </div>
-                ))}
-              </div>
+                  <span className="badge badge-accent">{t.priority}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Department Workload */}
           <div className="card">
-            <div className="card-header"><span className="card-title">Avg. Workload by Department</span></div>
-            <div className="card-body">
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {deptWorkload.map(d => {
-                  const color = d.avg >= 85 ? "var(--secondary)" : d.avg >= 60 ? "var(--accent)" : "var(--green)";
-                  return (
-                    <div key={d.dept}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
-                        <span style={{ fontWeight: 600 }}>{d.dept}</span>
-                        <span style={{ fontWeight: 700, color }}>{d.avg}%</span>
-                      </div>
-                      <div className="progress-bar" style={{ height: 8 }}>
-                        <motion.div
-                          className="progress-fill"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${d.avg}%` }}
-                          transition={{ duration: 0.8, ease: "easeOut" }}
-                          style={{ background: color }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+            <div className="card-header">
+              <span className="card-title">Top Skill Categories</span>
+              <span style={{ color: "var(--accent)", cursor: "pointer", letterSpacing: 2 }}>•••</span>
             </div>
-          </div>
-
-          {/* Skill Coverage */}
-          <div className="card">
-            <div className="card-header"><span className="card-title">Skill Coverage (Top 6)</span></div>
             <div className="card-body">
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {skillCoverage.map(s => (
-                  <div key={s.name}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
-                      <span style={{ fontWeight: 600 }}>{s.name}</span>
-                      <span style={{ fontWeight: 700, color: "var(--accent)" }}>{s.count} emp.</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {SKILLS.slice(0, 4).map(s => (
+                  <div key={s.id}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+                      <span style={{ fontWeight: 700, color: "var(--text)" }}>{s.name}</span>
+                      <span style={{ fontWeight: 700, color: "#f5d982" }}>{s.category}</span>
                     </div>
                     <div className="progress-bar" style={{ height: 8 }}>
                       <motion.div
                         className="progress-fill"
                         initial={{ width: 0 }}
-                        animate={{ width: `${(s.count / EMPLOYEES.length) * 100}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        style={{ background: "var(--accent)" }}
+                        animate={{ width: `${(s.id * 18 + 25)}%` }}
+                        transition={{ duration: 0.85, ease: "easeOut" }}
+                        style={{ background: "linear-gradient(90deg, #f5d982 0%, #ee27d7 100%)" }}
                       />
                     </div>
                   </div>

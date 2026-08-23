@@ -1,11 +1,11 @@
 /* =============================================
-   FULL THEME: Royal Gold, Cobalt & Electric Fuchsia
-   URL: https://www.realtimecolors.com/dashboard?colors=fbf0d2-0d0a01-f5d982-0c1597-ee27d7&fonts=Noto%20Sans%20Pahawh%20Hmong-Noto%20Sans%20Pahawh%20Hmong
-   --text:       #fbf0d2;
-   --background: #0d0a01;
-   --primary:    #f5d982;
-   --secondary:  #0c1597;
-   --accent:     #ee27d7;
+   FULL THEME: Exact RealtimeColors Dashboard Replica
+   - Background: #0d0a01 (Obsidian Dark)
+   - Stat Cards: #0c1033 / #10164c (Deep Cobalt Navy)
+   - Primary:    #f5d982 (Champagne Gold)
+   - Secondary:  #0c1597 (Royal Cobalt)
+   - Accent:     #ee27d7 (Electric Neon Fuchsia)
+   - Text:       #fbf0d2 (Warm Champagne)
 ============================================= */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -20,9 +20,14 @@
 
   --bg:           #0d0a01;
   --background:   #0d0a01;
-  --surface:      #181303;
-  --surface-2:    #241c05;
-  --surface-3:    #332808;
+  --surface:      #120e03;
+  --surface-2:    #1d1706;
+  --surface-3:    #292109;
+
+  /* Cobalt Navy Stat Card Surface */
+  --card-cobalt:  #0c1038;
+  --card-cobalt-top: #121854;
+  --card-cobalt-border: rgba(77, 92, 248, 0.35);
 
   --primary:      #f5d982;
   --primary-raw:  #f5d982;
@@ -59,19 +64,19 @@
   /* Sidebar Tokens */
   --sb-bg:        #090701;
   --sb-surface:   #140f02;
-  --sb-text:      #b8a77f;
-  --sb-hover:     rgba(251, 240, 210, 0.07);
-  --sb-active-bg: rgba(245, 217, 130, 0.16);
-  --sb-active:    #f5d982;
+  --sb-text:      #d9c89a;
+  --sb-hover:     rgba(251, 240, 210, 0.08);
+  --sb-active-bg: linear-gradient(135deg, #181e6e 0%, #0c1597 100%);
+  --sb-active:    #ffffff;
 
   /* Radii & Shadows */
-  --radius-sm:  7px;
-  --radius:     11px;
+  --radius-sm:  8px;
+  --radius:     12px;
   --radius-lg:  16px;
   --radius-xl:  22px;
-  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.45);
-  --shadow:     0 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-lg:  0 16px 42px rgba(0, 0, 0, 0.75);
+  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.5);
+  --shadow:     0 8px 24px rgba(0, 0, 0, 0.65);
+  --shadow-lg:  0 16px 42px rgba(0, 0, 0, 0.8);
   --shadow-glow:0 0 28px rgba(245, 217, 130, 0.32);
 
   font-family: 'Plus Jakarta Sans', 'Noto Sans Pahawh Hmong', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -139,7 +144,7 @@ img { display: block; max-width: 100%; }
   position: sticky;
   top: 0;
   height: var(--topbar-h);
-  background: rgba(24, 19, 3, 0.85);
+  background: rgba(18, 14, 3, 0.88);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -156,7 +161,7 @@ img { display: block; max-width: 100%; }
 }
 
 /* =============================================
-   SIDEBAR
+   SIDEBAR (Matching Screenshot)
 ============================================= */
 .sb-brand {
   display: flex;
@@ -168,12 +173,12 @@ img { display: block; max-width: 100%; }
 
 .sb-logo {
   width: 38px; height: 38px;
-  border-radius: 11px;
+  border-radius: 12px;
   background: linear-gradient(135deg, var(--primary) 0%, #ee27d7 100%);
   display: flex; align-items: center; justify-content: center;
   font-weight: 800; font-size: 15px; color: #0d0a01;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(245, 217, 130, 0.35);
+  box-shadow: 0 4px 16px rgba(238, 39, 215, 0.4);
 }
 
 .sb-brand-name {
@@ -200,33 +205,46 @@ img { display: block; max-width: 100%; }
 .sb-link {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 10px 12px;
-  border-radius: var(--radius);
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-lg);
   color: var(--sb-text);
   font-size: 13.5px;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s, transform 0.1s;
+  font-weight: 600;
+  transition: all 0.15s ease;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   width: 100%;
   text-align: left;
 }
 
+.sb-link svg {
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
 .sb-link:hover {
   background: var(--sb-hover);
-  color: var(--text);
+  color: #ffffff;
+}
+
+.sb-link:hover svg {
+  transform: scale(1.1);
 }
 
 .sb-link.active {
   background: var(--sb-active-bg);
-  color: var(--sb-active);
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: inset 3px 0 0 var(--sb-active);
+  border: 1px solid rgba(77, 92, 248, 0.45);
+  box-shadow: 0 4px 16px rgba(12, 21, 151, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
-.sb-link svg { flex-shrink: 0; }
+.sb-link.active svg {
+  color: #ffffff;
+}
 
 .sb-bottom {
   margin-top: auto;
@@ -462,7 +480,7 @@ img { display: block; max-width: 100%; }
 }
 
 /* =============================================
-   STATS GRID & STAT CARD
+   STATS GRID & COBALT STAT CARDS (Screenshot Style)
 ============================================= */
 .stats-grid {
   display: grid;
@@ -472,20 +490,21 @@ img { display: block; max-width: 100%; }
 }
 
 .stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--card-cobalt-top) 0%, var(--card-cobalt) 100%);
+  border: 1px solid var(--card-cobalt-border);
   border-radius: var(--radius-lg);
   padding: 20px 22px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 24px rgba(12, 16, 56, 0.6);
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
   transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
 
 .stat-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow);
+  border-color: rgba(238, 39, 215, 0.6);
+  box-shadow: 0 12px 32px rgba(12, 16, 56, 0.8), 0 0 20px rgba(238, 39, 215, 0.2);
 }
 
 .stat-card-header {
@@ -495,31 +514,82 @@ img { display: block; max-width: 100%; }
 }
 
 .stat-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
 }
 
-.stat-icon {
-  width: 38px; height: 38px;
-  border-radius: var(--radius);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+.stat-dots {
+  color: var(--accent);
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
   letter-spacing: -0.7px;
-  color: var(--text);
+  color: #ffffff;
   line-height: 1.1;
+  margin: 4px 0 2px;
 }
 
 .stat-sub {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* =============================================
+   RIGHT PROMO GRADIENT CARD (Sunset Gold to Fuchsia)
+============================================= */
+.promo-card {
+  background: linear-gradient(180deg, #f5d982 0%, #ee27d7 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: #0d0a01;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 260px;
+  box-shadow: 0 10px 30px rgba(238, 39, 215, 0.4);
+}
+
+.promo-card h3 {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #0d0a01;
+}
+
+.promo-card p {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(13, 10, 1, 0.85);
+  margin-top: 8px;
+}
+
+.promo-btn {
+  align-self: flex-start;
+  margin-top: 18px;
+  background: #f5d982;
+  color: #0d0a01;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s;
+}
+
+.promo-btn:hover {
+  transform: translateY(-1px);
 }
 
 /* =============================================
@@ -1197,43 +1267,40 @@ tbody tr:hover {
 .auth-switch a:hover { text-decoration: underline; }
 
 /* =============================================
-   ANALYTICS CHARTS
+   ANALYTICS CHARTS (Paired Gold & Fuchsia Bars)
 ============================================= */
 .chart-bars {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  height: 160px;
-  padding: 0 4px;
+  gap: 16px;
+  height: 180px;
+  padding: 0 8px;
 }
 
-.chart-bar-wrap {
+.chart-bar-group {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: center;
   gap: 6px;
   height: 100%;
-  justify-content: flex-end;
 }
 
 .chart-bar {
-  width: 100%;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  width: 16px;
+  border-radius: 4px 4px 0 0;
   min-height: 4px;
   box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
 }
 
-.chart-bar-label {
-  font-size: 11px;
-  color: var(--muted);
-  text-align: center;
+.chart-bar.gold {
+  background: #f5d982;
+  box-shadow: 0 0 12px rgba(245, 217, 130, 0.4);
 }
 
-.chart-bar-val {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--text-2);
+.chart-bar.fuchsia {
+  background: #ee27d7;
+  box-shadow: 0 0 12px rgba(238, 39, 215, 0.45);
 }
 
 /* =============================================
