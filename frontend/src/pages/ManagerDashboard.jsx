@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, Users, CheckSquare, Bell, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import {
   EMPLOYEES, TASKS, TASK_ASSIGNMENTS,
@@ -7,6 +8,7 @@ import {
   getManagerEmployees, getOverdueTasks
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
+import { StaggerContainer, StaggerItem, AnimatedNumber, FadeIn } from "../components/motion/MotionPrimitives";
 
 export default function ManagerDashboard() {
   const { user, managedDept } = useAuth();
@@ -41,106 +43,143 @@ export default function ManagerDashboard() {
           <div className="page-title">{managedDept} Department</div>
           <div className="page-subtitle">Manager Dashboard · {user?.name}</div>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate("/manager/tasks")}>
+        <motion.button
+          className="btn btn-primary"
+          onClick={() => navigate("/manager/tasks")}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
           <ClipboardList size={15} /> Manage Tasks
-        </button>
+        </motion.button>
       </div>
 
-      <div className="stats-grid">
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
         {stats.map((s, i) => (
-          <div className="stat-card" key={i}>
-            <div className="stat-card-header">
-              <span className="stat-label">{s.label}</span>
-              <div className="stat-icon" style={{ background: s.bg, color: s.color }}>{s.icon}</div>
-            </div>
-            <div className="stat-value">{s.value}</div>
-          </div>
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -3, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <div className="stat-card-header">
+                <span className="stat-label">{s.label}</span>
+                <motion.div
+                  className="stat-icon"
+                  style={{ background: s.bg, color: s.color }}
+                  whileHover={{ rotate: 12, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                >
+                  {s.icon}
+                </motion.div>
+              </div>
+              <div className="stat-value">
+                <AnimatedNumber value={s.value} />
+              </div>
+            </motion.div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
-      <div className="grid-2" style={{ alignItems: "start" }}>
-        {/* My Employees */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">My Team</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/employees")}>
-              View all <ArrowRight size={14} />
-            </button>
-          </div>
-          {myEmployees.length === 0 ? (
-            <div className="empty-state" style={{ padding: 32 }}><p>No employees in this department.</p></div>
-          ) : myEmployees.map(emp => {
-            const u  = getEmployeeUser(emp);
-            const av = avatarColors(u?.name || "");
-            const wc = wColor(emp.workload_percentage);
-            return (
-              <div key={emp.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", borderBottom: "1px solid var(--border)" }}>
-                <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{u?.name}</div>
-                  <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp.position}</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 110 }}>
-                  <div className="progress-bar" style={{ flex: 1 }}>
-                    <div className="progress-fill" style={{ width: `${emp.workload_percentage}%`, background: wc }} />
+      <FadeIn delay={0.15}>
+        <div className="grid-2" style={{ alignItems: "start" }}>
+          {/* My Employees */}
+          <div className="card">
+            <div className="card-header">
+              <span className="card-title">My Team</span>
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/employees")}>
+                View all <ArrowRight size={14} />
+              </button>
+            </div>
+            {myEmployees.length === 0 ? (
+              <div className="empty-state" style={{ padding: 32 }}><p>No employees in this department.</p></div>
+            ) : myEmployees.map(emp => {
+              const u  = getEmployeeUser(emp);
+              const av = avatarColors(u?.name || "");
+              const wc = wColor(emp.workload_percentage);
+              return (
+                <motion.div
+                  key={emp.id}
+                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", borderBottom: "1px solid var(--border)" }}
+                  whileHover={{ backgroundColor: "var(--surface-2)", transition: { duration: 0.15 } }}
+                >
+                  <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{u?.name}</div>
+                    <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp.position}</div>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: wc, minWidth: 30 }}>{emp.workload_percentage}%</span>
-                </div>
-                <StatusBadge value={emp.availability_status} />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Recent assignments in my dept */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Recent Assignments</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/assignments")}>
-              View all <ArrowRight size={14} />
-            </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 110 }}>
+                    <div className="progress-bar" style={{ flex: 1 }}>
+                      <motion.div
+                        className="progress-fill"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${emp.workload_percentage}%` }}
+                        transition={{ duration: 0.85, ease: "easeOut" }}
+                        style={{ background: wc }}
+                      />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: wc, minWidth: 30 }}>{emp.workload_percentage}%</span>
+                  </div>
+                  <StatusBadge value={emp.availability_status} />
+                </motion.div>
+              );
+            })}
           </div>
-          {myAssignments.length === 0 ? (
-            <div className="empty-state" style={{ padding: 32 }}><p>No assignments yet.</p></div>
-          ) : myAssignments.slice(0, 6).map(a => {
-            const task = getTask(a.task_id);
-            const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
-            const u    = emp ? getEmployeeUser(emp) : null;
-            return (
-              <div key={a.id} style={{ padding: "11px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task?.title}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>{u?.name}</div>
-                </div>
-                <StatusBadge value={a.status} />
-              </div>
-            );
-          })}
+
+          {/* Recent assignments in my dept */}
+          <div className="card">
+            <div className="card-header">
+              <span className="card-title">Recent Assignments</span>
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/assignments")}>
+                View all <ArrowRight size={14} />
+              </button>
+            </div>
+            {myAssignments.length === 0 ? (
+              <div className="empty-state" style={{ padding: 32 }}><p>No assignments yet.</p></div>
+            ) : myAssignments.slice(0, 6).map(a => {
+              const task = getTask(a.task_id);
+              const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
+              const u    = emp ? getEmployeeUser(emp) : null;
+              return (
+                <motion.div
+                  key={a.id}
+                  style={{ padding: "11px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 12 }}
+                  whileHover={{ backgroundColor: "var(--surface-2)" }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task?.title}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)" }}>{u?.name}</div>
+                  </div>
+                  <StatusBadge value={a.status} />
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </FadeIn>
 
       {/* Overdue in dept */}
       {overdue.length > 0 && (
-        <div className="card" style={{ marginTop: 20, border: "1px solid var(--red-lt)" }}>
-          <div className="card-header" style={{ background: "var(--red-lt)" }}>
-            <span className="card-title" style={{ color: "#991b1b" }}>⚠ Overdue in {managedDept} ({overdue.length})</span>
+        <FadeIn delay={0.25}>
+          <div className="card" style={{ marginTop: 20, border: "1px solid var(--red-lt)" }}>
+            <div className="card-header" style={{ background: "var(--red-lt)" }}>
+              <span className="card-title" style={{ color: "#991b1b" }}>⚠ Overdue in {managedDept} ({overdue.length})</span>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>Task</th><th>Assigned To</th><th>Deadline</th><th>Priority</th></tr></thead>
+                <tbody>
+                  {overdue.map(({ task, assignee }) => (
+                    <tr key={task.id}>
+                      <td className="td-bold" style={{ color: "var(--red)" }}>{task.title}</td>
+                      <td style={{ fontWeight: 600, fontSize: 13 }}>{assignee?.name || "Unassigned"}</td>
+                      <td style={{ color: "var(--red)", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
+                      <td><StatusBadge value={task.priority} type="priority" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Task</th><th>Assigned To</th><th>Deadline</th><th>Priority</th></tr></thead>
-              <tbody>
-                {overdue.map(({ task, assignee }) => (
-                  <tr key={task.id}>
-                    <td className="td-bold" style={{ color: "var(--red)" }}>{task.title}</td>
-                    <td style={{ fontWeight: 600, fontSize: 13 }}>{assignee?.name || "Unassigned"}</td>
-                    <td style={{ color: "var(--red)", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
-                    <td><StatusBadge value={task.priority} type="priority" /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        </FadeIn>
       )}
     </div>
   );

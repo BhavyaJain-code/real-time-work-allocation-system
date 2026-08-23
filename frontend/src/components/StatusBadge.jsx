@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { STATUS_BADGE, PRIORITY_BADGE, STATUS_LABEL } from "../data/mockData";
 
 export default function StatusBadge({ value, type = "status" }) {
@@ -6,9 +7,15 @@ export default function StatusBadge({ value, type = "status" }) {
   const label = STATUS_LABEL[value] || value;
 
   return (
-    <span className={`badge ${cls}`}>
+    <motion.span
+      className={`badge ${cls}`}
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 450, damping: 25 }}
+      whileHover={{ scale: 1.04 }}
+    >
       <span className="badge-dot" style={{ background: "currentColor", opacity: 0.7 }} />
       {label}
-    </span>
+    </motion.span>
   );
 }

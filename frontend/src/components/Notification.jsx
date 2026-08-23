@@ -1,4 +1,5 @@
 import { CheckSquare, AlertCircle, Clock, Bell } from "lucide-react";
+import { motion } from "framer-motion";
 
 const TYPE_META = {
   task_assigned:  { icon: <CheckSquare size={16} />, bg: "var(--primary-lt)",  color: "var(--primary)" },
@@ -20,18 +21,36 @@ export default function NotificationItem({ notif, onRead }) {
   const meta = TYPE_META[notif.type] || { icon: <Bell size={16} />, bg: "var(--surface-2)", color: "var(--muted)" };
 
   return (
-    <div
+    <motion.div
       className={`notif-item${notif.is_read ? "" : " unread"}`}
       onClick={() => onRead && onRead(notif.id)}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      whileHover={{ x: 4, backgroundColor: "var(--surface-2)", transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.2 }}
+      style={{ cursor: "pointer" }}
     >
-      <div className="notif-icon" style={{ background: meta.bg, color: meta.color }}>
+      <motion.div
+        className="notif-icon"
+        style={{ background: meta.bg, color: meta.color }}
+        whileHover={{ rotate: [0, -10, 10, 0] }}
+        transition={{ duration: 0.3 }}
+      >
         {meta.icon}
-      </div>
+      </motion.div>
       <div className="notif-content">
         <div className="notif-msg">{notif.message}</div>
         <div className="notif-time">{timeAgo(notif.created_at)}</div>
       </div>
-      {!notif.is_read && <div className="notif-unread-dot" />}
-    </div>
+      {!notif.is_read && (
+        <motion.div
+          className="notif-unread-dot"
+          initial={{ scale: 0 }}
+          animate={{ scale: [1, 1.25, 1] }}
+          transition={{ repeat: Infinity, duration: 2.2 }}
+        />
+      )}
+    </motion.div>
   );
 }

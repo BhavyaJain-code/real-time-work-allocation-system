@@ -1,4 +1,5 @@
 import { Calendar, Clock } from "lucide-react";
+import { motion } from "framer-motion";
 import StatusBadge from "./StatusBadge";
 import { getTaskSkills, getAssignmentEmployee, getEmployeeUser, TASK_ASSIGNMENTS, initials, avatarColors } from "../data/mockData";
 
@@ -12,7 +13,16 @@ export default function TaskCard({ task, onClick }) {
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== "done";
 
   return (
-    <div className="task-card" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
+    <motion.div
+      className="task-card"
+      onClick={onClick}
+      whileHover={{ y: -3, transition: { type: "spring", stiffness: 400, damping: 22 } }}
+      whileTap={{ scale: 0.985, transition: { type: "spring", stiffness: 500, damping: 25 } }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      style={{ cursor: onClick ? "pointer" : "default", willChange: "transform" }}
+    >
       <div className="task-card-head">
         <div>
           <div className="task-card-title">{task.title}</div>
@@ -24,7 +34,14 @@ export default function TaskCard({ task, onClick }) {
       {skills.length > 0 && (
         <div className="emp-skills">
           {skills.map(s => (
-            <span key={s.id} className="skill-tag">{s.name}</span>
+            <motion.span
+              key={s.id}
+              className="skill-tag"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 450, damping: 20 }}
+            >
+              {s.name}
+            </motion.span>
           ))}
         </div>
       )}
@@ -44,16 +61,18 @@ export default function TaskCard({ task, onClick }) {
         <div className="flex items-center gap-2">
           <StatusBadge value={task.status} />
           {assigneeUser && (
-            <div
+            <motion.div
               className="avatar avatar-sm"
               title={assigneeUser.name}
               style={{ background: av.bg, color: av.color }}
+              whileHover={{ scale: 1.15 }}
+              transition={{ type: "spring", stiffness: 400 }}
             >
               {initials(assigneeUser.name)}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

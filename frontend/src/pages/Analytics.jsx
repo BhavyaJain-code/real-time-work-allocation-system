@@ -1,11 +1,27 @@
+import { motion } from "framer-motion";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, SKILLS, EMPLOYEE_SKILLS } from "../data/mockData";
+import { StaggerContainer, StaggerItem, FadeIn, AnimatedNumber } from "../components/motion/MotionPrimitives";
 
-function Bar({ value, max, color }) {
-  const pct = Math.round((value / max) * 100);
+function AnimatedBar({ value, max, color, label }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="chart-bar-wrap">
-      <span className="chart-bar-val">{value}</span>
-      <div className="chart-bar" style={{ height: `${pct}%`, background: color }} />
+      <motion.span
+        className="chart-bar-val"
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        {value}
+      </motion.span>
+      <motion.div
+        className="chart-bar"
+        initial={{ height: 0 }}
+        animate={{ height: `${pct}%` }}
+        transition={{ duration: 0.75, ease: [0.34, 1.56, 0.64, 1] }}
+        style={{ background: color }}
+        whileHover={{ scale: 1.05 }}
+      />
     </div>
   );
 }
@@ -41,9 +57,9 @@ export default function Analytics() {
   })).sort((a, b) => b.count - a.count).slice(0, 6);
 
   const statCards = [
-    { label: "Completion Rate", value: `${completionRate}%`, sub: `${completedTasks}/${totalTasks} tasks`, color: "var(--green)" },
-    { label: "Avg. Workload",   value: `${avgWorkload}%`,    sub: `Across ${EMPLOYEES.length} employees`, color: "var(--blue)" },
-    { label: "Avg. Score",      value: avgScore || "—",       sub: "Completed assignments", color: "var(--primary)" },
+    { label: "Completion Rate", value: completionRate, suffix: "%", sub: `${completedTasks}/${totalTasks} tasks`, color: "var(--green)" },
+    { label: "Avg. Workload",   value: avgWorkload, suffix: "%", sub: `Across ${EMPLOYEES.length} employees`, color: "var(--blue)" },
+    { label: "Avg. Score",      value: avgScore || 0, sub: "Completed assignments", color: "var(--primary)" },
     { label: "Overdue Tasks",   value: TASKS.filter(t => t.deadline < new Date().toISOString().split("T")[0] && t.status !== "done").length, sub: "Need attention", color: "var(--red)" },
   ];
 
@@ -54,112 +70,133 @@ export default function Analytics() {
       </div>
 
       {/* Stats row */}
-      <div className="stats-grid">
+      <StaggerContainer className="stats-grid" staggerDelay={0.07}>
         {statCards.map((s, i) => (
-          <div className="stat-card" key={i}>
-            <span className="stat-label">{s.label}</span>
-            <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
-            <div className="stat-sub">{s.sub}</div>
-          </div>
+          <StaggerItem key={i}>
+            <motion.div
+              className="stat-card"
+              whileHover={{ y: -3, transition: { type: "spring", stiffness: 450, damping: 22 } }}
+            >
+              <span className="stat-label">{s.label}</span>
+              <div className="stat-value" style={{ color: s.color }}>
+                <AnimatedNumber value={s.value} suffix={s.suffix || ""} />
+              </div>
+              <div className="stat-sub">{s.sub}</div>
+            </motion.div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
-      <div className="grid-2" style={{ alignItems: "start" }}>
-        {/* Task Status Breakdown */}
-        <div className="card">
-          <div className="card-header"><span className="card-title">Tasks by Status</span></div>
-          <div className="card-body">
-            <div className="chart-bars">
-              <Bar value={todo}           max={totalTasks} color="var(--muted)" />
-              <Bar value={inProgress}     max={totalTasks} color="var(--blue)" />
-              <Bar value={review}         max={totalTasks} color="var(--purple)" />
-              <Bar value={completedTasks} max={totalTasks} color="var(--green)" />
-            </div>
-            <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
-              {[
-                { label: "To Do",       val: todo,           color: "var(--muted)" },
-                { label: "In Progress", val: inProgress,     color: "var(--blue)" },
-                { label: "In Review",   val: review,         color: "var(--purple)" },
-                { label: "Done",        val: completedTasks, color: "var(--green)" },
-              ].map(s => (
-                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }} />
-                  {s.label}: <strong>{s.val}</strong>
-                </div>
-              ))}
+      <FadeIn delay={0.15}>
+        <div className="grid-2" style={{ alignItems: "start" }}>
+          {/* Task Status Breakdown */}
+          <div className="card">
+            <div className="card-header"><span className="card-title">Tasks by Status</span></div>
+            <div className="card-body">
+              <div className="chart-bars">
+                <AnimatedBar value={todo}           max={totalTasks} color="var(--muted)" />
+                <AnimatedBar value={inProgress}     max={totalTasks} color="var(--blue)" />
+                <AnimatedBar value={review}         max={totalTasks} color="var(--purple)" />
+                <AnimatedBar value={completedTasks} max={totalTasks} color="var(--green)" />
+              </div>
+              <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
+                {[
+                  { label: "To Do",       val: todo,           color: "var(--muted)" },
+                  { label: "In Progress", val: inProgress,     color: "var(--blue)" },
+                  { label: "In Review",   val: review,         color: "var(--purple)" },
+                  { label: "Done",        val: completedTasks, color: "var(--green)" },
+                ].map(s => (
+                  <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }} />
+                    {s.label}: <strong>{s.val}</strong>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Priority Breakdown */}
-        <div className="card">
-          <div className="card-header"><span className="card-title">Tasks by Priority</span></div>
-          <div className="card-body">
-            <div className="chart-bars">
-              <Bar value={priorityCounts.critical} max={totalTasks} color="var(--red)" />
-              <Bar value={priorityCounts.high}     max={totalTasks} color="var(--amber)" />
-              <Bar value={priorityCounts.medium}   max={totalTasks} color="var(--blue)" />
-              <Bar value={priorityCounts.low}      max={totalTasks} color="var(--muted)" />
-            </div>
-            <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
-              {[
-                { label: "Critical", val: priorityCounts.critical, color: "var(--red)" },
-                { label: "High",     val: priorityCounts.high,     color: "var(--amber)" },
-                { label: "Medium",   val: priorityCounts.medium,   color: "var(--blue)" },
-                { label: "Low",      val: priorityCounts.low,      color: "var(--muted)" },
-              ].map(s => (
-                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }} />
-                  {s.label}: <strong>{s.val}</strong>
-                </div>
-              ))}
+          {/* Priority Breakdown */}
+          <div className="card">
+            <div className="card-header"><span className="card-title">Tasks by Priority</span></div>
+            <div className="card-body">
+              <div className="chart-bars">
+                <AnimatedBar value={priorityCounts.critical} max={totalTasks} color="var(--red)" />
+                <AnimatedBar value={priorityCounts.high}     max={totalTasks} color="var(--amber)" />
+                <AnimatedBar value={priorityCounts.medium}   max={totalTasks} color="var(--blue)" />
+                <AnimatedBar value={priorityCounts.low}      max={totalTasks} color="var(--muted)" />
+              </div>
+              <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
+                {[
+                  { label: "Critical", val: priorityCounts.critical, color: "var(--red)" },
+                  { label: "High",     val: priorityCounts.high,     color: "var(--amber)" },
+                  { label: "Medium",   val: priorityCounts.medium,   color: "var(--blue)" },
+                  { label: "Low",      val: priorityCounts.low,      color: "var(--muted)" },
+                ].map(s => (
+                  <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }} />
+                    {s.label}: <strong>{s.val}</strong>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Department Workload */}
-        <div className="card">
-          <div className="card-header"><span className="card-title">Avg. Workload by Department</span></div>
-          <div className="card-body">
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {deptWorkload.map(d => {
-                const color = d.avg >= 85 ? "var(--red)" : d.avg >= 60 ? "var(--amber)" : "var(--green)";
-                return (
-                  <div key={d.dept}>
+          {/* Department Workload */}
+          <div className="card">
+            <div className="card-header"><span className="card-title">Avg. Workload by Department</span></div>
+            <div className="card-body">
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {deptWorkload.map(d => {
+                  const color = d.avg >= 85 ? "var(--red)" : d.avg >= 60 ? "var(--amber)" : "var(--green)";
+                  return (
+                    <div key={d.dept}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
+                        <span style={{ fontWeight: 600 }}>{d.dept}</span>
+                        <span style={{ fontWeight: 700, color }}>{d.avg}%</span>
+                      </div>
+                      <div className="progress-bar" style={{ height: 8 }}>
+                        <motion.div
+                          className="progress-fill"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${d.avg}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          style={{ background: color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Skill Coverage */}
+          <div className="card">
+            <div className="card-header"><span className="card-title">Skill Coverage (Top 6)</span></div>
+            <div className="card-body">
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {skillCoverage.map(s => (
+                  <div key={s.name}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
-                      <span style={{ fontWeight: 600 }}>{d.dept}</span>
-                      <span style={{ fontWeight: 700, color }}>{d.avg}%</span>
+                      <span style={{ fontWeight: 600 }}>{s.name}</span>
+                      <span style={{ fontWeight: 700, color: "var(--primary)" }}>{s.count} emp.</span>
                     </div>
                     <div className="progress-bar" style={{ height: 8 }}>
-                      <div className="progress-fill" style={{ width: `${d.avg}%`, background: color }} />
+                      <motion.div
+                        className="progress-fill"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(s.count / EMPLOYEES.length) * 100}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        style={{ background: "var(--primary)" }}
+                      />
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Skill Coverage */}
-        <div className="card">
-          <div className="card-header"><span className="card-title">Skill Coverage (Top 6)</span></div>
-          <div className="card-body">
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {skillCoverage.map(s => (
-                <div key={s.name}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
-                    <span style={{ fontWeight: 600 }}>{s.name}</span>
-                    <span style={{ fontWeight: 700, color: "var(--primary)" }}>{s.count} emp.</span>
-                  </div>
-                  <div className="progress-bar" style={{ height: 8 }}>
-                    <div className="progress-fill" style={{ width: `${(s.count / EMPLOYEES.length) * 100}%`, background: "var(--primary)" }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      </FadeIn>
     </div>
   );
 }
