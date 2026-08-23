@@ -252,11 +252,16 @@ export function getOverdueTasks() {
   });
 }
 
-// Avatar color palette
+// Avatar color palette aligned with brand theme
 const AVATAR_COLORS = [
-  ["#6366f1","#eef2ff"],["#10b981","#d1fae5"],["#f59e0b","#fef3c7"],
-  ["#ef4444","#fee2e2"],["#3b82f6","#dbeafe"],["#8b5cf6","#ede9fe"],
-  ["#ec4899","#fce7f3"],["#14b8a6","#ccfbf1"],
+  ["#745ec0", "#f1edf9"],
+  ["#76283d", "#fcebef"],
+  ["#c57556", "#faece7"],
+  ["#059669", "#d1fae5"],
+  ["#2563eb", "#dbeafe"],
+  ["#6d28d9", "#ede9fe"],
+  ["#b45309", "#fef3c7"],
+  ["#9d174d", "#fce7f3"],
 ];
 
 export function avatarColors(name) {
