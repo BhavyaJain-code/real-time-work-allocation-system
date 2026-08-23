@@ -276,23 +276,23 @@ export function initials(name) {
 
 export const STATUS_BADGE = {
   todo:        "badge-gray",
-  in_progress: "badge-blue",
-  review:      "badge-purple",
+  in_progress: "badge-accent", // Warm Terracotta (#c47454)
+  review:      "badge-purple", // Lavender (#a595db)
   done:        "badge-green",
   completed:   "badge-green",
-  assigned:    "badge-indigo",
-  cancelled:   "badge-red",
+  assigned:    "badge-purple",
+  cancelled:   "badge-wine",   // Rich Berry Wine (#76283d)
   available:   "badge-green",
-  busy:        "badge-amber",
+  busy:        "badge-accent", // Warm Terracotta (#c47454)
   offline:     "badge-gray",
   off:         "badge-gray",
 };
 
 export const PRIORITY_BADGE = {
   low:      "badge-gray",
-  medium:   "badge-blue",
-  high:     "badge-amber",
-  critical: "badge-red",
+  medium:   "badge-purple",
+  high:     "badge-accent", // Warm Terracotta (#c47454)
+  critical: "badge-wine",   // Rich Berry Wine (#76283d)
 };
 
 export const STATUS_LABEL = {
@@ -317,8 +317,8 @@ export const TASK_TYPE_LABEL = {
 };
 
 export const TASK_TYPE_BADGE = {
-  weekly:    "badge-green",
-  monthly:   "badge-blue",
-  quarterly: "badge-purple",
-  yearly:    "badge-amber",
+  weekly:    "badge-accent", // Terracotta #c47454
+  monthly:   "badge-purple", // Lavender #a595db
+  quarterly: "badge-wine",   // Berry Wine #76283d
+  yearly:    "badge-green",
 };

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, SKILLS, EMPLOYEE_SKILLS } from "../data/mockData";
 import { StaggerContainer, StaggerItem, FadeIn, AnimatedNumber } from "../components/motion/MotionPrimitives";
 
-function AnimatedBar({ value, max, color, label }) {
+function AnimatedBar({ value, max, color }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="chart-bar-wrap">
@@ -19,7 +19,7 @@ function AnimatedBar({ value, max, color, label }) {
         initial={{ height: 0 }}
         animate={{ height: `${pct}%` }}
         transition={{ duration: 0.75, ease: [0.34, 1.56, 0.64, 1] }}
-        style={{ background: color }}
+        style={{ background: color, boxShadow: `0 0 14px ${color}44` }}
         whileHover={{ scale: 1.05 }}
       />
     </div>
@@ -58,9 +58,9 @@ export default function Analytics() {
 
   const statCards = [
     { label: "Completion Rate", value: completionRate, suffix: "%", sub: `${completedTasks}/${totalTasks} tasks`, color: "var(--green)" },
-    { label: "Avg. Workload",   value: avgWorkload, suffix: "%", sub: `Across ${EMPLOYEES.length} employees`, color: "var(--blue)" },
+    { label: "Avg. Workload",   value: avgWorkload, suffix: "%", sub: `Across ${EMPLOYEES.length} employees`, color: "var(--accent)" },
     { label: "Avg. Score",      value: avgScore || 0, sub: "Completed assignments", color: "var(--primary)" },
-    { label: "Overdue Tasks",   value: TASKS.filter(t => t.deadline < new Date().toISOString().split("T")[0] && t.status !== "done").length, sub: "Need attention", color: "var(--red)" },
+    { label: "Overdue Tasks",   value: TASKS.filter(t => t.deadline < new Date().toISOString().split("T")[0] && t.status !== "done").length, sub: "Need attention", color: "var(--secondary)" },
   ];
 
   return (
@@ -95,15 +95,15 @@ export default function Analytics() {
             <div className="card-body">
               <div className="chart-bars">
                 <AnimatedBar value={todo}           max={totalTasks} color="var(--muted)" />
-                <AnimatedBar value={inProgress}     max={totalTasks} color="var(--blue)" />
-                <AnimatedBar value={review}         max={totalTasks} color="var(--purple)" />
+                <AnimatedBar value={inProgress}     max={totalTasks} color="var(--accent)" />
+                <AnimatedBar value={review}         max={totalTasks} color="var(--primary)" />
                 <AnimatedBar value={completedTasks} max={totalTasks} color="var(--green)" />
               </div>
               <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
                 {[
                   { label: "To Do",       val: todo,           color: "var(--muted)" },
-                  { label: "In Progress", val: inProgress,     color: "var(--blue)" },
-                  { label: "In Review",   val: review,         color: "var(--purple)" },
+                  { label: "In Progress", val: inProgress,     color: "var(--accent)" },
+                  { label: "In Review",   val: review,         color: "var(--primary)" },
                   { label: "Done",        val: completedTasks, color: "var(--green)" },
                 ].map(s => (
                   <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
@@ -115,21 +115,21 @@ export default function Analytics() {
             </div>
           </div>
 
-          {/* Priority Breakdown */}
+          {/* Priority Breakdown with Berry Wine & Terracotta */}
           <div className="card">
             <div className="card-header"><span className="card-title">Tasks by Priority</span></div>
             <div className="card-body">
               <div className="chart-bars">
-                <AnimatedBar value={priorityCounts.critical} max={totalTasks} color="var(--red)" />
-                <AnimatedBar value={priorityCounts.high}     max={totalTasks} color="var(--amber)" />
-                <AnimatedBar value={priorityCounts.medium}   max={totalTasks} color="var(--blue)" />
+                <AnimatedBar value={priorityCounts.critical} max={totalTasks} color="var(--secondary)" />
+                <AnimatedBar value={priorityCounts.high}     max={totalTasks} color="var(--accent)" />
+                <AnimatedBar value={priorityCounts.medium}   max={totalTasks} color="var(--primary)" />
                 <AnimatedBar value={priorityCounts.low}      max={totalTasks} color="var(--muted)" />
               </div>
               <div style={{ display: "flex", gap: 16, marginTop: 14, justifyContent: "center", flexWrap: "wrap" }}>
                 {[
-                  { label: "Critical", val: priorityCounts.critical, color: "var(--red)" },
-                  { label: "High",     val: priorityCounts.high,     color: "var(--amber)" },
-                  { label: "Medium",   val: priorityCounts.medium,   color: "var(--blue)" },
+                  { label: "Critical", val: priorityCounts.critical, color: "var(--secondary)" },
+                  { label: "High",     val: priorityCounts.high,     color: "var(--accent)" },
+                  { label: "Medium",   val: priorityCounts.medium,   color: "var(--primary)" },
                   { label: "Low",      val: priorityCounts.low,      color: "var(--muted)" },
                 ].map(s => (
                   <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
@@ -147,7 +147,7 @@ export default function Analytics() {
             <div className="card-body">
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {deptWorkload.map(d => {
-                  const color = d.avg >= 85 ? "var(--red)" : d.avg >= 60 ? "var(--amber)" : "var(--green)";
+                  const color = d.avg >= 85 ? "var(--secondary)" : d.avg >= 60 ? "var(--accent)" : "var(--green)";
                   return (
                     <div key={d.dept}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
@@ -179,7 +179,7 @@ export default function Analytics() {
                   <div key={s.name}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
                       <span style={{ fontWeight: 600 }}>{s.name}</span>
-                      <span style={{ fontWeight: 700, color: "var(--primary)" }}>{s.count} emp.</span>
+                      <span style={{ fontWeight: 700, color: "var(--accent)" }}>{s.count} emp.</span>
                     </div>
                     <div className="progress-bar" style={{ height: 8 }}>
                       <motion.div
@@ -187,7 +187,7 @@ export default function Analytics() {
                         initial={{ width: 0 }}
                         animate={{ width: `${(s.count / EMPLOYEES.length) * 100}%` }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        style={{ background: "var(--primary)" }}
+                        style={{ background: "var(--accent)" }}
                       />
                     </div>
                   </div>

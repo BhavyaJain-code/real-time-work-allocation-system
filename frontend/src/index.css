@@ -545,15 +545,16 @@ img { display: block; max-width: 100%; }
   border-radius: 99px;
 }
 
-.badge-gray    { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
-.badge-blue    { background: var(--blue-lt);   color: var(--blue); }
-.badge-green   { background: var(--green-lt);  color: #34d399; }
-.badge-amber   { background: var(--amber-lt);  color: #fbbf24; }
-.badge-red     { background: var(--red-lt);    color: #fb7185; }
-.badge-purple  { background: var(--primary-lt);color: var(--primary); }
-.badge-indigo  { background: var(--primary-lt);color: var(--primary); }
-.badge-wine    { background: var(--secondary-lt); color: #f43f5e; }
-.badge-accent  { background: var(--accent-lt); color: #fb923c; }
+/* Badge Styles with distinct RealtimeColors */
+.badge-gray    { background: rgba(235, 232, 247, 0.08); color: #b8b2d4; border: 1px solid rgba(235, 232, 247, 0.14); }
+.badge-blue    { background: rgba(56, 189, 248, 0.18);  color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+.badge-green   { background: rgba(16, 185, 129, 0.18);  color: #34d399; border: 1px solid rgba(16, 185, 129, 0.38); }
+.badge-amber   { background: rgba(245, 158, 11, 0.18);  color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.38); }
+.badge-red     { background: rgba(244, 63, 94, 0.18);   color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.38); }
+.badge-purple  { background: rgba(165, 149, 219, 0.20); color: #d6cbfa; border: 1px solid rgba(165, 149, 219, 0.45); }
+.badge-indigo  { background: rgba(165, 149, 219, 0.20); color: #d6cbfa; border: 1px solid rgba(165, 149, 219, 0.45); }
+.badge-wine    { background: linear-gradient(135deg, rgba(118, 40, 61, 0.55) 0%, rgba(170, 48, 78, 0.35) 100%); color: #ff7597; border: 1.5px solid rgba(255, 117, 151, 0.6); box-shadow: 0 0 14px rgba(185, 55, 90, 0.4); }
+.badge-accent  { background: linear-gradient(135deg, rgba(196, 116, 84, 0.50) 0%, rgba(230, 130, 92, 0.32) 100%); color: #ffb899; border: 1.5px solid rgba(255, 170, 133, 0.6); box-shadow: 0 0 14px rgba(196, 116, 84, 0.35); }
 
 /* =============================================
    TABLES
