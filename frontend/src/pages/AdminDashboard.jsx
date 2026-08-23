@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ClipboardList, Users, CheckSquare, TrendingUp, ArrowRight, AlertCircle } from "lucide-react";
-import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, USERS, getEmployeeUser, getTask, initials, avatarColors } from "../data/mockData";
+import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, USERS, getEmployeeUser, getTask, initials, avatarColors, getOverdueTasks } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
 
@@ -12,7 +12,8 @@ export default function AdminDashboard() {
   const completedTasks  = TASKS.filter(t => t.status === "done").length;
   const activeEmployees = EMPLOYEES.filter(e => e.availability_status !== "offline").length;
   const completionRate  = Math.round((completedTasks / totalTasks) * 100);
-  const overdueCount    = TASKS.filter(t => t.deadline < new Date().toISOString().split("T")[0] && t.status !== "done").length;
+  const overdueTasks = getOverdueTasks();
+  const overdueCount = overdueTasks.length;
 
   const recentTasks = TASKS.slice(0, 5);
   const recentAssignments = TASK_ASSIGNMENTS.slice(0, 5);
@@ -145,6 +146,46 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Overdue Tasks — task name + assigned to */}
+      {overdueCount > 0 && (
+        <div className="card" style={{ marginTop: 20, border: "1px solid var(--red-lt)" }}>
+          <div className="card-header" style={{ background: "var(--red-lt)" }}>
+            <span className="card-title" style={{ color: "#991b1b" }}>⚠ Overdue Tasks ({overdueCount})</span>
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task Name</th>
+                  <th>Assigned To</th>
+                  <th>Deadline</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overdueTasks.map(({ task, assignee }) => (
+                  <tr key={task.id}>
+                    <td className="td-bold" style={{ color: "var(--red)" }}>{task.title}</td>
+                    <td>
+                      {assignee ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div className="avatar avatar-sm" style={{ background: avatarColors(assignee.name).bg, color: avatarColors(assignee.name).color }}>{initials(assignee.name)}</div>
+                          <span style={{ fontWeight: 600, fontSize: 13 }}>{assignee.name}</span>
+                        </div>
+                      ) : <span className="td-muted">Unassigned</span>}
+                    </td>
+                    <td style={{ color: "var(--red)", fontWeight: 700, fontSize: 13 }}>{task.deadline}</td>
+                    <td><StatusBadge value={task.priority} type="priority" /></td>
+                    <td><StatusBadge value={task.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

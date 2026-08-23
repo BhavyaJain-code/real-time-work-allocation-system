@@ -115,6 +115,7 @@ export default function Login() {
             <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Demo Quick Access</p>
             <div style={{ display: "flex", gap: 8 }}>
               <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => demoLogin("admin")}>Admin Demo</button>
+              <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => demoLogin("manager")}>Manager Demo</button>
               <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => demoLogin("employee")}>Employee Demo</button>
             </div>
           </div>

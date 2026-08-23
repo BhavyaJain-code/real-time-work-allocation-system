@@ -11,6 +11,7 @@ export default function CreateTask() {
   const [form, setForm] = useState({
     title: "", description: "", priority: "medium",
     status: "todo", deadline: "", estimated_hours: "",
+    task_type: "monthly",
     required_skill_ids: [],
   });
 
@@ -96,6 +97,15 @@ export default function CreateTask() {
                 </select>
               </div>
               <div className="field">
+                <label>Task Type</label>
+                <select className="field-select" name="task_type" value={form.task_type} onChange={handleChange}>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              <div className="field">
                 <label>Deadline</label>
                 <input className="field-input" type="date" name="deadline" value={form.deadline} onChange={handleChange} />
               </div>
@@ -158,6 +168,7 @@ export default function CreateTask() {
                 ["Description",     form.description || "—"],
                 ["Priority",        form.priority],
                 ["Status",          form.status],
+                ["Task Type",       form.task_type],
                 ["Deadline",        form.deadline || "—"],
                 ["Estimated Hours", form.estimated_hours ? `${form.estimated_hours}h` : "—"],
               ].map(([k, v]) => (

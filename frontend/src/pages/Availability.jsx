@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Edit2, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { AVAILABILITY, getEmployeeAvailability } from "../data/mockData";
+import { getEmployeeAvailability } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
-// Generate current week dates (Mon–Sun)
 function getWeekDates() {
   const today = new Date();
   const mon = new Date(today);
@@ -23,7 +22,9 @@ export default function Availability() {
   const [records, setRecords] = useState(
     employee ? getEmployeeAvailability(employee.id) : []
   );
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal]   = useState(false);
+  const [editingId, setEditingId]   = useState(null); // row being inline-edited
+  const [editStatus, setEditStatus] = useState("");
   const [form, setForm] = useState({ date: "", start_time: "09:00", end_time: "17:00", status: "available" });
 
   if (!employee) return (
@@ -40,6 +41,12 @@ export default function Availability() {
   };
 
   const handleDelete = (id) => setRecords(r => r.filter(x => x.id !== id));
+
+  const startEdit = (r) => { setEditingId(r.id); setEditStatus(r.status); };
+  const saveEdit  = (id) => {
+    setRecords(r => r.map(x => x.id === id ? { ...x, status: editStatus } : x));
+    setEditingId(null);
+  };
 
   const getSlot = (date) => records.find(r => r.date === date);
 
@@ -64,11 +71,8 @@ export default function Availability() {
               const slot = getSlot(date);
               const isToday = date === new Date().toISOString().split("T")[0];
               return (
-                <div
-                  key={date}
-                  className="avail-day"
-                  style={{ borderColor: isToday ? "var(--primary)" : "var(--border)", background: isToday ? "var(--primary-lt)" : "var(--surface)" }}
-                >
+                <div key={date} className="avail-day"
+                  style={{ borderColor: isToday ? "var(--primary)" : "var(--border)", background: isToday ? "var(--primary-lt)" : "var(--surface)" }}>
                   <div className="avail-day-name">{DAYS[i]}</div>
                   <div className="avail-day-date" style={{ color: isToday ? "var(--primary)" : "var(--text)" }}>
                     {parseInt(date.split("-")[2])}
@@ -77,9 +81,7 @@ export default function Availability() {
                     <div className={`avail-slot ${slot.status}`}>
                       {slot.status === "off" ? "Off" : `${slot.start_time}–${slot.end_time}`}
                     </div>
-                  ) : (
-                    <div className="avail-slot off">No data</div>
-                  )}
+                  ) : <div className="avail-slot off">No data</div>}
                 </div>
               );
             })}
@@ -87,18 +89,14 @@ export default function Availability() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table with inline status edit */}
       <div className="card">
         <div className="card-header"><span className="card-title">All Availability Records</span></div>
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Date</th><th>Start Time</th><th>End Time</th><th>Status</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -109,11 +107,35 @@ export default function Availability() {
                   <td className="td-bold">{r.date}</td>
                   <td>{r.status === "off" ? "—" : r.start_time}</td>
                   <td>{r.status === "off" ? "—" : r.end_time}</td>
-                  <td><StatusBadge value={r.status} /></td>
                   <td>
-                    <button className="btn btn-ghost btn-sm" style={{ color: "var(--red)" }} onClick={() => handleDelete(r.id)}>
-                      <X size={14} />
-                    </button>
+                    {editingId === r.id ? (
+                      <select
+                        className="filter-select"
+                        style={{ height: 30, fontSize: 12.5, padding: "0 8px" }}
+                        value={editStatus}
+                        onChange={e => setEditStatus(e.target.value)}
+                        autoFocus
+                      >
+                        <option value="available">Available</option>
+                        <option value="busy">Busy</option>
+                        <option value="off">Day Off</option>
+                      </select>
+                    ) : <StatusBadge value={r.status} />}
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      {editingId === r.id ? (
+                        <>
+                          <button className="btn btn-primary btn-sm" onClick={() => saveEdit(r.id)}><Check size={13} /></button>
+                          <button className="btn btn-secondary btn-sm" onClick={() => setEditingId(null)}><X size={13} /></button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="btn btn-ghost btn-sm" title="Edit status" onClick={() => startEdit(r)}><Edit2 size={13} /></button>
+                          <button className="btn btn-ghost btn-sm" style={{ color: "var(--red)" }} onClick={() => handleDelete(r.id)}><X size={14} /></button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -122,7 +144,7 @@ export default function Availability() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Add Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
