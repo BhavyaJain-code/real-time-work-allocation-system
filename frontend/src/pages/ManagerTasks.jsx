@@ -1,20 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, UserCheck, Plus, X, Users } from "lucide-react";
+import { Search, UserCheck, X, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   TASKS, EMPLOYEES, TASK_ASSIGNMENTS,
   getTaskSkills, getMatchedEmployees, getEmployeeUser,
-  initials, avatarColors, TASK_TYPE_LABEL, TASK_TYPE_BADGE
+  TASK_TYPE_LABEL, TASK_TYPE_BADGE, initials
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import TaskCard from "../components/TaskCard";
 import AssignTaskModal from "../components/AssignTaskModal";
-import { motion } from "framer-motion";
 
 export default function ManagerTasks() {
   const { user, managedDept } = useAuth();
-  const navigate  = useNavigate();
 
   const [search,      setSearch]      = useState("");
   const [statusF,     setStatusF]     = useState("all");
@@ -34,8 +31,6 @@ export default function ManagerTasks() {
       && (typeF     === "all" || t.task_type === typeF);
   });
 
-  const isAssigned = (taskId) => assignments.some(a => a.task_id === taskId);
-
   const handleAssign = (taskId, empId) => {
     const newA = {
       id: Date.now(), task_id: taskId, employee_id: empId,
@@ -49,22 +44,20 @@ export default function ManagerTasks() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Department Tasks</div>
-          <div className="page-subtitle">{managedDept ? `Managing for ${managedDept}` : ""} · {TASKS.length} total tasks in pool</div>
+          <div className="page-title">Department Tasks Pool</div>
+          <div className="page-subtitle">{managedDept ? `${managedDept} Department` : ""} · {TASKS.length} tasks available</div>
         </div>
-        <motion.button
+        <button
           className="btn btn-primary"
           onClick={() => { setAssignTaskId(null); setShowAssign(true); }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
-          <UserCheck size={16} /> Assign Task to Team
-        </motion.button>
+          <UserCheck size={15} /> Assign Task
+        </button>
       </div>
 
       <div className="filter-bar">
         <div className="search-wrap">
-          <Search size={15} className="search-icon" />
+          <Search size={14} className="search-icon" />
           <input className="search-input" placeholder="Search tasks…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="filter-select" value={statusF} onChange={e => setStatusF(e.target.value)}>
@@ -81,16 +74,9 @@ export default function ManagerTasks() {
           <option value="medium">Medium</option>
           <option value="low">Low</option>
         </select>
-        <select className="filter-select" value={typeF} onChange={e => setTypeF(e.target.value)}>
-          <option value="all">All Types</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="yearly">Yearly</option>
-        </select>
         <div style={{ display: "flex", border: "1px solid var(--border)", borderRadius: "var(--radius)", overflow: "hidden", marginLeft: "auto" }}>
-          <button className={`btn btn-sm ${view === "table" ? "btn-primary" : "btn-ghost"}`} style={{ borderRadius: 0 }} onClick={() => setView("table")}>Table</button>
-          <button className={`btn btn-sm ${view === "grid"  ? "btn-primary" : "btn-ghost"}`} style={{ borderRadius: 0 }} onClick={() => setView("grid")}>Grid</button>
+          <button className={`btn btn-sm ${view === "table" ? "btn-primary" : "btn-secondary"}`} style={{ borderRadius: 0 }} onClick={() => setView("table")}>Table</button>
+          <button className={`btn btn-sm ${view === "grid"  ? "btn-primary" : "btn-secondary"}`} style={{ borderRadius: 0 }} onClick={() => setView("grid")}>Grid</button>
         </div>
       </div>
 
@@ -100,25 +86,24 @@ export default function ManagerTasks() {
             <table>
               <thead>
                 <tr>
-                  <th>Task</th>
+                  <th>Task Title</th>
                   <th>Type</th>
                   <th>Priority</th>
                   <th>Status</th>
                   <th>Deadline</th>
                   <th>Est. Hours</th>
                   <th>Required Skills</th>
-                  <th>Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(task => {
                   const skills = getTaskSkills(task.id);
-                  const assigned = isAssigned(task.id);
                   return (
                     <tr key={task.id}>
                       <td>
-                        <div className="td-bold" style={{ color: "var(--text)" }}>{task.title}</div>
-                        <div className="td-muted" style={{ maxWidth: 280, fontSize: 12 }}>{task.description}</div>
+                        <div className="td-bold">{task.title}</div>
+                        <div className="td-muted" style={{ maxWidth: 280 }}>{task.description}</div>
                       </td>
                       <td>
                         <span className={`badge ${TASK_TYPE_BADGE[task.task_type] || "badge-gray"}`}>
@@ -130,17 +115,17 @@ export default function ManagerTasks() {
                       <td className="td-muted">{task.deadline}</td>
                       <td><strong>{task.estimated_hours}h</strong></td>
                       <td>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                          {skills.map(s => <span key={s.id} className="skill-tag" style={{ fontSize: 11 }}>{s.name}</span>)}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+                          {skills.map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: "flex", gap: 6 }}>
+                        <div style={{ display: "flex", gap: 4 }}>
                           <button
                             className="btn btn-secondary btn-sm"
                             onClick={() => setSelected(selected?.id === task.id ? null : task)}
                           >
-                            <Users size={13} color="#ee27d7" /> Matches
+                            <Users size={12} /> Matches
                           </button>
                           <button
                             className="btn btn-primary btn-sm"
@@ -162,9 +147,9 @@ export default function ManagerTasks() {
           {filtered.map(task => (
             <div key={task.id} style={{ display: "flex", flexDirection: "column" }}>
               <TaskCard task={task} />
-              <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+              <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
                 <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => setSelected(selected?.id === task.id ? null : task)}>
-                  <Users size={13} color="#ee27d7" /> Matches
+                  <Users size={12} /> Matches
                 </button>
                 <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { setAssignTaskId(task.id); setShowAssign(true); }}>
                   Assign
@@ -175,7 +160,7 @@ export default function ManagerTasks() {
         </div>
       )}
 
-      {/* Skill Match Slide-in modal */}
+      {/* Skill Match modal */}
       {selected && (
         <div className="modal-overlay" onClick={() => setSelected(null)}>
           <div className="modal" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
@@ -184,20 +169,19 @@ export default function ManagerTasks() {
                 <div className="modal-title">Matched Employees ({managedDept})</div>
                 <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{selected.title}</div>
               </div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}><X size={16} /></button>
+              <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}><X size={15} /></button>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {getMatchedEmployees(selected.id).map(({ employee, matchCount, totalRequired }) => {
                 const u = getEmployeeUser(employee);
-                const av = avatarColors(u?.name || "");
                 return (
-                  <div key={employee.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "var(--surface-2)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
-                    <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u?.name)}</div>
+                  <div key={employee.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#f8f9fa", borderRadius: 4, border: "1px solid var(--border)" }}>
+                    <div className="avatar avatar-sm" style={{ background: "#0d6efd", color: "#fff" }}>{initials(u?.name)}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: 13.5, color: "var(--text)" }}>{u?.name}</div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{u?.name}</div>
                       <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{employee.department} · {employee.workload_percentage}% workload</div>
                     </div>
-                    <span className="badge badge-accent">{matchCount}/{totalRequired} skills</span>
+                    <span className="badge badge-blue">{matchCount}/{totalRequired} skills</span>
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => { handleAssign(selected.id, employee.id); setSelected(null); }}

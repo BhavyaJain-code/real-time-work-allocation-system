@@ -3,7 +3,6 @@ import { Plus, X, Edit2, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getEmployeeAvailability } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
-import { motion } from "framer-motion";
 
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
@@ -56,21 +55,19 @@ export default function Availability() {
       <div className="page-header">
         <div>
           <div className="page-title">Personal Availability & Schedule</div>
-          <div className="page-subtitle">Set your weekly shifts, availability statuses, and daily capacity</div>
+          <div className="page-subtitle">Manage weekly shifts and availability status</div>
         </div>
-        <motion.button
+        <button
           className="btn btn-primary"
           onClick={() => setShowModal(true)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
-          <Plus size={16} /> Add Schedule Slot
-        </motion.button>
+          <Plus size={15} /> Add Shift Slot
+        </button>
       </div>
 
       {/* Calendar Week View */}
-      <div className="card" style={{ marginBottom: 24 }}>
-        <div className="card-header"><span className="card-title">This Week's Visual Schedule</span></div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="card-header"><span className="card-title">This Week's Schedule</span></div>
         <div className="card-body">
           <div className="avail-grid">
             {weekDates.map((date, idx) => {
@@ -79,7 +76,7 @@ export default function Availability() {
               return (
                 <div key={date} className="avail-day">
                   <div className="avail-day-name">{DAYS[idx]}</div>
-                  <div className="avail-day-date" style={{ color: "#ffffff" }}>{dayNum}</div>
+                  <div className="avail-day-date">{dayNum}</div>
                   {slot ? (
                     <div>
                       <div className={`avail-slot ${slot.status}`}>
@@ -90,7 +87,7 @@ export default function Availability() {
                       </div>
                     </div>
                   ) : (
-                    <div style={{ fontSize: 11, color: "var(--muted)", fontStyle: "italic", marginTop: 6 }}>No slot</div>
+                    <div style={{ fontSize: 11, color: "var(--muted)", fontStyle: "italic" }}>No slot</div>
                   )}
                 </div>
               );
@@ -115,13 +112,13 @@ export default function Availability() {
             <tbody>
               {records.map(r => (
                 <tr key={r.id}>
-                  <td className="td-bold" style={{ color: "var(--text)" }}>{r.date}</td>
+                  <td className="td-bold">{r.date}</td>
                   <td>{r.start_time} — {r.end_time}</td>
                   <td>
                     {editingId === r.id ? (
                       <select
                         className="field-select"
-                        style={{ padding: "4px 8px", height: "auto", width: "auto" }}
+                        style={{ padding: "3px 6px", height: "auto", width: "auto" }}
                         value={editStatus}
                         onChange={e => setEditStatus(e.target.value)}
                       >
@@ -136,13 +133,13 @@ export default function Availability() {
                   <td>
                     {editingId === r.id ? (
                       <div style={{ display: "flex", gap: 6 }}>
-                        <button className="btn btn-primary btn-sm" onClick={() => saveEdit(r.id)}><Check size={13} /> Save</button>
-                        <button className="btn btn-ghost btn-sm" onClick={() => setEditingId(null)}><X size={13} /></button>
+                        <button className="btn btn-primary btn-sm" onClick={() => saveEdit(r.id)}><Check size={12} /> Save</button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setEditingId(null)}><X size={12} /></button>
                       </div>
                     ) : (
                       <div style={{ display: "flex", gap: 6 }}>
                         <button className="btn btn-secondary btn-sm" onClick={() => startEdit(r)}><Edit2 size={12} /> Edit</button>
-                        <button className="btn btn-ghost btn-sm" style={{ color: "#ee27d7" }} onClick={() => handleDelete(r.id)}><X size={13} /></button>
+                        <button className="btn btn-ghost btn-sm" style={{ color: "#dc3545" }} onClick={() => handleDelete(r.id)}><X size={12} /></button>
                       </div>
                     )}
                   </td>
@@ -159,7 +156,7 @@ export default function Availability() {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">Add Availability Slot</div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={16} /></button>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={15} /></button>
             </div>
             <form onSubmit={handleAdd} className="form-grid">
               <div className="field form-grid-full">
@@ -183,7 +180,7 @@ export default function Availability() {
                 </select>
               </div>
               <div className="modal-footer form-grid-full">
-                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Save Schedule</button>
               </div>
             </form>

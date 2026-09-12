@@ -237,6 +237,11 @@ export function getEmployeeFeedback(employeeId) {
   return FEEDBACK.filter(f => f.to_employee_id === employeeId);
 }
 
+export function getEmployeeTasks(employeeId) {
+  const assignments = TASK_ASSIGNMENTS.filter(a => a.employee_id === employeeId);
+  return assignments.map(a => getTask(a.task_id)).filter(Boolean);
+}
+
 export function getEmployeeActivityLog(employeeId) {
   return ACTIVITY_LOG.filter(l => l.employee_id === employeeId).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 }

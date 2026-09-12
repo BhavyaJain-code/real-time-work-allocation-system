@@ -1,32 +1,25 @@
 import { Calendar, Clock } from "lucide-react";
-import { motion } from "framer-motion";
 import StatusBadge from "./StatusBadge";
-import { getTaskSkills, getAssignmentEmployee, getEmployeeUser, TASK_ASSIGNMENTS, initials, avatarColors } from "../data/mockData";
+import { getTaskSkills, getAssignmentEmployee, getEmployeeUser, TASK_ASSIGNMENTS, initials } from "../data/mockData";
 
 export default function TaskCard({ task, onClick }) {
   const skills     = getTaskSkills(task.id);
   const assignment = TASK_ASSIGNMENTS.find(a => a.task_id === task.id);
   const assignee   = assignment ? getAssignmentEmployee(assignment) : null;
   const assigneeUser = assignee ? getEmployeeUser(assignee) : null;
-  const av = assigneeUser ? avatarColors(assigneeUser.name) : null;
 
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== "done";
 
   return (
-    <motion.div
+    <div
       className="task-card"
       onClick={onClick}
-      whileHover={{ y: -3, transition: { type: "spring", stiffness: 400, damping: 22 } }}
-      whileTap={{ scale: 0.985, transition: { type: "spring", stiffness: 500, damping: 25 } }}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      style={{ cursor: onClick ? "pointer" : "default", willChange: "transform" }}
+      style={{ cursor: onClick ? "pointer" : "default" }}
     >
       <div className="task-card-head">
         <div>
           <div className="task-card-title">{task.title}</div>
-          <div className="task-card-desc" style={{ marginTop: 4 }}>{task.description}</div>
+          <div className="task-card-desc" style={{ marginTop: 3 }}>{task.description}</div>
         </div>
         <StatusBadge value={task.priority} type="priority" />
       </div>
@@ -34,45 +27,38 @@ export default function TaskCard({ task, onClick }) {
       {skills.length > 0 && (
         <div className="emp-skills">
           {skills.map(s => (
-            <motion.span
-              key={s.id}
-              className="skill-tag"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 450, damping: 20 }}
-            >
+            <span key={s.id} className="skill-tag">
               {s.name}
-            </motion.span>
+            </span>
           ))}
         </div>
       )}
 
       <div className="task-card-foot">
-        <div className="flex items-center gap-2">
-          <Calendar size={13} color="var(--muted)" />
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Calendar size={12} color="var(--muted)" />
           <span
-            className="text-sm"
-            style={{ color: isOverdue ? "var(--red)" : "var(--muted)", fontWeight: isOverdue ? 700 : 400 }}
+            style={{ color: isOverdue ? "#dc3545" : "var(--muted)", fontWeight: isOverdue ? 600 : 400 }}
           >
             {task.deadline}
           </span>
-          <Clock size={13} color="var(--muted)" />
-          <span className="text-sm text-muted">{task.estimated_hours}h</span>
+          <span style={{ color: "var(--muted)" }}>•</span>
+          <Clock size={12} color="var(--muted)" />
+          <span>{task.estimated_hours}h</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <StatusBadge value={task.status} />
           {assigneeUser && (
-            <motion.div
+            <div
               className="avatar avatar-sm"
               title={assigneeUser.name}
-              style={{ background: av.bg, color: av.color }}
-              whileHover={{ scale: 1.15 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              style={{ background: "#e9ecef", color: "#495057" }}
             >
               {initials(assigneeUser.name)}
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

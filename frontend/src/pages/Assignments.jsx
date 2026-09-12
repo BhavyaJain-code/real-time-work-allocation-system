@@ -1,4 +1,4 @@
-import { TASK_ASSIGNMENTS, EMPLOYEES, TASKS, getEmployeeUser, getTask, initials, avatarColors } from "../data/mockData";
+import { TASK_ASSIGNMENTS, EMPLOYEES, TASKS, getEmployeeUser, getTask, initials } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 
 export default function Assignments() {
@@ -6,8 +6,8 @@ export default function Assignments() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Work Allocations Registry</div>
-          <div className="page-subtitle">{TASK_ASSIGNMENTS.length} total active and completed assignments</div>
+          <div className="page-title">Task Assignments Table</div>
+          <div className="page-subtitle">{TASK_ASSIGNMENTS.length} total work allocations in database</div>
         </div>
       </div>
 
@@ -16,7 +16,7 @@ export default function Assignments() {
           <table>
             <thead>
               <tr>
-                <th>#</th>
+                <th>ID</th>
                 <th>Task Details</th>
                 <th>Assigned Employee</th>
                 <th>Assigned Date</th>
@@ -30,20 +30,19 @@ export default function Assignments() {
                 const task = getTask(a.task_id);
                 const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
                 const user = emp ? getEmployeeUser(emp) : null;
-                const av   = avatarColors(user?.name || "");
                 return (
                   <tr key={a.id}>
                     <td className="td-muted">#{a.id}</td>
                     <td>
-                      <div className="td-bold" style={{ color: "var(--text)" }}>{task?.title || "—"}</div>
-                      <div style={{ marginTop: 4 }}>{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
+                      <div className="td-bold">{task?.title || "—"}</div>
+                      <div style={{ marginTop: 2 }}>{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
+                        <div className="avatar avatar-sm" style={{ background: "#e9ecef", color: "#495057" }}>{initials(user?.name)}</div>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: 13 }}>{user?.name || "—"}</div>
-                          <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp?.department}</div>
+                          <div style={{ fontWeight: 600, fontSize: 13 }}>{user?.name || "—"}</div>
+                          <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp?.department} · {emp?.position}</div>
                         </div>
                       </div>
                     </td>
@@ -52,7 +51,7 @@ export default function Assignments() {
                     <td><StatusBadge value={a.status} /></td>
                     <td>
                       {a.assignment_score ? (
-                        <span style={{ fontWeight: 800, color: "#f5d982", fontSize: 13.5 }}>
+                        <span style={{ fontWeight: 600, color: "#0d6efd" }}>
                           {a.assignment_score} / 100
                         </span>
                       ) : (

@@ -4,28 +4,27 @@ import { useAuth } from "../context/AuthContext";
 import {
   EMPLOYEES, TASKS, FEEDBACK,
   getEmployeeUser, getTask, getUser,
-  initials, avatarColors
+  initials
 } from "../data/mockData";
-import { motion } from "framer-motion";
 
 function StarPicker({ value, onChange }) {
   const [hover, setHover] = useState(0);
   return (
-    <div style={{ display: "flex", gap: 4 }}>
+    <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
       {[1,2,3,4,5].map(i => (
         <Star
           key={i}
-          size={26}
-          style={{ cursor: "pointer", transition: "transform 0.1s" }}
-          fill={(hover || value) >= i ? "#f5d982" : "none"}
-          color={(hover || value) >= i ? "#f5d982" : "var(--border)"}
+          size={20}
+          style={{ cursor: "pointer" }}
+          fill={(hover || value) >= i ? "#ffc107" : "none"}
+          color={(hover || value) >= i ? "#ffc107" : "#ced4da"}
           onMouseEnter={() => setHover(i)}
           onMouseLeave={() => setHover(0)}
           onClick={() => onChange(i)}
         />
       ))}
-      <span style={{ marginLeft: 8, fontSize: 13, color: "#f5d982", fontWeight: 700, alignSelf: "center" }}>
-        {value ? ["","Poor","Fair","Good","Very Good","⭐ Excellent"][value] : "Select Rating"}
+      <span style={{ marginLeft: 6, fontSize: 13, color: "#495057", fontWeight: 600 }}>
+        {value ? ["","1/5 Poor","2/5 Fair","3/5 Good","4/5 Very Good","5/5 Excellent"][value] : "Select Rating"}
       </span>
     </div>
   );
@@ -68,7 +67,7 @@ export default function Feedback() {
       <div className="page-header">
         <div>
           <div className="page-title">Performance Feedback</div>
-          <div className="page-subtitle">Manager & Peer appraisals, rating scores, and constructive coaching</div>
+          <div className="page-subtitle">Submit and review employee appraisals and ratings</div>
         </div>
       </div>
 
@@ -108,40 +107,38 @@ export default function Feedback() {
             </div>
 
             <div className="field form-grid-full">
-              <label>Rating Score</label>
+              <label>Rating (1 to 5 Stars)</label>
               <StarPicker value={form.rating} onChange={r => setForm(f => ({ ...f, rating: r }))} />
             </div>
 
             <div className="field form-grid-full">
-              <label>Feedback & Coaching Notes</label>
+              <label>Feedback & Comments</label>
               <textarea
                 className="field-textarea"
                 required
                 rows={4}
                 value={form.comment}
                 onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
-                placeholder="Detail accomplishments, code quality, punctuality or areas for growth…"
+                placeholder="Enter feedback notes, work quality, areas of improvement..."
               />
             </div>
 
             <div className="form-grid-full" style={{ display: "flex", justifyContent: "flex-end" }}>
-              <motion.button
+              <button
                 type="submit"
                 className="btn btn-primary"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
               >
-                <Send size={15} /> Submit Feedback
-              </motion.button>
+                <Send size={14} /> Submit Feedback
+              </button>
             </div>
           </form>
         </div>
 
         {/* Feedback Feed */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div className="filter-bar" style={{ marginBottom: 0 }}>
             <select className="filter-select" value={filterEmp} onChange={e => setFilterEmp(e.target.value)} style={{ width: "100%" }}>
-              <option value="all">All Feedback Logs</option>
+              <option value="all">All Feedback Records</option>
               {visibleEmps.map(e => {
                 const u = getEmployeeUser(e);
                 return <option key={e.id} value={e.id}>Feedback for {u?.name}</option>;
@@ -149,36 +146,35 @@ export default function Feedback() {
             </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.length === 0 ? (
-              <div className="card"><div className="empty-state"><h3>No feedback recorded</h3><p>Be the first to leave feedback.</p></div></div>
+              <div className="card"><div className="empty-state"><h3>No feedback records found</h3></div></div>
             ) : filtered.map(fb => {
               const author = getUser(fb.from_user_id);
               const targetEmp = EMPLOYEES.find(e => e.id === fb.to_employee_id);
               const targetUser = targetEmp ? getEmployeeUser(targetEmp) : null;
               const task = fb.task_id ? getTask(fb.task_id) : null;
-              const av = avatarColors(targetUser?.name || "");
 
               return (
-                <div key={fb.id} className="card" style={{ padding: 18 }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                    <div className="avatar avatar-md" style={{ background: av.bg, color: av.color }}>{initials(targetUser?.name)}</div>
+                <div key={fb.id} className="card" style={{ padding: 14 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <div className="avatar avatar-sm" style={{ background: "#e9ecef", color: "#495057" }}>{initials(targetUser?.name)}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
-                          <span style={{ fontWeight: 700, fontSize: 14, color: "var(--text)" }}>{targetUser?.name}</span>
-                          <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 6 }}>reviewed by <strong>{author?.name}</strong> ({author?.role})</span>
+                          <span style={{ fontWeight: 600, fontSize: 13.5 }}>{targetUser?.name}</span>
+                          <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 6 }}>reviewed by <strong>{author?.name}</strong></span>
                         </div>
                         <div style={{ display: "flex", gap: 2 }}>
                           {[1,2,3,4,5].map(i => (
-                            <Star key={i} size={13} fill={i <= fb.rating ? "#f5d982" : "none"} color={i <= fb.rating ? "#f5d982" : "var(--border)"} />
+                            <Star key={i} size={12} fill={i <= fb.rating ? "#ffc107" : "none"} color={i <= fb.rating ? "#ffc107" : "#dee2e6"} />
                           ))}
                         </div>
                       </div>
-                      <p style={{ fontSize: 13, color: "var(--text)", marginTop: 8, lineHeight: 1.5 }}>"{fb.comment}"</p>
+                      <p style={{ fontSize: 13, color: "var(--text)", marginTop: 6, lineHeight: 1.4 }}>"{fb.comment}"</p>
                       {task && (
-                        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                          <span className="badge badge-accent" style={{ fontSize: 10 }}>Task</span> {task.title}
+                        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 4 }}>
+                          Task: <strong>{task.title}</strong>
                         </div>
                       )}
                     </div>

@@ -2,12 +2,11 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   TASK_ASSIGNMENTS, EMPLOYEES, TASKS,
-  getEmployeeUser, getTask, initials, avatarColors
+  getEmployeeUser, getTask, initials
 } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import AssignTaskModal from "../components/AssignTaskModal";
 import { UserCheck } from "lucide-react";
-import { motion } from "framer-motion";
 
 export default function ManagerAssignments() {
   const { managedDept } = useAuth();
@@ -33,14 +32,12 @@ export default function ManagerAssignments() {
           <div className="page-title">{managedDept} Assignments</div>
           <div className="page-subtitle">{myAssignments.length} total allocations for your managed team</div>
         </div>
-        <motion.button
+        <button
           className="btn btn-primary"
           onClick={() => setShowAssign(true)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
-          <UserCheck size={16} /> Assign Task to Team
-        </motion.button>
+          <UserCheck size={15} /> Assign Task to Team
+        </button>
       </div>
 
       <div className="card">
@@ -64,19 +61,18 @@ export default function ManagerAssignments() {
                 const task = getTask(a.task_id);
                 const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
                 const user = emp ? getEmployeeUser(emp) : null;
-                const av   = avatarColors(user?.name || "");
                 return (
                   <tr key={a.id}>
                     <td className="td-muted">#{a.id}</td>
                     <td>
-                      <div className="td-bold" style={{ color: "var(--text)" }}>{task?.title || "—"}</div>
-                      <div style={{ marginTop: 4 }}>{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
+                      <div className="td-bold">{task?.title || "—"}</div>
+                      <div style={{ marginTop: 2 }}>{task?.priority && <StatusBadge value={task.priority} type="priority" />}</div>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(user?.name)}</div>
+                        <div className="avatar avatar-sm" style={{ background: "#e9ecef", color: "#495057" }}>{initials(user?.name)}</div>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: 13 }}>{user?.name || "—"}</div>
+                          <div style={{ fontWeight: 600, fontSize: 13 }}>{user?.name || "—"}</div>
                           <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp?.position}</div>
                         </div>
                       </div>
@@ -86,7 +82,7 @@ export default function ManagerAssignments() {
                     <td><StatusBadge value={a.status} /></td>
                     <td>
                       {a.assignment_score ? (
-                        <span style={{ fontWeight: 800, color: "#f5d982", fontSize: 13.5 }}>
+                        <span style={{ fontWeight: 600, color: "#0d6efd" }}>
                           {a.assignment_score} / 100
                         </span>
                       ) : (

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Zap, Plus, Trash2, X } from "lucide-react";
-import { motion } from "framer-motion";
 import { SKILLS, EMPLOYEE_SKILLS, TASKS } from "../data/mockData";
 
 export default function Skills() {
@@ -27,17 +26,15 @@ export default function Skills() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Skills Registry</div>
-          <div className="page-subtitle">{skills.length} skills indexed for automated allocation</div>
+          <div className="page-title">Skills Matrix Registry</div>
+          <div className="page-subtitle">{skills.length} skills recorded in system</div>
         </div>
-        <motion.button
+        <button
           className="btn btn-primary"
           onClick={() => setShowModal(true)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
-          <Plus size={16} /> Add New Skill
-        </motion.button>
+          <Plus size={15} /> Add Skill
+        </button>
       </div>
 
       <div className="card">
@@ -48,8 +45,8 @@ export default function Skills() {
                 <th>Skill Name</th>
                 <th>Category</th>
                 <th>Description</th>
-                <th>Employee Mastery</th>
-                <th>Active Task Demand</th>
+                <th>Employees With Skill</th>
+                <th>Tasks Requiring Skill</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -57,15 +54,10 @@ export default function Skills() {
               {skills.map(s => (
                 <tr key={s.id}>
                   <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: "var(--radius)", background: "rgba(245, 217, 130, 0.16)", border: "1px solid rgba(245, 217, 130, 0.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f5d982" }}>
-                        <Zap size={16} color="#f5d982" />
-                      </div>
-                      <span className="td-bold" style={{ color: "var(--text)" }}>{s.name}</span>
-                    </div>
+                    <span className="td-bold">{s.name}</span>
                   </td>
                   <td>
-                    <span className="badge badge-pink">{s.category || "General"}</span>
+                    <span className="badge badge-gray">{s.category || "General"}</span>
                   </td>
                   <td className="td-muted" style={{ maxWidth: 300 }}>{s.description || "—"}</td>
                   <td>
@@ -74,17 +66,17 @@ export default function Skills() {
                     </span>
                   </td>
                   <td>
-                    <span className="badge badge-accent">
+                    <span className="badge badge-amber">
                       {taskCount(s.id)} tasks
                     </span>
                   </td>
                   <td>
                     <button
                       className="btn btn-ghost btn-sm"
-                      style={{ color: "#ee27d7" }}
+                      style={{ color: "#dc3545" }}
                       onClick={() => handleDelete(s.id)}
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={14} /> Delete
                     </button>
                   </td>
                 </tr>
@@ -98,13 +90,13 @@ export default function Skills() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <div className="modal-title">Add New Skill to Registry</div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={16} /></button>
+              <div className="modal-title">Add New Skill</div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={15} /></button>
             </div>
             <form onSubmit={handleAdd} className="form-grid">
               <div className="field form-grid-full">
                 <label>Skill Name</label>
-                <input className="field-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Next.js, Rust, GraphQL" />
+                <input className="field-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. React, Python, SQL" />
               </div>
               <div className="field form-grid-full">
                 <label>Category</label>
@@ -119,10 +111,10 @@ export default function Skills() {
               </div>
               <div className="field form-grid-full">
                 <label>Description</label>
-                <textarea className="field-textarea" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Brief summary of skills and use-cases…" />
+                <textarea className="field-textarea" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Brief description of skill..." />
               </div>
               <div className="modal-footer form-grid-full">
-                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Save Skill</button>
               </div>
             </form>

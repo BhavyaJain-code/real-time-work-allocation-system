@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { UserPlus, Eye, EyeOff, X, RefreshCw } from "lucide-react";
-import { USERS, EMPLOYEES, initials, avatarColors } from "../data/mockData";
-import { motion } from "framer-motion";
+import { USERS, EMPLOYEES, initials } from "../data/mockData";
 
 function genPassword() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!";
@@ -44,22 +43,20 @@ export default function UserManagement() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">User Accounts & Access</div>
-          <div className="page-subtitle">Admin-only · {users.length} managed user accounts</div>
+          <div className="page-title">User Accounts & Access Control</div>
+          <div className="page-subtitle">Manage login credentials and system roles ({users.length} accounts)</div>
         </div>
-        <motion.button
+        <button
           className="btn btn-primary"
           onClick={() => setShowModal(true)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
-          <UserPlus size={16} /> Create User Account
-        </motion.button>
+          <UserPlus size={15} /> Add User Account
+        </button>
       </div>
 
       <div className="filter-bar">
         <div className="search-wrap">
-          <input className="search-input" placeholder="Search users…" value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: 12 }} />
+          <input className="search-input" placeholder="Search users by name or email…" value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: 12 }} />
         </div>
         <select className="filter-select" value={roleF} onChange={e => setRoleF(e.target.value)}>
           <option value="all">All Roles</option>
@@ -83,14 +80,13 @@ export default function UserManagement() {
             </thead>
             <tbody>
               {filtered.map(u => {
-                const av = avatarColors(u.name);
                 const employeeRecord = emp(u.id);
                 const isPassVisible = showPass[u.id];
                 return (
                   <tr key={u.id}>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div className="avatar avatar-sm" style={{ background: av.bg, color: av.color }}>{initials(u.name)}</div>
+                        <div className="avatar avatar-sm" style={{ background: "#e9ecef", color: "#495057" }}>{initials(u.name)}</div>
                         <div>
                           <div className="td-bold">{u.name}</div>
                           <div className="td-muted">{u.email}</div>
@@ -98,11 +94,11 @@ export default function UserManagement() {
                       </div>
                     </td>
                     <td>
-                      <span className={`badge ${u.role === "manager" ? "badge-pink" : "badge-blue"}`} style={{ textTransform: "capitalize" }}>
+                      <span className={`badge ${u.role === "manager" ? "badge-amber" : "badge-blue"}`} style={{ textTransform: "capitalize" }}>
                         {u.role}
                       </span>
                       {employeeRecord && (
-                        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 3 }}>
+                        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>
                           {employeeRecord.department} · {employeeRecord.position}
                         </div>
                       )}
@@ -115,15 +111,15 @@ export default function UserManagement() {
                     <td>
                       {u.temp_password ? (
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontFamily: "monospace", fontSize: 13, color: "#f5d982", background: "rgba(245, 217, 130, 0.12)", padding: "2px 8px", borderRadius: 4 }}>
+                          <span style={{ fontFamily: "monospace", fontSize: 12.5, background: "#f8f9fa", border: "1px solid #dee2e6", padding: "2px 6px", borderRadius: 3 }}>
                             {isPassVisible ? u.temp_password : "••••••••"}
                           </span>
                           <button
                             className="btn btn-ghost btn-sm"
-                            style={{ padding: 4 }}
+                            style={{ padding: 2 }}
                             onClick={() => setShowPass(p => ({ ...p, [u.id]: !p[u.id] }))}
                           >
-                            {isPassVisible ? <EyeOff size={13} /> : <Eye size={13} color="#ee27d7" />}
+                            {isPassVisible ? <EyeOff size={13} /> : <Eye size={13} />}
                           </button>
                         </div>
                       ) : (
@@ -134,7 +130,7 @@ export default function UserManagement() {
                     <td>
                       <button
                         className="btn btn-ghost btn-sm"
-                        style={{ color: u.is_active ? "#ee27d7" : "var(--green)" }}
+                        style={{ color: u.is_active ? "#dc3545" : "#198754" }}
                         onClick={() => toggleActive(u.id)}
                       >
                         {u.is_active ? "Deactivate" : "Activate"}
@@ -154,7 +150,7 @@ export default function UserManagement() {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">Create New User Account</div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={16} /></button>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><X size={15} /></button>
             </div>
             <form onSubmit={handleCreate} className="form-grid">
               <div className="field form-grid-full">
@@ -166,7 +162,7 @@ export default function UserManagement() {
                 <input className="field-input" type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="alex@workflow.io" />
               </div>
               <div className="field">
-                <label>System Role</label>
+                <label>Role</label>
                 <select className="field-select" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
                   <option value="employee">Employee</option>
                   <option value="manager">Department Manager</option>
@@ -182,16 +178,16 @@ export default function UserManagement() {
                 </select>
               </div>
               <div className="field form-grid-full">
-                <label>Temporary Generated Password</label>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input className="field-input" readOnly value={form.password} style={{ fontFamily: "monospace", color: "#f5d982" }} />
+                <label>Temporary Password</label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <input className="field-input" readOnly value={form.password} style={{ fontFamily: "monospace" }} />
                   <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm(f => ({ ...f, password: genPassword() }))}>
-                    <RefreshCw size={14} />
+                    <RefreshCw size={13} />
                   </button>
                 </div>
               </div>
               <div className="modal-footer form-grid-full">
-                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Create User</button>
               </div>
             </form>

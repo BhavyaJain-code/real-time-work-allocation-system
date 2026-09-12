@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus } from "lucide-react";
-import { motion } from "framer-motion";
 import { EMPLOYEES, USERS } from "../data/mockData";
 import EmployeeCard from "../components/EmployeeCard";
 
@@ -28,21 +27,14 @@ export default function Employees() {
       <div className="page-header">
         <div>
           <div className="page-title">Employees Directory</div>
-          <div className="page-subtitle">{EMPLOYEES.length} team members across Engineering, Design, and Data</div>
+          <div className="page-subtitle">{EMPLOYEES.length} registered employees across departments</div>
         </div>
-        <motion.button
-          className="btn btn-primary"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Plus size={16} /> Add Employee
-        </motion.button>
       </div>
 
       <div className="filter-bar">
         <div className="search-wrap">
-          <Search size={15} className="search-icon" />
-          <input className="search-input" placeholder="Search employees…" value={search} onChange={e => setSearch(e.target.value)} />
+          <Search size={14} className="search-icon" />
+          <input className="search-input" placeholder="Search employees by name, role or department…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="filter-select" value={deptF} onChange={e => setDeptF(e.target.value)}>
           <option value="all">All Departments</option>

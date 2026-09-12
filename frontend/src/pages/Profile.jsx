@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { EMPLOYEES, USERS, getEmployeeUser, getEmployeeSkills, getEmployeeAvailability, initials, avatarColors, getDepartmentManager, DEPARTMENT_MANAGERS } from "../data/mockData";
+import { EMPLOYEES, USERS, getEmployeeUser, getEmployeeSkills, getEmployeeAvailability, initials, avatarColors } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 import { User, Mail, Briefcase, Building, Edit2, Check, X, Shield, Zap } from "lucide-react";
-import { motion } from "framer-motion";
 
 export default function Profile() {
   const { user, employee, managedDept } = useAuth();
@@ -18,167 +17,178 @@ export default function Profile() {
 
   if (!user) return null;
 
-  const av      = avatarColors(user.name);
   const skills  = employee ? getEmployeeSkills(employee.id) : [];
   const avail   = employee ? getEmployeeAvailability(employee.id) : [];
 
   const handleSave = () => { setSaved({ ...form }); setEditing(false); };
   const handleCancel = () => { setForm({ ...saved }); setEditing(false); };
 
-  const wColor = employee ? (employee.workload_percentage >= 85 ? "#ee27d7" : employee.workload_percentage >= 60 ? "#f5d982" : "#10b981") : null;
+  const wColor = employee ? (employee.workload_percentage >= 85 ? "#dc3545" : employee.workload_percentage >= 60 ? "#0d6efd" : "#198754") : null;
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Personal Profile & Identity</div>
-          <div className="page-subtitle">Manage credentials, department association, and competency details</div>
+          <div className="page-title">User Profile</div>
+          <div className="page-subtitle">View and update account information</div>
         </div>
         {!editing && (
-          <motion.button
+          <button
             className="btn btn-secondary"
             onClick={() => setEditing(true)}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
           >
-            <Edit2 size={15} color="#ee27d7" /> Edit Profile
-          </motion.button>
+            <Edit2 size={14} /> Edit Profile
+          </button>
         )}
       </div>
 
       <div className="grid-2" style={{ alignItems: "start" }}>
         {/* Main profile card */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="card">
             <div className="profile-header">
               <div
                 className="avatar avatar-xl"
                 style={{
-                  background: "linear-gradient(135deg, #f5d982 0%, #ee27d7 100%)",
-                  color: "#0d0a01",
-                  boxShadow: "0 6px 20px rgba(238, 39, 215, 0.4)",
-                  fontSize: 24,
-                  fontWeight: 900
+                  background: "#0d6efd",
+                  color: "#ffffff",
+                  fontSize: 20,
+                  fontWeight: 700,
                 }}
               >
                 {initials(saved.name)}
               </div>
               <div className="profile-info">
                 <h2>{saved.name}</h2>
-                <p style={{ textTransform: "capitalize", color: "#f5d982", fontWeight: 700 }}>
-                  {user.role}{saved.department ? ` · ${saved.department}` : ""}
-                </p>
-                {user.role === "manager" && managedDept && (
-                  <div className="profile-meta">
-                    <span className="badge badge-pink"><Building size={12} /> Manages {managedDept}</span>
-                  </div>
-                )}
-                <div className="profile-meta" style={{ marginTop: 6 }}>
-                  <span className={`badge ${user.is_active ? "badge-green" : "badge-red"}`}>
-                    {user.is_active ? "Active" : "Inactive"}
-                  </span>
-                  <span className="badge badge-gray">Member since {user.created_at}</span>
+                <p>{saved.email}</p>
+                <div className="profile-meta">
+                  <span className="badge badge-blue">{user.role.toUpperCase()}</span>
+                  {saved.department && <span className="badge badge-gray">{saved.department}</span>}
+                  {employee?.availability_status && (
+                    <StatusBadge value={employee.availability_status} />
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="card-body">
               {editing ? (
-                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="form-grid">
-                  <div className="field form-grid-full">
+                <div className="form-grid">
+                  <div className="field">
                     <label>Full Name</label>
-                    <input className="field-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+                    <input
+                      className="field-input"
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    />
                   </div>
-                  <div className="field form-grid-full">
+                  <div className="field">
                     <label>Email Address</label>
-                    <input className="field-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required />
+                    <input
+                      className="field-input"
+                      value={form.email}
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    />
                   </div>
                   {employee && (
                     <>
                       <div className="field">
-                        <label>Position / Title</label>
-                        <input className="field-input" value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} />
+                        <label>Job Position</label>
+                        <input
+                          className="field-input"
+                          value={form.position}
+                          onChange={e => setForm(f => ({ ...f, position: e.target.value }))}
+                        />
                       </div>
                       <div className="field">
                         <label>Department</label>
-                        <select className="field-select" value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}>
-                          <option value="Engineering">Engineering</option>
-                          <option value="Design">Design</option>
-                          <option value="Data">Data</option>
-                        </select>
+                        <input
+                          className="field-input"
+                          value={form.department}
+                          onChange={e => setForm(f => ({ ...f, department: e.target.value }))}
+                        />
                       </div>
                     </>
                   )}
-                  <div className="form-grid-full" style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
-                    <button type="button" className="btn btn-ghost" onClick={handleCancel}><X size={15} /> Cancel</button>
-                    <button type="submit" className="btn btn-primary"><Check size={15} /> Save Changes</button>
+                  <div className="form-grid-full" style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <button className="btn btn-secondary" onClick={handleCancel}>
+                      <X size={14} /> Cancel
+                    </button>
+                    <button className="btn btn-primary" onClick={handleSave}>
+                      <Check size={14} /> Save Changes
+                    </button>
                   </div>
-                </form>
+                </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
-                    <Mail size={16} color="#ee27d7" />
-                    <span style={{ color: "var(--muted)" }}>Email:</span>
-                    <strong style={{ color: "var(--text)" }}>{saved.email}</strong>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <User size={15} color="var(--muted)" />
+                    <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Full Name:</span>
+                    <strong style={{ fontSize: 13.5 }}>{saved.name}</strong>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Mail size={15} color="var(--muted)" />
+                    <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Email:</span>
+                    <strong style={{ fontSize: 13.5 }}>{saved.email}</strong>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Shield size={15} color="var(--muted)" />
+                    <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>System Role:</span>
+                    <span className="badge badge-blue">{user.role}</span>
                   </div>
                   {saved.position && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
-                      <Briefcase size={16} color="#ee27d7" />
-                      <span style={{ color: "var(--muted)" }}>Position:</span>
-                      <strong style={{ color: "var(--text)" }}>{saved.position}</strong>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <Briefcase size={15} color="var(--muted)" />
+                      <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Position:</span>
+                      <strong style={{ fontSize: 13.5 }}>{saved.position}</strong>
                     </div>
                   )}
                   {saved.department && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
-                      <Building size={16} color="#ee27d7" />
-                      <span style={{ color: "var(--muted)" }}>Department:</span>
-                      <strong style={{ color: "var(--text)" }}>{saved.department}</strong>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <Building size={15} color="var(--muted)" />
+                      <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Department:</span>
+                      <strong style={{ fontSize: 13.5 }}>{saved.department}</strong>
                     </div>
                   )}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13.5 }}>
-                    <Shield size={16} color="#ee27d7" />
-                    <span style={{ color: "var(--muted)" }}>Access Level:</span>
-                    <span className="badge badge-accent" style={{ textTransform: "capitalize" }}>{user.role}</span>
-                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Workload card (if employee) */}
+          {/* Workload card if employee */}
           {employee && (
             <div className="card">
-              <div className="card-header"><span className="card-title">Live Workload Capacity</span></div>
+              <div className="card-header">
+                <span className="card-title">Workload & Capacity Status</span>
+              </div>
               <div className="card-body">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontWeight: 700 }}>Allocated Load</span>
-                  <span style={{ fontWeight: 800, fontSize: 20, color: wColor }}>{employee.workload_percentage}%</span>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
+                  <span>Current Workload: <strong>{employee.workload_percentage}%</strong></span>
+                  <span style={{ color: wColor, fontWeight: 600 }}>{employee.availability_status.toUpperCase()}</span>
                 </div>
-                <div className="progress-bar" style={{ height: 10 }}>
-                  <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: `linear-gradient(90deg, #f5d982 0%, ${wColor} 100%)` }} />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12, color: "var(--muted)" }}>
-                  <span>Max Capacity: {employee.max_workload || 100}%</span>
-                  <StatusBadge value={employee.availability_status} />
+                <div className="progress-bar" style={{ height: 8 }}>
+                  <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: wColor }} />
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Right side: Skills & Availability */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        {/* Right side: Skills & Shifts */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {employee && (
             <div className="card">
-              <div className="card-header"><span className="card-title">Registered Competencies</span></div>
+              <div className="card-header">
+                <span className="card-title">Registered Skills</span>
+              </div>
               <div className="card-body">
                 {skills.length === 0 ? (
-                  <p style={{ color: "var(--muted)", fontSize: 13 }}>No skills recorded.</p>
+                  <span className="text-muted">No skills assigned yet.</span>
                 ) : (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {skills.map(s => (
-                      <span key={s.id} className="skill-tag" style={{ fontSize: 12.5, padding: "5px 10px" }}>
-                        <Zap size={12} color="#f5d982" /> {s.name}
+                      <span key={s.id} className="skill-tag">
+                        {s.name}
                       </span>
                     ))}
                   </div>
@@ -189,19 +199,23 @@ export default function Profile() {
 
           {employee && (
             <div className="card">
-              <div className="card-header"><span className="card-title">Recent Weekly Schedule</span></div>
-              <div className="card-body" style={{ padding: 0 }}>
+              <div className="card-header">
+                <span className="card-title">Weekly Schedule Slots</span>
+              </div>
+              <div className="card-body">
                 {avail.length === 0 ? (
-                  <p style={{ color: "var(--muted)", fontSize: 13, padding: 18 }}>No schedule set.</p>
-                ) : avail.slice(0, 5).map(r => (
-                  <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 18px", borderBottom: "1px solid var(--border)" }}>
-                    <div>
-                      <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>{r.date}</span>
-                      <span style={{ fontSize: 11.5, color: "var(--muted)", marginLeft: 8 }}>{r.start_time} - {r.end_time}</span>
-                    </div>
-                    <StatusBadge value={r.status} />
+                  <span className="text-muted">No schedule records.</span>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {avail.map(a => (
+                      <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#f8f9fa", borderRadius: 4, border: "1px solid var(--border)" }}>
+                        <span style={{ fontWeight: 600, fontSize: 13 }}>{a.date}</span>
+                        <span style={{ fontSize: 12, color: "var(--muted)" }}>{a.start_time} - {a.end_time}</span>
+                        <StatusBadge value={a.status} />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}

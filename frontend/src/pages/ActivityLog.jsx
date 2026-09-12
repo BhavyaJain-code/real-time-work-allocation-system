@@ -6,9 +6,9 @@ import StatusBadge from "../components/StatusBadge";
 
 const ACTION_META = {
   assigned:  { label: "Assigned",  cls: "badge-blue"   },
-  started:   { label: "Started",   cls: "badge-accent" },
+  started:   { label: "Started",   cls: "badge-amber" },
   completed: { label: "Completed", cls: "badge-green"  },
-  updated:   { label: "Updated",   cls: "badge-pink"   },
+  updated:   { label: "Updated",   cls: "badge-purple" },
 };
 
 function timeStr(ts) {
@@ -40,15 +40,15 @@ export default function ActivityLog() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Activity & Audit Register</div>
-          <div className="page-subtitle">{logs.length} logged actions across team allocations</div>
+          <div className="page-title">Activity & Audit Log</div>
+          <div className="page-subtitle">{logs.length} logged system transactions</div>
         </div>
       </div>
 
       <div className="filter-bar">
         <div className="search-wrap">
-          <Search size={15} className="search-icon" />
-          <input className="search-input" placeholder="Search log description or task title…" value={search} onChange={e => setSearch(e.target.value)} />
+          <Search size={14} className="search-icon" />
+          <input className="search-input" placeholder="Search log description or task..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="filter-select" value={empF} onChange={e => setEmpF(e.target.value)}>
           <option value="all">All Employees</option>
@@ -80,7 +80,7 @@ export default function ActivityLog() {
             </thead>
             <tbody>
               {logs.length === 0 ? (
-                <tr><td colSpan={5} className="empty-state">No activity records match your criteria.</td></tr>
+                <tr><td colSpan={5} className="empty-state">No activity records found.</td></tr>
               ) : logs.map(l => {
                 const emp  = EMPLOYEES.find(e => e.id === l.employee_id);
                 const user = emp ? getEmployeeUser(emp) : null;
@@ -88,18 +88,18 @@ export default function ActivityLog() {
                 const meta = ACTION_META[l.action] || { label: l.action, cls: "badge-gray" };
                 return (
                   <tr key={l.id}>
-                    <td className="td-muted" style={{ whiteSpace: "nowrap", fontFamily: "monospace", color: "#d9c89a" }}>{timeStr(l.timestamp)}</td>
-                    <td className="td-bold" style={{ color: "var(--text)" }}>{user?.name || "—"}</td>
+                    <td className="td-muted" style={{ whiteSpace: "nowrap" }}>{timeStr(l.timestamp)}</td>
+                    <td className="td-bold">{user?.name || "—"}</td>
                     <td>
                       <span className={`badge ${meta.cls}`} style={{ textTransform: "capitalize" }}>
                         {meta.label}
                       </span>
                     </td>
-                    <td style={{ color: "var(--text)" }}>{l.description}</td>
+                    <td>{l.description}</td>
                     <td>
                       {task ? (
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontWeight: 700, color: "#f5d982", fontSize: 13 }}>{task.title}</span>
+                          <span style={{ fontWeight: 600, fontSize: 13 }}>{task.title}</span>
                           <StatusBadge value={task.priority} type="priority" />
                         </div>
                       ) : <span className="td-muted">—</span>}
