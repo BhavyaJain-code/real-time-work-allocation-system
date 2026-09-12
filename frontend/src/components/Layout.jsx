@@ -1,13 +1,10 @@
-import { Outlet, Navigate, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { Outlet, Navigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
-import { PageTransition } from "./motion/MotionPrimitives";
 
 export default function Layout() {
   const { user } = useAuth();
-  const location = useLocation();
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -17,12 +14,11 @@ export default function Layout() {
       <div className="app-main">
         <Navbar />
         <div className="app-content">
-          <AnimatePresence mode="wait">
-            <PageTransition key={location.pathname}>
-              <Outlet />
-            </PageTransition>
-          </AnimatePresence>
+          <Outlet />
         </div>
+        <footer className="app-footer">
+          Work Allocation System & Resource Management Software © {new Date().getFullYear()} · All Rights Reserved
+        </footer>
       </div>
     </div>
   );
