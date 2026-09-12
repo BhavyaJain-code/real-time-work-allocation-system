@@ -19,6 +19,7 @@ import UserManagement  from "./pages/UserManagement";
 import ProgressReport  from "./pages/ProgressReport";
 import Feedback        from "./pages/Feedback";
 import ActivityLog     from "./pages/ActivityLog";
+import RemoteMonitoring from "./pages/RemoteMonitoring";
 
 // ── Manager pages (separate) ────────────────────────────
 import ManagerDashboard   from "./pages/ManagerDashboard";
@@ -55,6 +56,7 @@ function App() {
 
             {/* ── Admin ──────────────────────────────────── */}
             <Route path="/admin/dashboard"     element={<AdminDashboard />} />
+            <Route path="/admin/monitoring"    element={<RemoteMonitoring />} />
             <Route path="/admin/tasks"         element={<Tasks />} />
             <Route path="/admin/tasks/create"  element={<CreateTask />} />
             <Route path="/admin/assignments"   element={<Assignments />} />
@@ -69,6 +71,7 @@ function App() {
 
             {/* ── Manager (fully separate) ───────────────── */}
             <Route path="/manager/dashboard"   element={<ManagerDashboard />} />
+            <Route path="/manager/monitoring"  element={<RemoteMonitoring />} />
             <Route path="/manager/tasks"       element={<ManagerTasks />} />
             <Route path="/manager/employees"   element={<ManagerEmployees />} />
             <Route path="/manager/assignments" element={<ManagerAssignments />} />

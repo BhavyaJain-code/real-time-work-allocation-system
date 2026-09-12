@@ -113,6 +113,9 @@ export default function AdminDashboard() {
             <span className="badge badge-green">🟢 {activeNowCount} Active Now</span>
             <span className="badge badge-purple">🟣 {inMeetingCount} In Meeting</span>
             <span className="badge badge-blue">⚡ {avgProductivity}% Avg Productivity</span>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate("/admin/monitoring")}>
+              Full Monitoring Hub →
+            </button>
           </div>
         </div>
 

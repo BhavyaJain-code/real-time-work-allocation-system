@@ -26,6 +26,11 @@ export default function Layout() {
           <NavLink to={user.role === "admin" ? "/admin/assignments" : user.role === "manager" ? "/manager/assignments" : "/employee/availability"} className={({ isActive }) => `was-nav-link${isActive ? " active" : ""}`}>
             {user.role === "employee" ? "Availability" : "Staff Allocation"}
           </NavLink>
+          {(user.role === "admin" || user.role === "manager") && (
+            <NavLink to={user.role === "admin" ? "/admin/monitoring" : "/manager/monitoring"} className={({ isActive }) => `was-nav-link${isActive ? " active" : ""}`}>
+              Remote Monitoring
+            </NavLink>
+          )}
           {user.role === "admin" && (
             <NavLink to="/admin/employees" className={({ isActive }) => `was-nav-link${isActive ? " active" : ""}`}>
               Staff Directory
