@@ -1,11 +1,153 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Printer, Download, User, ChevronDown, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { 
   EMPLOYEES, TASKS, TASK_ASSIGNMENTS, 
   getEmployeeUser, getEmployeeSkills, getEmployeeProgress, 
-  getEmployeeFeedback, getTask, getUser, getManagerEmployees 
+  getTask, getUser, getManagerEmployees 
 } from "../data/mockData";
+
+// Dedicated, individual performance profiles for each employee
+const INDIVIDUAL_REPORTS = {
+  1: {
+    empIdCode: "ENG-1042",
+    shift: "Day (9:00 AM – 5:00 PM)",
+    supervisor: "Mr. Ravi Kapoor (Eng Director)",
+    location: "Tech Hub - Floor 3 / Remote",
+    competencies: [
+      { area: "Technical Skills (React, TypeScript)", grade: "A", pending: "None (Mentoring junior devs on UI architecture)" },
+      { area: "Productivity", grade: "A+", pending: "None (5h 45m focused daily output)" },
+      { area: "Quality Compliance", grade: "A", pending: "Zero regression bugs across 12 sprint deliverables" },
+      { area: "Safety Practices & Security", grade: "A", pending: "None (100% compliant with auth security standards)" },
+      { area: "Teamwork & Discipline", grade: "A+", pending: "None (Excellent cross-functional collaboration)" }
+    ],
+    comments: [
+      { type: "positive", text: "Delivers pixel-perfect UI components ahead of scheduled sprint deadlines." },
+      { type: "positive", text: "Proactively conducts thorough code reviews and supports backend integration." },
+      { type: "neutral",  text: "Recommended to lead frontend architecture for next generation design system." },
+      { type: "neutral",  text: "Suggested Advanced Web Performance & Accessibility certification in Q4." }
+    ],
+    attendanceRecord: "99.2% (0 late arrivals recorded)",
+    protocolUsage: "100% compliant with CI/CD and secure coding standards",
+    violations: "None",
+    overallRating: "EXCELLENT (A+)"
+  },
+  2: {
+    empIdCode: "ENG-1088",
+    shift: "Day (8:30 AM – 5:30 PM)",
+    supervisor: "Mr. Ravi Kapoor (Eng Director)",
+    location: "Tech Hub - Floor 3",
+    competencies: [
+      { area: "Technical Skills (Node.js, PostgreSQL)", grade: "A", pending: "Complete Redis caching migration for refresh tokens" },
+      { area: "Productivity", grade: "A", pending: "None (96% WorkTime productivity index)" },
+      { area: "Quality Compliance", grade: "B+", pending: "1 index tuning optimization needed on reporting queries" },
+      { area: "Safety Practices & Security", grade: "A", pending: "None (Strict adherence to API auth rotation)" },
+      { area: "Teamwork & Discipline", grade: "A", pending: "None (Consistently meets complex backend deadlines)" }
+    ],
+    comments: [
+      { type: "positive", text: "Architected high-throughput REST API endpoints and reliable migration scripts." },
+      { type: "positive", text: "Resolved critical query bottlenecks, improving response times by 40%." },
+      { type: "warning",  text: "High workload capacity (90%); supervisor must prevent overtime fatigue." },
+      { type: "neutral",  text: "Suggested Cloud Distributed Systems certification in next quarter." }
+    ],
+    attendanceRecord: "97.5% (1 late arrival recorded due to scheduled late deploy)",
+    protocolUsage: "Fully compliant with database access and migration protocols",
+    violations: "None",
+    overallRating: "VERY GOOD (A)"
+  },
+  3: {
+    empIdCode: "DES-2015",
+    shift: "Day (9:15 AM – 5:15 PM)",
+    supervisor: "Ms. Nina Torres (Lead Designer)",
+    location: "Design Studio / Remote",
+    competencies: [
+      { area: "Technical Skills (Figma, UX Research)", grade: "A", pending: "Finalize dark mode color tokens in design library" },
+      { area: "Productivity", grade: "A", pending: "None (High creative throughput)" },
+      { area: "Quality Compliance", grade: "A", pending: "Design handoffs 100% aligned with design system specs" },
+      { area: "Safety Practices & Data", grade: "A", pending: "None (Strict adherence to digital asset licensing)" },
+      { area: "Teamwork & Discipline", grade: "A+", pending: "None (Outstanding sprint review presentations)" }
+    ],
+    comments: [
+      { type: "positive", text: "Crafted intuitive user journey maps and elegant pastel interface systems." },
+      { type: "positive", text: "Works exceptionally well with engineering team during sprint implementation." },
+      { type: "neutral",  text: "Consistently incorporates user feedback into iterative UX improvements." },
+      { type: "neutral",  text: "Suggested Advanced Usability Testing & Analytics workshop in Q4." }
+    ],
+    attendanceRecord: "98.8% (0 late arrivals recorded)",
+    protocolUsage: "Always compliant with design asset licensing & brand guidelines",
+    violations: "None",
+    overallRating: "EXCELLENT (A+)"
+  },
+  4: {
+    empIdCode: "ENG-3091",
+    shift: "Flexible (On-Call Rotation)",
+    supervisor: "Mr. Ravi Kapoor (Eng Director)",
+    location: "Infrastructure Ops / Remote",
+    competencies: [
+      { area: "Technical Skills (Docker, AWS)", grade: "B", pending: "Refresher training on Terraform IAC state locking" },
+      { area: "Productivity", grade: "B", pending: "2 infrastructure audit action items pending resolution" },
+      { area: "Quality Compliance", grade: "B", pending: "Minor drift detected in staging container configuration" },
+      { area: "Safety Practices & Security", grade: "A", pending: "None (Multi-factor auth strictly enforced on AWS)" },
+      { area: "Teamwork & Discipline", grade: "B+", pending: "Improve check-in response time during off-peak sprint days" }
+    ],
+    comments: [
+      { type: "positive", text: "Successfully automated production container build & deployment pipelines." },
+      { type: "warning",  text: "Needs closer follow-up on staging environment drift resolution." },
+      { type: "warning",  text: "Regular standup attendance and task tracking updates need consistency." },
+      { type: "neutral",  text: "Scheduled AWS Solutions Architect upskilling training in Q4." }
+    ],
+    attendanceRecord: "91.0% (3 off-work days recorded during quarterly audit)",
+    protocolUsage: "Compliant with cloud security access policies",
+    violations: "None",
+    overallRating: "AVERAGE (B)"
+  },
+  5: {
+    empIdCode: "DAT-4008",
+    shift: "Day (9:00 AM – 5:00 PM)",
+    supervisor: "Mr. Sam Osei (Head of Data)",
+    location: "Data Analytics Wing",
+    competencies: [
+      { area: "Technical Skills (Python, SQL, BI)", grade: "A", pending: "Complete skill gap dashboard automation script" },
+      { area: "Productivity", grade: "A", pending: "None (5h 15m active daily analytical focus)" },
+      { area: "Quality Compliance", grade: "A", pending: "Data validation integrity tests passed with 99.8% precision" },
+      { area: "Safety Practices & Security", grade: "A", pending: "None (Full GDPR and employee data privacy adherence)" },
+      { area: "Teamwork & Discipline", grade: "A", pending: "None (Clear, insightful analytical presentations)" }
+    ],
+    comments: [
+      { type: "positive", text: "Produced comprehensive workload and telemetry analytics dashboards." },
+      { type: "positive", text: "Highly detail-oriented data cleaning and automated Python report pipelines." },
+      { type: "positive", text: "Excellent cross-department collaboration with HR and management teams." },
+      { type: "neutral",  text: "Recommended for Advanced Predictive Data Modeling program." }
+    ],
+    attendanceRecord: "99.0% (0 late arrivals recorded)",
+    protocolUsage: "100% compliant with corporate data governance policies",
+    violations: "None",
+    overallRating: "EXCELLENT (A)"
+  },
+  6: {
+    empIdCode: "ENG-5022",
+    shift: "Day (8:45 AM – 5:15 PM)",
+    supervisor: "Mr. Ravi Kapoor (Eng Director)",
+    location: "Tech Hub - Floor 2",
+    competencies: [
+      { area: "Technical Skills (Full-Stack, GraphQL)", grade: "B+", pending: "Complete GraphQL API migration for project modules" },
+      { area: "Productivity", grade: "A", pending: "None (6h 05m active daily coding output)" },
+      { area: "Quality Compliance", grade: "B+", pending: "1 instance of test coverage drop on notification routes" },
+      { area: "Safety Practices & Security", grade: "A", pending: "None (Adheres to zero-trust API guidelines)" },
+      { area: "Teamwork & Discipline", grade: "A", pending: "None (Helpful and approachable peer reviewer)" }
+    ],
+    comments: [
+      { type: "positive", text: "Versatile engineer delivering full-stack end-to-end task features." },
+      { type: "positive", text: "Quickly debugged and optimized real-time WebSocket sync issues." },
+      { type: "warning",  text: "Maintain automated unit test coverage above 85% on all new PRs." },
+      { type: "neutral",  text: "Suggested GraphQL Federation & Microservices workshop in Q4." }
+    ],
+    attendanceRecord: "96.8% (1 late arrival recorded)",
+    protocolUsage: "Fully compliant with code review and deployment checklist",
+    violations: "None",
+    overallRating: "GOOD (B+)"
+  }
+};
 
 export default function ProgressReport() {
   const { user } = useAuth();
@@ -18,14 +160,7 @@ export default function ProgressReport() {
 
   const selectedEmp = allEmployees.find(e => e.id === Number(selectedEmpId)) || allEmployees[0];
   const empUser = getEmployeeUser(selectedEmp);
-  const empSkills = getEmployeeSkills(selectedEmp?.id);
-  const empProgress = getEmployeeProgress(selectedEmp?.id);
-  const empAssignments = TASK_ASSIGNMENTS.filter(a => a.employee_id === selectedEmp?.id);
-
-  // Dynamic Grade & Rating calculation
-  const score = selectedEmp?.productivity_score || 85;
-  const grade = score >= 92 ? "A" : score >= 80 ? "B" : score >= 65 ? "C" : "D";
-  const overallRating = score >= 92 ? "EXCELLENT (A+)" : score >= 85 ? "VERY GOOD (A)" : score >= 75 ? "GOOD (B+)" : "AVERAGE (B)";
+  const repData = INDIVIDUAL_REPORTS[selectedEmp?.id] || INDIVIDUAL_REPORTS[1];
 
   const handlePrint = () => {
     window.print();
@@ -42,7 +177,7 @@ export default function ProgressReport() {
               className="form-control"
               value={selectedEmpId}
               onChange={(e) => setSelectedEmpId(Number(e.target.value))}
-              style={{ fontWeight: 600, minWidth: 200 }}
+              style={{ fontWeight: 600, minWidth: 220 }}
             >
               {allEmployees.map(e => {
                 const u = getEmployeeUser(e);
@@ -106,7 +241,7 @@ export default function ProgressReport() {
           Report Period : <span style={{ fontWeight: 500, color: "#374151" }}>{reportPeriod}</span>
         </div>
 
-        {/* 4. Employee Details Box (Light Grey Grid) */}
+        {/* 3. Employee Details Box (Light Grey Grid) */}
         <div 
           style={{
             backgroundColor: "#f3f4f6",
@@ -119,22 +254,22 @@ export default function ProgressReport() {
             border: "1px solid #e5e7eb"
           }}
         >
-          <div><strong>Employee Name :</strong> {empUser?.name || "Rone Gomal"}</div>
-          <div><strong>Employee ID :</strong> EMP-10{selectedEmp?.id || "23"}</div>
-          <div><strong>Department :</strong> {selectedEmp?.department || "Assembly Line"}</div>
-          <div><strong>Designation :</strong> {selectedEmp?.position || "Machine Operator"}</div>
-          <div><strong>Shift :</strong> Day (8:00 AM – 5:00 PM)</div>
-          <div><strong>Supervisor :</strong> Mr. S. Thekker</div>
+          <div><strong>Employee Name :</strong> {empUser?.name}</div>
+          <div><strong>Employee ID :</strong> {repData.empIdCode}</div>
+          <div><strong>Department :</strong> {selectedEmp?.department}</div>
+          <div><strong>Designation :</strong> {selectedEmp?.position}</div>
+          <div><strong>Shift :</strong> {repData.shift}</div>
+          <div><strong>Supervisor :</strong> {repData.supervisor}</div>
           <div><strong>Date :</strong> {reportDate}</div>
-          <div><strong>Location :</strong> Plant 1 / TX Headquarters</div>
+          <div><strong>Location :</strong> {repData.location}</div>
         </div>
 
-        {/* 5. Grading Legend */}
+        {/* 4. Grading Legend */}
         <div style={{ fontSize: 10.5, color: "#111827", fontWeight: 600, marginBottom: 8 }}>
           (A=Excellent, B=Good, C=Average, D=Needs Improvement)
         </div>
 
-        {/* 6. Competency Area Table */}
+        {/* 5. Competency Area Table */}
         <table 
           style={{
             width: "100%",
@@ -158,35 +293,19 @@ export default function ProgressReport() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Technical Skills</td>
-              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>{grade}</td>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Needs refresher training on CNC machine setup</td>
-            </tr>
-            <tr>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Productivity</td>
-              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>A</td>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>None</td>
-            </tr>
-            <tr>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Quality Compliance</td>
-              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>{grade === "A" ? "A" : "B"}</td>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>2 instances of rework due to improper finishing</td>
-            </tr>
-            <tr>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Safety Practices</td>
-              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>A</td>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>None</td>
-            </tr>
-            <tr>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Teamwork &amp; Discipline</td>
-              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>A</td>
-              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>None</td>
-            </tr>
+            {repData.competencies.map((comp, idx) => (
+              <tr key={idx}>
+                <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>{comp.area}</td>
+                <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>
+                  {comp.grade}
+                </td>
+                <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>{comp.pending}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
-        {/* 7. Bottom Section (Comments & Rating Box) */}
+        {/* 6. Bottom Section (Comments & Rating Box) */}
         <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginBottom: 18 }}>
           {/* Left Column: Comments & Observations */}
           <div>
@@ -194,19 +313,20 @@ export default function ProgressReport() {
               Comments / Observations
             </div>
             <div style={{ fontSize: 11.5, lineHeight: 1.6, color: "#1f2937", marginBottom: 12 }}>
-              <div>✅ Delivers consistent work output.</div>
-              <div>✅ Works well with team members and supports junior staff.</div>
-              <div>⚠️ Needs to improve <strong>quality checks</strong> before passing products.</div>
-              <div>⚠️ Suggested <strong>CNC upskilling training</strong> in next quarter.</div>
+              {repData.comments.map((cmt, idx) => (
+                <div key={idx}>
+                  {cmt.type === "positive" ? "✅" : cmt.type === "warning" ? "⚠️" : "💡"} {cmt.text}
+                </div>
+              ))}
             </div>
 
             <div style={{ display: "inline-block", backgroundColor: "#fae4d2", padding: "2px 8px", fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 6 }}>
               Compliance &amp; Attendance
             </div>
             <div style={{ fontSize: 11.5, lineHeight: 1.6, color: "#1f2937" }}>
-              <div><strong>Attendance Record:</strong> 98% (1 late arrival recorded).</div>
-              <div><strong>PPE Usage:</strong> Always compliant.</div>
-              <div><strong>Incidents / Safety Violations:</strong> None.</div>
+              <div><strong>Attendance Record:</strong> {repData.attendanceRecord}</div>
+              <div><strong>PPE / Protocol Usage:</strong> {repData.protocolUsage}</div>
+              <div><strong>Incidents / Safety Violations:</strong> {repData.violations}</div>
             </div>
           </div>
 
@@ -228,17 +348,17 @@ export default function ProgressReport() {
               Overall Performance Rating
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#c2410c" }}>
-              {overallRating}
+              {repData.overallRating}
             </div>
           </div>
         </div>
 
-        {/* 8. Confidentiality Statement */}
+        {/* 7. Confidentiality Statement */}
         <div style={{ fontSize: 10, color: "#6b7280", borderBottom: "1px solid #e5e7eb", paddingBottom: 10, marginBottom: 16 }}>
           Confidentiality Statement: &quot;This document is confidential and intended only for internal HR/Performance review purposes.&quot;
         </div>
 
-        {/* 9. Signatures */}
+        {/* 8. Signatures */}
         <div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 14 }}>
             Signatures
