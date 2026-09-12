@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Outlet, Navigate, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { 
@@ -29,27 +29,46 @@ export default function Layout() {
     setExpandedSections(prev => ({ ...prev, [sec]: !prev[sec] }));
   };
 
+  const isEmp = user.role === "employee";
+  const isMgr = user.role === "manager";
+  const isAdmin = user.role === "admin";
+
+  // Dynamic route helpers based on logged in user's role
+  const dashboardRoute = isAdmin ? "/admin/dashboard" : isMgr ? "/manager/dashboard" : "/employee/dashboard";
+  const monitoringRoute = isAdmin ? "/admin/monitoring" : isMgr ? "/manager/monitoring" : "/employee/dashboard";
+  const tasksRoute = isAdmin ? "/admin/tasks" : isMgr ? "/manager/tasks" : "/employee/tasks";
+  const assignmentsRoute = isAdmin ? "/admin/assignments" : isMgr ? "/manager/assignments" : "/employee/availability";
+  const progressRoute = isAdmin ? "/admin/progress" : isMgr ? "/manager/progress" : "/employee/progress";
+  const employeesRoute = isAdmin ? "/admin/employees" : isMgr ? "/manager/employees" : "/profile";
+  const analyticsRoute = isAdmin ? "/admin/analytics" : isMgr ? "/manager/analytics" : "/employee/dashboard";
+  const skillsRoute = isAdmin ? "/admin/skills" : isMgr ? "/manager/skills" : "/profile";
+  const logRoute = isAdmin ? "/admin/log" : isMgr ? "/manager/log" : "/employee/notifications";
+
   // Determine current active page label for breadcrumb
-  let pageTitle = "Active/idle";
-  let breadcrumbText = "Company - Active/idle report";
-  if (location.pathname.includes("/admin/monitoring") || location.pathname.includes("/manager/monitoring")) {
+  let pageTitle = "Dashboard";
+  let breadcrumbText = "WorkTime - Operations Overview";
+
+  if (location.pathname.includes("/monitoring")) {
     pageTitle = "Active/idle";
     breadcrumbText = "Company - Active/idle report";
-  } else if (location.pathname.includes("/admin/dashboard") || location.pathname.includes("/manager/dashboard") || location.pathname.includes("/employee/dashboard")) {
+  } else if (location.pathname.includes("/dashboard")) {
     pageTitle = "Summary";
-    breadcrumbText = "Company - Remote & In-office Executive Summary";
+    breadcrumbText = `${user.role.toUpperCase()} - ${user.name}'s Executive Hub`;
   } else if (location.pathname.includes("/tasks")) {
     pageTitle = "Task Allocation";
     breadcrumbText = "Work Allocation System - Task Queue & Deliverables";
-  } else if (location.pathname.includes("/assignments")) {
-    pageTitle = "Staff Allocation";
-    breadcrumbText = "Work Allocation System - Resource Assignment Matrix";
+  } else if (location.pathname.includes("/assignments") || location.pathname.includes("/availability")) {
+    pageTitle = isEmp ? "My Availability" : "Staff Allocation";
+    breadcrumbText = isEmp ? "Employee - Working Schedule & Availability" : "Resource Allocation Matrix";
   } else if (location.pathname.includes("/employees")) {
     pageTitle = "Staff Directory";
     breadcrumbText = "Company - Employee Registry & Profiles";
   } else if (location.pathname.includes("/analytics")) {
     pageTitle = "In-office/remote";
     breadcrumbText = "Company - In-office / Remote Performance Comparison";
+  } else if (location.pathname.includes("/progress")) {
+    pageTitle = "Performance Report";
+    breadcrumbText = "Employee Performance & Progress Appraisal";
   } else if (location.pathname.includes("/profile")) {
     pageTitle = "Settings & Profile";
     breadcrumbText = "System - User Profile & Configuration";
@@ -59,8 +78,8 @@ export default function Layout() {
     <div className="wt-app-shell">
       {/* LEFT WORKTIME SIDEBAR */}
       <aside className="wt-sidebar">
-        {/* Brand Logo Box */}
-        <div className="wt-logo-box" onClick={() => navigate("/admin/monitoring")}>
+        {/* Brand Logo Box - routes to own dashboard */}
+        <div className="wt-logo-box" onClick={() => navigate(dashboardRoute)}>
           <div className="wt-clock-icon">
             <div className="q1" />
             <div className="q2" />
@@ -77,7 +96,7 @@ export default function Layout() {
           {/* Summary */}
           <div className="wt-menu-group">
             <NavLink
-              to="/admin/dashboard"
+              to={dashboardRoute}
               className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}
             >
               <span>Summary</span>
@@ -87,7 +106,7 @@ export default function Layout() {
           {/* What's now */}
           <div className="wt-menu-group">
             <NavLink
-              to="/admin/monitoring"
+              to={monitoringRoute}
               className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}
             >
               <span>What&apos;s now</span>
@@ -97,7 +116,7 @@ export default function Layout() {
           {/* Progress */}
           <div className="wt-menu-group">
             <NavLink
-              to="/admin/progress"
+              to={progressRoute}
               className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}
             >
               <span>Progress</span>
@@ -112,16 +131,15 @@ export default function Layout() {
             </div>
             {expandedSections.attendance && (
               <div className="wt-submenu">
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Summary</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">At work</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Off work</NavLink>
-                <NavLink to="/admin/assignments" className="wt-submenu-item">Timesheet/calendar</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Overtime</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item active">Active/idle</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Login/logout</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Employee total time</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Electricity waste</NavLink>
-                <NavLink to="/admin/log" className="wt-submenu-item">Full log</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Summary</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">At work</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Off work</NavLink>
+                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Schedule" : "Timesheet/calendar"}</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Overtime</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Active/idle</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Login/logout</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Employee total time</NavLink>
+                <NavLink to={logRoute} className="wt-submenu-item">Full log</NavLink>
               </div>
             )}
           </div>
@@ -134,9 +152,9 @@ export default function Layout() {
             </div>
             {expandedSections.productivity && (
               <div className="wt-submenu">
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Summary</NavLink>
-                <NavLink to="/admin/monitoring" className="wt-submenu-item">Productive vs Idle</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Department Productivity</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Summary</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Productive vs Idle</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Department Productivity</NavLink>
               </div>
             )}
           </div>
@@ -149,8 +167,8 @@ export default function Layout() {
             </div>
             {expandedSections.internet && (
               <div className="wt-submenu">
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Top Websites</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">URL Category Breakdown</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Top Websites</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">URL Category Breakdown</NavLink>
               </div>
             )}
           </div>
@@ -163,8 +181,8 @@ export default function Layout() {
             </div>
             {expandedSections.appdoc && (
               <div className="wt-submenu">
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Top Applications</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Document Usage</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Top Applications</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Document Usage</NavLink>
               </div>
             )}
           </div>
@@ -193,9 +211,9 @@ export default function Layout() {
             </div>
             {expandedSections.departments && (
               <div className="wt-submenu">
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Engineering</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Design</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Data</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Engineering</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Design</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Data</NavLink>
               </div>
             )}
           </div>
@@ -208,24 +226,11 @@ export default function Layout() {
             </div>
             {expandedSections.offices && (
               <div className="wt-submenu">
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Summary</NavLink>
-                <NavLink to="/admin/employees" className="wt-submenu-item">Per employee</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">Per employee/day</NavLink>
-                <NavLink to="/admin/analytics" className="wt-submenu-item">In-office/remote</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Summary</NavLink>
+                <NavLink to={employeesRoute} className="wt-submenu-item">Per employee</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">In-office/remote</NavLink>
               </div>
             )}
-          </div>
-
-          {/* Unit info & Leaderboards */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header">
-              <span>Unit info</span>
-            </div>
-          </div>
-          <div className="wt-menu-group">
-            <div className="wt-menu-header">
-              <span>Leaderboards</span>
-            </div>
           </div>
 
           {/* Work Allocation & Task System */}
@@ -236,11 +241,11 @@ export default function Layout() {
             </div>
             {expandedSections.tasks && (
               <div className="wt-submenu">
-                <NavLink to="/admin/tasks" className="wt-submenu-item">Tasks Queue</NavLink>
-                <NavLink to="/admin/tasks/create" className="wt-submenu-item">Create Task</NavLink>
-                <NavLink to="/admin/assignments" className="wt-submenu-item">Staff Allocation</NavLink>
-                <NavLink to="/admin/employees" className="wt-submenu-item">Staff Directory</NavLink>
-                <NavLink to="/admin/skills" className="wt-submenu-item">Skills Matrix</NavLink>
+                <NavLink to={tasksRoute} className="wt-submenu-item">{isEmp ? "My Tasks" : "Tasks Queue"}</NavLink>
+                {isAdmin && <NavLink to="/admin/tasks/create" className="wt-submenu-item">Create Task</NavLink>}
+                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Availability" : "Staff Allocation"}</NavLink>
+                {!isEmp && <NavLink to={employeesRoute} className="wt-submenu-item">Staff Directory</NavLink>}
+                {!isEmp && <NavLink to={skillsRoute} className="wt-submenu-item">Skills Matrix</NavLink>}
               </div>
             )}
           </div>
@@ -268,7 +273,7 @@ export default function Layout() {
           {/* Right User Profile / Logout */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 12, color: "#475569" }}>
-              👤 <strong>{user.name}</strong> ({user.role})
+              👤 <strong>{user.name}</strong> <span style={{ textTransform: "capitalize", color: "var(--wt-blue)", fontWeight: 700 }}>({user.role})</span>
             </span>
             <button
               className="btn btn-secondary btn-sm"

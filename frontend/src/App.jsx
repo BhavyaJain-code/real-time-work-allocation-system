@@ -75,17 +75,19 @@ function App() {
             <Route path="/manager/tasks"       element={<ManagerTasks />} />
             <Route path="/manager/employees"   element={<ManagerEmployees />} />
             <Route path="/manager/assignments" element={<ManagerAssignments />} />
+            <Route path="/manager/analytics"   element={<Analytics />} />
+            <Route path="/manager/skills"      element={<Skills />} />
             <Route path="/manager/progress"    element={<ProgressReport />} />
             <Route path="/manager/feedback"    element={<Feedback />} />
             <Route path="/manager/log"         element={<ActivityLog />} />
-            {/* Manager can view employee profile */}
-            <Route path="/admin/employees/:id" element={<EmployeeProfile />} />
+            <Route path="/manager/employees/:id" element={<EmployeeProfile />} />
 
             {/* ── Employee ───────────────────────────────── */}
             <Route path="/employee/dashboard"     element={<EmployeeDashboard />} />
             <Route path="/employee/tasks"         element={<MyTasks />} />
             <Route path="/employee/availability"  element={<Availability />} />
             <Route path="/employee/notifications" element={<Notifications />} />
+            <Route path="/employee/progress"      element={<ProgressReport />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
