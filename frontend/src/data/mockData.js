@@ -42,12 +42,12 @@ export const DEPARTMENT_MANAGERS = [
 ];
 
 export const EMPLOYEES = [
-  { id: 1, user_id: 2, department: "Engineering", position: "Senior Frontend Dev", availability_status: "available", workload_percentage: 65, max_workload: 100 },
-  { id: 2, user_id: 3, department: "Engineering", position: "Backend Engineer",    availability_status: "busy",      workload_percentage: 90, max_workload: 100 },
-  { id: 3, user_id: 4, department: "Design",      position: "UI/UX Designer",     availability_status: "available", workload_percentage: 40, max_workload: 100 },
-  { id: 4, user_id: 5, department: "Engineering", position: "DevOps Engineer",    availability_status: "offline",   workload_percentage: 0,  max_workload: 100 },
-  { id: 5, user_id: 6, department: "Data",        position: "Data Analyst",       availability_status: "available", workload_percentage: 55, max_workload: 100 },
-  { id: 6, user_id: 7, department: "Engineering", position: "Full-Stack Dev",     availability_status: "busy",      workload_percentage: 80, max_workload: 100 },
+  { id: 1, user_id: 2, department: "Engineering", position: "Senior Frontend Dev", availability_status: "available", workload_percentage: 65, max_workload: 100, remote_status: "active", active_time: "5h 45m", idle_time: "25m", productivity_score: 94, current_activity: "VS Code · User Dashboard API", login_time: "09:00 AM", burnout_risk: "Low" },
+  { id: 2, user_id: 3, department: "Engineering", position: "Backend Engineer",    availability_status: "busy",      workload_percentage: 90, max_workload: 100, remote_status: "active", active_time: "7h 10m", idle_time: "15m", productivity_score: 96, current_activity: "PostgreSQL · Query Optimization", login_time: "08:30 AM", burnout_risk: "High" },
+  { id: 3, user_id: 4, department: "Design",      position: "UI/UX Designer",     availability_status: "available", workload_percentage: 40, max_workload: 100, remote_status: "in_meeting", active_time: "4h 20m", idle_time: "40m", productivity_score: 88, current_activity: "Google Meet · Sprint Design Review", login_time: "09:15 AM", burnout_risk: "Low" },
+  { id: 4, user_id: 5, department: "Engineering", position: "DevOps Engineer",    availability_status: "offline",   workload_percentage: 0,  max_workload: 100, remote_status: "offline", active_time: "0h 00m", idle_time: "0m", productivity_score: 0, current_activity: "Logged Off", login_time: "—", burnout_risk: "None" },
+  { id: 5, user_id: 6, department: "Data",        position: "Data Analyst",       availability_status: "available", workload_percentage: 55, max_workload: 100, remote_status: "active", active_time: "5h 15m", idle_time: "30m", productivity_score: 91, current_activity: "Jupyter Notebook · Performance Telemetry", login_time: "09:05 AM", burnout_risk: "Low" },
+  { id: 6, user_id: 7, department: "Engineering", position: "Full-Stack Dev",     availability_status: "busy",      workload_percentage: 80, max_workload: 100, remote_status: "idle", active_time: "6h 05m", idle_time: "50m", productivity_score: 84, current_activity: "Idle (Break)", login_time: "08:45 AM", burnout_risk: "Moderate" },
 ];
 
 export const EMPLOYEE_SKILLS = [
@@ -281,23 +281,26 @@ export function initials(name) {
 
 export const STATUS_BADGE = {
   todo:        "badge-gray",
-  in_progress: "badge-accent", // Warm Terracotta (#c47454)
-  review:      "badge-purple", // Lavender (#a595db)
+  in_progress: "badge-blue",
+  review:      "badge-purple",
   done:        "badge-green",
   completed:   "badge-green",
   assigned:    "badge-purple",
-  cancelled:   "badge-wine",   // Rich Berry Wine (#76283d)
+  cancelled:   "badge-red",
   available:   "badge-green",
-  busy:        "badge-accent", // Warm Terracotta (#c47454)
+  busy:        "badge-amber",
   offline:     "badge-gray",
   off:         "badge-gray",
+  active:      "badge-green",
+  idle:        "badge-amber",
+  in_meeting:  "badge-purple",
 };
 
 export const PRIORITY_BADGE = {
   low:      "badge-gray",
-  medium:   "badge-purple",
-  high:     "badge-accent", // Warm Terracotta (#c47454)
-  critical: "badge-wine",   // Rich Berry Wine (#76283d)
+  medium:   "badge-blue",
+  high:     "badge-amber",
+  critical: "badge-red",
 };
 
 export const STATUS_LABEL = {
@@ -312,6 +315,9 @@ export const STATUS_LABEL = {
   busy:        "Busy",
   offline:     "Offline",
   off:         "Day Off",
+  active:      "Active",
+  idle:        "Idle",
+  in_meeting:  "In Meeting",
 };
 
 export const TASK_TYPE_LABEL = {

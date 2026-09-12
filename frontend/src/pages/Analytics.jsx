@@ -1,149 +1,154 @@
-import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, SKILLS } from "../data/mockData";
+import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, SKILLS, getEmployeeUser } from "../data/mockData";
+import { MonitorCheck, Clock, Award, AlertTriangle, ShieldCheck } from "lucide-react";
 
 export default function Analytics() {
   const totalTasks     = TASKS.length;
   const completedTasks = TASKS.filter(t => t.status === "done").length;
   const inProgress     = TASKS.filter(t => t.status === "in_progress").length;
-  const todoTasks      = TASKS.filter(t => t.status === "todo").length;
-  const reviewTasks    = TASKS.filter(t => t.status === "review").length;
   const completionRate = Math.round((completedTasks / totalTasks) * 100);
+
+  const activeStaffCount = EMPLOYEES.filter(e => e.remote_status === "active").length;
+  const avgProductivity  = Math.round(EMPLOYEES.reduce((acc, curr) => acc + (curr.productivity_score || 0), 0) / EMPLOYEES.length);
 
   const departments = [...new Set(EMPLOYEES.map(e => e.department))];
 
   const deptStats = departments.map(dept => {
     const emps = EMPLOYEES.filter(e => e.department === dept);
     const avgWorkload = Math.round(emps.reduce((acc, curr) => acc + curr.workload_percentage, 0) / emps.length);
+    const avgScore = Math.round(emps.reduce((acc, curr) => acc + (curr.productivity_score || 0), 0) / emps.length);
     return {
       department: dept,
       employeesCount: emps.length,
       avgWorkload,
-      availableCount: emps.filter(e => e.availability_status === "available").length,
+      avgScore,
+      activeCount: emps.filter(e => e.remote_status === "active").length,
     };
   });
 
   return (
     <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">System Analytics & Reports</div>
-          <div className="page-subtitle">Summary statistics and workload distribution across departments</div>
-        </div>
+      <div className="hero-section" style={{ marginBottom: 28 }}>
+        <h1 className="hero-title" style={{ fontSize: 32 }}>Remote Workload & Productivity Analytics</h1>
+        <p className="hero-subtitle">
+          Real-time telemetry on remote staff productivity, active vs idle duration, and department workload distribution.
+        </p>
       </div>
 
       {/* Summary Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span className="stat-label">Total Registered Tasks</span>
-          <div className="stat-value">{totalTasks}</div>
-          <div className="stat-sub">Across all categories</div>
+      <div className="features-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginBottom: 32 }}>
+        <div className="feature-card card-green-1">
+          <h3 className="feature-card-title">{activeStaffCount} Active Staff</h3>
+          <p className="feature-card-desc">Remotely logged in and actively working today.</p>
         </div>
-        <div className="stat-card">
-          <span className="stat-label">Tasks Completed</span>
-          <div className="stat-value" style={{ color: "#198754" }}>{completedTasks}</div>
-          <div className="stat-sub">{completionRate}% Completion Rate</div>
+        <div className="feature-card card-yellow">
+          <h3 className="feature-card-title">{avgProductivity}% Productivity</h3>
+          <p className="feature-card-desc">Average focused active time vs idle hours across teams.</p>
         </div>
-        <div className="stat-card">
-          <span className="stat-label">Tasks In Progress</span>
-          <div className="stat-value" style={{ color: "#0d6efd" }}>{inProgress}</div>
-          <div className="stat-sub">Active assignments</div>
+        <div className="feature-card card-blue">
+          <h3 className="feature-card-title">{completionRate}% Task Completion</h3>
+          <p className="feature-card-desc">{completedTasks} of {totalTasks} allocated deliverables finished.</p>
         </div>
-        <div className="stat-card">
-          <span className="stat-label">Total Skills Indexed</span>
-          <div className="stat-value">{SKILLS.length}</div>
-          <div className="stat-sub">In database registry</div>
+        <div className="feature-card card-peach">
+          <h3 className="feature-card-title">0 Overtime Alerts</h3>
+          <p className="feature-card-desc">Workloads balanced to prevent employee burnout.</p>
         </div>
       </div>
 
-      {/* Status Breakdown & Priority Grid */}
-      <div className="grid-2" style={{ alignItems: "start" }}>
-        {/* Task Status Breakdown */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Task Status Breakdown</span>
-          </div>
-          <div className="card-body">
-            {[
-              { label: "Completed (Done)", count: completedTasks, color: "#198754" },
-              { label: "In Progress",       count: inProgress,     color: "#0d6efd" },
-              { label: "Under Review",      count: reviewTasks,    color: "#6f42c1" },
-              { label: "To Do (Pending)",   count: todoTasks,      color: "#6c757d" },
-            ].map(item => {
-              const pct = Math.round((item.count / totalTasks) * 100);
-              return (
-                <div key={item.label} style={{ marginBottom: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
-                    <span>{item.label}</span>
-                    <strong>{item.count} tasks ({pct}%)</strong>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${pct}%`, background: item.color }} />
-                  </div>
-                </div>
-              );
-            })}
+      {/* Remote Employee Productivity Leaderboard & Telemetry Table */}
+      <div className="content-panel" style={{ marginBottom: 28 }}>
+        <div className="panel-header">
+          <div>
+            <h3 className="panel-title">Staff Productivity & Active Time Summary (WorkTime Metric)</h3>
+            <div className="panel-subtitle">Non-invasive productivity and focused work telemetry</div>
           </div>
         </div>
 
-        {/* Priority Breakdown */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Task Priority Distribution</span>
-          </div>
-          <div className="card-body">
-            {["critical", "high", "medium", "low"].map(p => {
-              const count = TASKS.filter(t => t.priority === p).length;
-              const pct = Math.round((count / totalTasks) * 100);
-              const color = p === "critical" ? "#dc3545" : p === "high" ? "#fd7e14" : p === "medium" ? "#0d6efd" : "#6c757d";
-              return (
-                <div key={p} style={{ marginBottom: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4, textTransform: "capitalize" }}>
-                    <span>{p} Priority</span>
-                    <strong>{count} tasks ({pct}%)</strong>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${pct}%`, background: color }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee Name</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Active Time</th>
+                <th>Idle Time</th>
+                <th>Productivity Score</th>
+                <th>Burnout Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              {EMPLOYEES.map(emp => {
+                const u = getEmployeeUser(emp);
+                const pColor = emp.productivity_score >= 90 ? "#10b981" : emp.productivity_score >= 80 ? "#2563eb" : "#f59e0b";
+                return (
+                  <tr key={emp.id}>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{u?.name}</div>
+                      <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.position}</div>
+                    </td>
+                    <td>{emp.department}</td>
+                    <td>
+                      <span className={`badge ${emp.remote_status === "active" ? "badge-green" : emp.remote_status === "in_meeting" ? "badge-purple" : emp.remote_status === "idle" ? "badge-amber" : "badge-gray"}`}>
+                        {emp.remote_status || "offline"}
+                      </span>
+                    </td>
+                    <td><strong style={{ color: "#15803d" }}>{emp.active_time || "0h"}</strong></td>
+                    <td style={{ color: "#b45309" }}>{emp.idle_time || "0m"}</td>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontWeight: 700, color: pColor }}>{emp.productivity_score}%</span>
+                        <div className="progress-bar" style={{ width: 80 }}>
+                          <div className="progress-fill" style={{ width: `${emp.productivity_score}%`, background: pColor }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`badge ${emp.burnout_risk === "High" ? "badge-red" : emp.burnout_risk === "Moderate" ? "badge-amber" : "badge-green"}`}>
+                        {emp.burnout_risk}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Department Summary Table */}
-      <div className="card" style={{ marginTop: 16 }}>
-        <div className="card-header">
-          <span className="card-title">Department Workload & Availability Summary</span>
+      {/* Department Workload Summary */}
+      <div className="content-panel">
+        <div className="panel-header">
+          <div>
+            <h3 className="panel-title">Department Workload Distribution</h3>
+            <div className="panel-subtitle">Capacity allocation across functional teams</div>
+          </div>
         </div>
+
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Department</th>
-                <th>Total Team Members</th>
-                <th>Available Members</th>
-                <th>Average Workload</th>
-                <th>Capacity Status</th>
+                <th>Total Team</th>
+                <th>Active Remotely</th>
+                <th>Average Productivity</th>
+                <th>Average Capacity Load</th>
               </tr>
             </thead>
             <tbody>
               {deptStats.map(d => (
                 <tr key={d.department}>
-                  <td className="td-bold">{d.department}</td>
-                  <td>{d.employeesCount} employees</td>
-                  <td><span className="badge badge-green">{d.availableCount} available</span></td>
-                  <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, maxWidth: 160 }}>
-                      <div className="progress-bar" style={{ flex: 1 }}>
-                        <div className="progress-fill" style={{ width: `${d.avgWorkload}%` }} />
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 600 }}>{d.avgWorkload}%</span>
+                  <td style={{ fontWeight: 600 }}>{d.department}</td>
+                  <td>{d.employeesCount} staff</td>
+                  <td><span className="badge badge-green">{d.activeCount} active</span></td>
+                  <td><strong style={{ color: "#2563eb" }}>{d.avgScore}%</strong></td>
+                  <td style={{ minWidth: 160 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 3 }}>
+                      <span>{d.avgWorkload}%</span>
                     </div>
-                  </td>
-                  <td>
-                    <span className={`badge ${d.avgWorkload >= 80 ? "badge-red" : d.avgWorkload >= 50 ? "badge-blue" : "badge-green"}`}>
-                      {d.avgWorkload >= 80 ? "High Load" : d.avgWorkload >= 50 ? "Balanced" : "Optimal"}
-                    </span>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${d.avgWorkload}%` }} />
+                    </div>
                   </td>
                 </tr>
               ))}

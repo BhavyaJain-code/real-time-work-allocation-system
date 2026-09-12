@@ -1,17 +1,19 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowRight, UserCheck, CheckCircle2, Clock, Users } from "lucide-react";
+import { Plus, ArrowRight, UserCheck, CheckCircle2, Clock, Users, Activity, Laptop, MonitorCheck, AlertTriangle } from "lucide-react";
 import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getEmployeeUser, getTask, getOverdueTasks } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [filterDept, setFilterDept] = useState("all");
 
   const totalTasks      = TASKS.length;
   const activeTasks     = TASKS.filter(t => t.status === "in_progress").length;
   const completedTasks  = TASKS.filter(t => t.status === "done").length;
-  const activeEmployees = EMPLOYEES.filter(e => e.availability_status !== "offline").length;
-
-  const overdueTasks    = getOverdueTasks();
+  const activeNowCount  = EMPLOYEES.filter(e => e.remote_status === "active").length;
+  const inMeetingCount  = EMPLOYEES.filter(e => e.remote_status === "in_meeting").length;
+  const avgProductivity = Math.round(EMPLOYEES.reduce((acc, e) => acc + (e.productivity_score || 0), 0) / EMPLOYEES.length);
 
   // Features list exactly matching the user's uploaded screenshot
   const features = [
@@ -65,6 +67,8 @@ export default function AdminDashboard() {
     },
   ];
 
+  const filteredEmployees = EMPLOYEES.filter(e => filterDept === "all" || e.department === filterDept);
+
   return (
     <div>
       {/* Hero Section matching screenshot */}
@@ -93,14 +97,96 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Interactive Quick Management Panels */}
+      {/* WORKTIME REMOTE EMPLOYEE MONITORING PANEL */}
+      <div className="content-panel" style={{ marginBottom: 32 }}>
+        <div className="panel-header">
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <MonitorCheck size={20} color="#2563eb" />
+              <h3 className="panel-title">Remote Employee Activity & Monitoring</h3>
+            </div>
+            <div className="panel-subtitle">
+              Live tracking of remote staff active/idle hours, current task focus, and productivity scores (WorkTime format)
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <span className="badge badge-green">🟢 {activeNowCount} Active Now</span>
+            <span className="badge badge-purple">🟣 {inMeetingCount} In Meeting</span>
+            <span className="badge badge-blue">⚡ {avgProductivity}% Avg Productivity</span>
+          </div>
+        </div>
+
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Remote Employee</th>
+                <th>Current Status</th>
+                <th>Logged In</th>
+                <th>Active Time Today</th>
+                <th>Idle Time</th>
+                <th>Current Activity / Focus</th>
+                <th>Productivity Score</th>
+                <th>Workload Capacity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {EMPLOYEES.map(emp => {
+                const u = getEmployeeUser(emp);
+                const wColor = emp.workload_percentage >= 85 ? "#ef4444" : emp.workload_percentage >= 60 ? "#f59e0b" : "#10b981";
+                const pColor = emp.productivity_score >= 90 ? "#10b981" : emp.productivity_score >= 80 ? "#2563eb" : "#f59e0b";
+                return (
+                  <tr key={emp.id}>
+                    <td>
+                      <div style={{ fontWeight: 600, color: "#111827" }}>{u?.name}</div>
+                      <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.position} · {emp.department}</div>
+                    </td>
+                    <td>
+                      <StatusBadge value={emp.remote_status} />
+                    </td>
+                    <td style={{ color: "#4b5563", fontSize: 12.5 }}>{emp.login_time}</td>
+                    <td>
+                      <strong style={{ color: "#15803d" }}>{emp.active_time}</strong>
+                    </td>
+                    <td style={{ color: "#b45309", fontSize: 12.5 }}>{emp.idle_time}</td>
+                    <td>
+                      <div style={{ fontSize: 12.5, color: "#1f2937", maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {emp.current_activity}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontWeight: 700, color: pColor, fontSize: 13 }}>{emp.productivity_score}%</span>
+                        <span style={{ fontSize: 11, color: "#6b7280" }}>
+                          {emp.productivity_score >= 90 ? "High" : emp.productivity_score > 0 ? "Good" : "—"}
+                        </span>
+                      </div>
+                    </td>
+                    <td style={{ minWidth: 130 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 3 }}>
+                        <span>Workload</span>
+                        <strong style={{ color: wColor }}>{emp.workload_percentage}%</strong>
+                      </div>
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${emp.workload_percentage}%`, background: wColor }} />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Task Queue & Workload Distribution */}
       <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24, alignItems: "start" }}>
-        {/* Recent Tasks Panel */}
+        {/* Active Task Queue */}
         <div className="content-panel">
           <div className="panel-header">
             <div>
               <h3 className="panel-title">Active Task Queue</h3>
-              <div className="panel-subtitle">{TASKS.length} total tasks registered in system</div>
+              <div className="panel-subtitle">{TASKS.length} total tasks scheduled in system</div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button className="btn btn-primary btn-sm" onClick={() => navigate("/admin/tasks/create")}>
@@ -139,15 +225,15 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Staff Workload Panel */}
+        {/* Staff Workload Distribution */}
         <div className="content-panel">
           <div className="panel-header">
             <div>
-              <h3 className="panel-title">Staff Workload Overview</h3>
-              <div className="panel-subtitle">{EMPLOYEES.length} active team members</div>
+              <h3 className="panel-title">Burnout & Workload Distribution</h3>
+              <div className="panel-subtitle">Overtime alerts and active capacity balance</div>
             </div>
-            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/employees")}>
-              View All
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/analytics")}>
+              Analytics
             </button>
           </div>
 
@@ -159,12 +245,17 @@ export default function AdminDashboard() {
                 <div key={emp.id} style={{ padding: "10px 12px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f3f4f6" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                     <div>
-                      <span style={{ fontWeight: 600, fontSize: 14 }}>{u?.name}</span>
+                      <span style={{ fontWeight: 600, fontSize: 13.5 }}>{u?.name}</span>
                       <span style={{ fontSize: 12, color: "#6b7280", marginLeft: 6 }}>({emp.department})</span>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: wColor }}>
-                      {emp.workload_percentage}% Capacity
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {emp.burnout_risk === "High" && (
+                        <span className="badge badge-red" style={{ fontSize: 10 }}>⚠️ Overtime Risk</span>
+                      )}
+                      <span style={{ fontSize: 12, fontWeight: 700, color: wColor }}>
+                        {emp.workload_percentage}% Capacity
+                      </span>
+                    </div>
                   </div>
                   <div className="progress-bar">
                     <div className="progress-fill" style={{ width: `${emp.workload_percentage}%`, background: wColor }} />
