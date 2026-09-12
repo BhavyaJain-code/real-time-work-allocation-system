@@ -1,612 +1,527 @@
-﻿import { useState, useEffect } from "react";
-import { 
-  MonitorCheck, Clock, Users, Activity, AlertTriangle, ShieldCheck, 
-  Search, Filter, Play, Pause, RefreshCw, Download, CheckCircle2, 
-  Flame, Coffee, Video, Laptop, TrendingUp, Eye, FileSpreadsheet
-} from "lucide-react";
-import { EMPLOYEES, getEmployeeUser, STATUS_BADGE, STATUS_LABEL } from "../data/mockData";
-import StatusBadge from "../components/StatusBadge";
+import { useState } from "react";
+import { EMPLOYEES, getEmployeeUser } from "../data/mockData";
+import { HelpCircle, Download, Play, Pause, ExternalLink } from "lucide-react";
 
 export default function RemoteMonitoring() {
-  const [employeesList, setEmployeesList] = useState(EMPLOYEES);
-  const [activeTab, setActiveTab] = useState("whats_now"); // 'whats_now' | 'attendance' | 'active_idle' | 'productivity' | 'burnout'
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [deptFilter, setDeptFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSimulating, setIsSimulating] = useState(true);
+  const [activeReportTab, setActiveReportTab] = useState("active_idle"); // "active_idle" | "summary" | "in_office_remote" | "whats_now"
 
-  // Auto-tick simulation for active time
-  useEffect(() => {
-    if (!isSimulating) return;
-    const interval = setInterval(() => {
-      setEmployeesList(prev => prev.map(emp => {
-        if (emp.remote_status === "active") {
-          return {
-            ...emp,
-            last_ping: "Just now"
-          };
-        }
-        return emp;
-      }));
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isSimulating]);
+  // Hourly data for 24-hr bar chart (minutes per hour active & idle)
+  const hourlyData = [
+    { hour: "12am", active: 0,  idle: 0  },
+    { hour: "1am",  active: 0,  idle: 0  },
+    { hour: "2am",  active: 0,  idle: 0  },
+    { hour: "3am",  active: 0,  idle: 0  },
+    { hour: "4am",  active: 0,  idle: 0  },
+    { hour: "5am",  active: 0,  idle: 0  },
+    { hour: "6am",  active: 2,  idle: 2  },
+    { hour: "7am",  active: 5,  idle: 4  },
+    { hour: "8am",  active: 16, idle: 4  },
+    { hour: "9am",  active: 48, idle: 4  },
+    { hour: "10am", active: 52, idle: 3  },
+    { hour: "11am", active: 38, idle: 5  },
+    { hour: "12pm", active: 37, idle: 6  },
+    { hour: "1pm",  active: 14, idle: 4  },
+    { hour: "2pm",  active: 16, idle: 3  },
+    { hour: "3pm",  active: 12, idle: 4  },
+    { hour: "4pm",  active: 8,  idle: 3  },
+    { hour: "5pm",  active: 4,  idle: 2  },
+    { hour: "6pm",  active: 3,  idle: 2  },
+    { hour: "7pm",  active: 3,  idle: 1  },
+    { hour: "8pm",  active: 1,  idle: 1  },
+    { hour: "9pm",  active: 1,  idle: 0  },
+    { hour: "10pm", active: 0,  idle: 0  },
+    { hour: "11pm", active: 0,  idle: 0  },
+  ];
 
-  // Filtering
-  const filtered = employeesList.filter(emp => {
-    const u = getEmployeeUser(emp);
-    const matchesStatus = statusFilter === "all" || emp.remote_status === statusFilter;
-    const matchesDept = deptFilter === "all" || emp.department === deptFilter;
-    const matchesSearch = !searchTerm || 
-      u?.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      emp.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.current_activity.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesDept && matchesSearch;
-  });
-
-  const activeCount = employeesList.filter(e => e.remote_status === "active").length;
-  const idleCount = employeesList.filter(e => e.remote_status === "idle").length;
-  const meetingCount = employeesList.filter(e => e.remote_status === "in_meeting").length;
-  const offlineCount = employeesList.filter(e => e.remote_status === "offline").length;
-  const avgProd = Math.round(employeesList.reduce((a, b) => a + (b.productivity_score || 0), 0) / employeesList.length);
-  const overtimeCount = employeesList.filter(e => e.burnout_risk === "High").length;
-
-  // Toggle status for simulation
-  const handleStatusChange = (empId, newStatus) => {
-    setEmployeesList(prev => prev.map(e => {
-      if (e.id === empId) {
-        return {
-          ...e,
-          remote_status: newStatus,
-          current_activity: newStatus === "active" ? "VS Code · Active Development" :
-                            newStatus === "in_meeting" ? "Zoom · Team Sync" :
-                            newStatus === "idle" ? "Idle / Away from keyboard" : "Logged Off"
-        };
-      }
-      return e;
-    }));
-  };
-
-  // Export WorkTime report to CSV
-  const exportCSV = () => {
-    const headers = "Employee Name,Department,Position,Status,Login Time,Active Time,Idle Time,Productivity Score,Burnout Risk,Current Activity\n";
-    const rows = employeesList.map(e => {
-      const u = getEmployeeUser(e);
-      return `"${u?.name}","${e.department}","${e.position}","${e.remote_status}","${e.login_time}","${e.active_time}","${e.idle_time}","${e.productivity_score}%","${e.burnout_risk}","${e.current_activity}"`;
-    });
-    const blob = new Blob([headers + rows.join("\n")], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `WorkTime_Remote_Monitoring_${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  // Employee detailed log rows
+  const employeeLogs = [
+    { id: 1, name: "Kris K.",    role: "Senior Frontend Dev", dept: "Engineering", status: "Active", activeTotal: "73:00:38", activeAvg: "73:00:38", idleTotal: "00:00:00", idleAvg: "00:00:00", date: "2/19/2026", app: "VS Code · User Dashboard API" },
+    { id: 2, name: "Camryn M.",  role: "Backend Engineer",   dept: "Engineering", status: "Active", activeTotal: "07:41:51", activeAvg: "07:41:51", idleTotal: "00:07:56", idleAvg: "00:07:56", date: "2/19/2026", app: "PostgreSQL · Query Optimizer" },
+    { id: 3, name: "Avery W.",   role: "UI/UX Designer",    dept: "Design",      status: "Idle",   activeTotal: "05:09:08", activeAvg: "05:09:08", idleTotal: "03:07:40", idleAvg: "03:07:40", date: "2/19/2026", app: "Figma · Design System V2" },
+    { id: 4, name: "Tracey C.",  role: "Data Analyst",      dept: "Data",        status: "Active", activeTotal: "07:27:24", activeAvg: "07:27:24", idleTotal: "04:34:32", idleAvg: "04:34:32", date: "2/19/2026", app: "Jupyter · Telemetry Analysis" },
+    { id: 5, name: "Emery W.",   role: "Full-Stack Dev",    dept: "Engineering", status: "Active", activeTotal: "06:04:38", activeAvg: "06:04:38", idleTotal: "01:04:17", idleAvg: "01:04:17", date: "2/19/2026", app: "React · Auth Workflow" },
+    { id: 6, name: "Collins W.", role: "DevOps Engineer",   dept: "Engineering", status: "Off",    activeTotal: "04:04:23", activeAvg: "04:04:23", idleTotal: "04:08:00", idleAvg: "04:08:00", date: "2/19/2026", app: "Logged Off" },
+  ];
 
   return (
     <div>
-      {/* Hero Banner */}
-      <div className="hero-section" style={{ marginBottom: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <h1 className="hero-title" style={{ fontSize: 28, display: "flex", alignItems: "center", gap: 10 }}>
-              <MonitorCheck size={28} color="#2563eb" /> WorkTime Remote Monitoring
-            </h1>
-            <p className="hero-subtitle">
-              Live tracking of "What's going on in the company right now", active vs. idle hours, attendance logs, and non-invasive productivity metrics.
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button 
-              className={`btn btn-sm ${isSimulating ? "btn-secondary" : "btn-primary"}`} 
-              onClick={() => setIsSimulating(!isSimulating)}
-              title="Live Telemetry Heartbeat"
-            >
-              {isSimulating ? <Pause size={14} /> : <Play size={14} />}
-              {isSimulating ? "Live Telemetry ON" : "Telemetry Paused"}
-            </button>
-            <button className="btn btn-secondary btn-sm" onClick={exportCSV}>
-              <Download size={14} /> Export Report (CSV)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Top 6 WorkTime Metric Cards */}
-      <div className="features-grid" style={{ gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 24 }}>
-        <div className="feature-card card-green-1" style={{ padding: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#166534" }}>{activeCount}</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#166534" }}>Active Working</div>
-          <div style={{ fontSize: 11, color: "#15803d" }}>Currently at desk</div>
-        </div>
-
-        <div className="feature-card card-yellow" style={{ padding: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#92400e" }}>{idleCount}</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#92400e" }}>Idle / Break</div>
-          <div style={{ fontSize: 11, color: "#b45309" }}>Away from desk</div>
-        </div>
-
-        <div className="feature-card card-peach" style={{ padding: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#9a3412" }}>{meetingCount}</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#9a3412" }}>In Meeting</div>
-          <div style={{ fontSize: 11, color: "#c2410c" }}>Video / Voice call</div>
-        </div>
-
-        <div className="feature-card card-pink" style={{ padding: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#9d174d" }}>{offlineCount}</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#9d174d" }}>Offline</div>
-          <div style={{ fontSize: 11, color: "#be185d" }}>Logged out</div>
-        </div>
-
-        <div className="feature-card card-blue" style={{ padding: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#1e40af" }}>{avgProd}%</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>Avg Productivity</div>
-          <div style={{ fontSize: 11, color: "#2563eb" }}>WorkTime Index</div>
-        </div>
-
-        <div className="feature-card card-green-2" style={{ padding: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: overtimeCount > 0 ? "#b91c1c" : "#166534" }}>
-            {overtimeCount}
-          </div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#1f2937" }}>Overtime Alert</div>
-          <div style={{ fontSize: 11, color: overtimeCount > 0 ? "#b91c1c" : "#166534" }}>
-            {overtimeCount > 0 ? "High burnout risk" : "All healthy"}
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div style={{ display: "flex", gap: 8, borderBottom: "2px solid #e5e7eb", marginBottom: 20 }}>
+      {/* Top View Selector Tabs */}
+      <div style={{ display: "flex", gap: 6, borderBottom: "1px solid #cbd5e1", marginBottom: 16 }}>
         <button
-          onClick={() => setActiveTab("whats_now")}
+          onClick={() => setActiveReportTab("active_idle")}
           style={{
-            padding: "10px 18px",
-            fontSize: 14,
-            fontWeight: 600,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            borderBottom: activeTab === "whats_now" ? "3px solid #2563eb" : "3px solid transparent",
-            color: activeTab === "whats_now" ? "#2563eb" : "#4b5563"
+            padding: "6px 14px",
+            fontSize: 12.5,
+            fontWeight: activeReportTab === "active_idle" ? 700 : 500,
+            border: "1px solid",
+            borderColor: activeReportTab === "active_idle" ? "#cbd5e1 #cbd5e1 #ffffff" : "transparent",
+            background: activeReportTab === "active_idle" ? "#ffffff" : "transparent",
+            color: activeReportTab === "active_idle" ? "#1e293b" : "#64748b",
+            borderRadius: "4px 4px 0 0",
+            marginBottom: -1,
+            cursor: "pointer"
           }}
         >
-          🟢 "What&apos;s Now" Live Feed
+          📊 Active/idle Report (Image 3)
         </button>
 
         <button
-          onClick={() => setActiveTab("attendance")}
+          onClick={() => setActiveReportTab("summary")}
           style={{
-            padding: "10px 18px",
-            fontSize: 14,
-            fontWeight: 600,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            borderBottom: activeTab === "attendance" ? "3px solid #2563eb" : "3px solid transparent",
-            color: activeTab === "attendance" ? "#2563eb" : "#4b5563"
+            padding: "6px 14px",
+            fontSize: 12.5,
+            fontWeight: activeReportTab === "summary" ? 700 : 500,
+            border: "1px solid",
+            borderColor: activeReportTab === "summary" ? "#cbd5e1 #cbd5e1 #ffffff" : "transparent",
+            background: activeReportTab === "summary" ? "#ffffff" : "transparent",
+            color: activeReportTab === "summary" ? "#1e293b" : "#64748b",
+            borderRadius: "4px 4px 0 0",
+            marginBottom: -1,
+            cursor: "pointer"
           }}
         >
-          📋 Attendance &amp; Shift Logs
+          📈 Executive Summary (Image 2)
         </button>
 
         <button
-          onClick={() => setActiveTab("active_idle")}
+          onClick={() => setActiveReportTab("in_office_remote")}
           style={{
-            padding: "10px 18px",
-            fontSize: 14,
-            fontWeight: 600,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            borderBottom: activeTab === "active_idle" ? "3px solid #2563eb" : "3px solid transparent",
-            color: activeTab === "active_idle" ? "#2563eb" : "#4b5563"
+            padding: "6px 14px",
+            fontSize: 12.5,
+            fontWeight: activeReportTab === "in_office_remote" ? 700 : 500,
+            border: "1px solid",
+            borderColor: activeReportTab === "in_office_remote" ? "#cbd5e1 #cbd5e1 #ffffff" : "transparent",
+            background: activeReportTab === "in_office_remote" ? "#ffffff" : "transparent",
+            color: activeReportTab === "in_office_remote" ? "#1e293b" : "#64748b",
+            borderRadius: "4px 4px 0 0",
+            marginBottom: -1,
+            cursor: "pointer"
           }}
         >
-          ⏱️ Active vs. Idle Timeline
+          🏢 In-office / Remote (Image 1)
         </button>
 
         <button
-          onClick={() => setActiveTab("productivity")}
+          onClick={() => setActiveReportTab("whats_now")}
           style={{
-            padding: "10px 18px",
-            fontSize: 14,
-            fontWeight: 600,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            borderBottom: activeTab === "productivity" ? "3px solid #2563eb" : "3px solid transparent",
-            color: activeTab === "productivity" ? "#2563eb" : "#4b5563"
+            padding: "6px 14px",
+            fontSize: 12.5,
+            fontWeight: activeReportTab === "whats_now" ? 700 : 500,
+            border: "1px solid",
+            borderColor: activeReportTab === "whats_now" ? "#cbd5e1 #cbd5e1 #ffffff" : "transparent",
+            background: activeReportTab === "whats_now" ? "#ffffff" : "transparent",
+            color: activeReportTab === "whats_now" ? "#1e293b" : "#64748b",
+            borderRadius: "4px 4px 0 0",
+            marginBottom: -1,
+            cursor: "pointer"
           }}
         >
-          🎯 Productivity &amp; Distraction Scoring
-        </button>
-
-        <button
-          onClick={() => setActiveTab("burnout")}
-          style={{
-            padding: "10px 18px",
-            fontSize: 14,
-            fontWeight: 600,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            borderBottom: activeTab === "burnout" ? "3px solid #2563eb" : "3px solid transparent",
-            color: activeTab === "burnout" ? "#2563eb" : "#4b5563"
-          }}
-        >
-          ⚠️ Burnout &amp; Overtime Risk
+          🟢 &quot;What&apos;s Now&quot; Live Feed
         </button>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="filter-toolbar" style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", flex: 1 }}>
-          <div style={{ position: "relative", minWidth: 240 }}>
-            <input 
-              type="text" 
-              placeholder="Search staff, app, or position..." 
-              value={searchTerm} 
-              onChange={e => setSearchTerm(e.target.value)}
-              className="form-control"
-              style={{ paddingLeft: 32 }}
-            />
-            <Search size={14} style={{ position: "absolute", left: 10, top: 12, color: "#9ca3af" }} />
-          </div>
-
-          <select 
-            value={statusFilter} 
-            onChange={e => setStatusFilter(e.target.value)}
-            className="form-control"
-            style={{ width: "auto" }}
-          >
-            <option value="all">All Remote Statuses</option>
-            <option value="active">🟢 Active Now</option>
-            <option value="idle">🟡 Idle / Break</option>
-            <option value="in_meeting">🟣 In Meeting</option>
-            <option value="offline">⚪ Offline</option>
-          </select>
-
-          <select 
-            value={deptFilter} 
-            onChange={e => setDeptFilter(e.target.value)}
-            className="form-control"
-            style={{ width: "auto" }}
-          >
-            <option value="all">All Departments</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Design">Design</option>
-            <option value="Data">Data</option>
-          </select>
-        </div>
-
-        <div style={{ fontSize: 13, color: "#6b7280" }}>
-          Showing <strong>{filtered.length}</strong> of <strong>{employeesList.length}</strong> remote staff
-        </div>
-      </div>
-
-      {/* TAB 1: WHAT'S GOING ON IN THE COMPANY RIGHT NOW */}
-      {activeTab === "whats_now" && (
-        <div className="content-panel">
-          <div className="panel-header">
-            <div>
-              <h3 className="panel-title">What&apos;s Going On In The Company Right Now</h3>
-              <div className="panel-subtitle">Real-time status indicators, active focus applications, and live timers</div>
+      {/* VIEW 1: ACTIVE / IDLE REPORT (IMAGE 3) */}
+      {activeReportTab === "active_idle" && (
+        <div>
+          <div className="wt-grid-2x2">
+            {/* Quadrant 1: Active/idle */}
+            <div className="wt-card">
+              <div className="wt-card-header">
+                <h2 className="wt-card-title">Active/idle</h2>
+              </div>
+              <div className="wt-stat-block-row">
+                <div className="wt-stat-side">
+                  <div className="wt-count-callout">
+                    <strong>6</strong> active employees <span style={{ color: "#64748b", fontSize: 11 }}>(out of 17)</span>
+                  </div>
+                  <table className="wt-mini-table">
+                    <thead>
+                      <tr><th></th><th>Total time</th><th>Per empl/work day</th><th>%</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td><span className="wt-color-square sq-green" />Active</td><td><strong>103:28:02</strong></td><td>06:05:11</td><td><strong>78%</strong></td></tr>
+                      <tr><td><span className="wt-color-square sq-yellow" />Idle</td><td>13:02:25</td><td>00:46:01</td><td>10%</td></tr>
+                      <tr style={{ fontWeight: 700 }}><td>Total</td><td>116:30:27 <span style={{ fontWeight: 400, color: "#64748b", fontSize: 10 }}>(out of 133 h)</span></td><td>06:51:12 <span style={{ fontWeight: 400, color: "#64748b", fontSize: 10 }}>(out of 8 h)</span></td><td>88%</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="wt-donut-wrapper">
+                  <svg viewBox="0 0 36 36" width="110" height="110">
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="68.6 100" strokeDashoffset="25" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="8.8 100" strokeDashoffset="-43.6" />
+                  </svg>
+                </div>
+              </div>
+              <div className="wt-card-footer-link"><a href="#!">More info</a></div>
             </div>
-            <span className="badge badge-green">Live Monitoring Active</span>
+
+            {/* Quadrant 2: Active/idle per hour */}
+            <div className="wt-card">
+              <div className="wt-card-header">
+                <h2 className="wt-card-title">Active/idle per hour (average per employee/day)</h2>
+              </div>
+              <div className="wt-hourly-chart">
+                <div className="wt-hourly-bars">
+                  {hourlyData.map((d, i) => (
+                    <div key={i} className="wt-hourly-col" title={d.hour + ": " + d.active + "m active, " + d.idle + "m idle"}>
+                      <div className="wt-bar-idle" style={{ height: (d.idle / 60 * 100) + "%" }} />
+                      <div className="wt-bar-active" style={{ height: (d.active / 60 * 100) + "%" }} />
+                    </div>
+                  ))}
+                </div>
+                <div className="wt-hourly-labels">
+                  <span>12:00 am</span><span>4:00 am</span><span>8:00 am</span><span>12:00 pm</span><span>4:00 pm</span><span>8:00 pm</span><span>11:00 pm</span>
+                </div>
+                <div style={{ textAlign: "center", fontSize: 11, color: "#64748b", marginTop: 4 }}>2026-02-19</div>
+                <div className="wt-hourly-legend">
+                  <span><span className="wt-color-square sq-green" />Active</span>
+                  <span><span className="wt-color-square sq-yellow" />Idle</span>
+                </div>
+              </div>
+              <div className="wt-card-footer-link"><a href="#!">More info</a></div>
+            </div>
           </div>
 
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Staff Member</th>
-                  <th>Current Status</th>
-                  <th>Active Focus Window / App</th>
-                  <th>Active Today</th>
-                  <th>Idle Today</th>
-                  <th>Productivity Index</th>
-                  <th>Simulate Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(emp => {
-                  const u = getEmployeeUser(emp);
-                  const pColor = emp.productivity_score >= 90 ? "#10b981" : emp.productivity_score >= 80 ? "#2563eb" : "#f59e0b";
-                  return (
+          {/* Bottom 2 Quadrants */}
+          <div className="wt-grid-2x2">
+            {/* Quadrant 3: Employee - active/idle */}
+            <div className="wt-card">
+              <div className="wt-card-header">
+                <div>
+                  <h2 className="wt-card-title">Employee - active/idle</h2>
+                  <div className="wt-card-subtitle">Total active time <strong>103 hours 28 minutes</strong> · Total idle time <strong>13 hours 2 minutes</strong></div>
+                </div>
+              </div>
+              <table className="wt-table">
+                <thead>
+                  <tr><th>Now is ▲</th><th>Employee</th><th>Active total</th><th>Active avg.</th><th>Idle total</th><th>Idle avg.</th></tr>
+                </thead>
+                <tbody>
+                  {employeeLogs.map(emp => (
                     <tr key={emp.id}>
                       <td>
-                        <div style={{ fontWeight: 600, color: "#111827" }}>{u?.name}</div>
-                        <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.position} · {emp.department}</div>
-                      </td>
-                      <td>
-                        <StatusBadge value={emp.remote_status} />
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          {emp.remote_status === "in_meeting" ? <Video size={14} color="#7c3aed" /> :
-                           emp.remote_status === "idle" ? <Coffee size={14} color="#d97706" /> :
-                           emp.remote_status === "active" ? <Laptop size={14} color="#2563eb" /> : null}
-                          <span style={{ fontSize: 13, color: "#1f2937", fontWeight: 500 }}>
-                            {emp.current_activity}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <strong style={{ color: "#15803d" }}>{emp.active_time}</strong>
-                      </td>
-                      <td style={{ color: "#b45309" }}>{emp.idle_time}</td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontWeight: 700, color: pColor }}>{emp.productivity_score}%</span>
-                          <div className="progress-bar" style={{ width: 60 }}>
-                            <div className="progress-fill" style={{ width: `${emp.productivity_score}%`, background: pColor }} />
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <select
-                          className="form-control"
-                          style={{ fontSize: 11, padding: "4px 8px", width: "auto" }}
-                          value={emp.remote_status}
-                          onChange={(e) => handleStatusChange(emp.id, e.target.value)}
-                        >
-                          <option value="active">Active</option>
-                          <option value="idle">Idle / Break</option>
-                          <option value="in_meeting">In Meeting</option>
-                          <option value="offline">Offline</option>
-                        </select>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: ATTENDANCE & SHIFT TRACKER */}
-      {activeTab === "attendance" && (
-        <div className="content-panel">
-          <div className="panel-header">
-            <div>
-              <h3 className="panel-title">Remote Attendance &amp; Shift Registry</h3>
-              <div className="panel-subtitle">Login punctuality, active shift hours, and remote check-ins</div>
-            </div>
-            <button className="btn btn-secondary btn-sm" onClick={exportCSV}>
-              <Download size={14} /> Download Attendance
-            </button>
-          </div>
-
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Employee</th>
-                  <th>Shift Login Time</th>
-                  <th>Punctuality</th>
-                  <th>Total Active Time</th>
-                  <th>Total Idle/Breaks</th>
-                  <th>Total Shift Logged</th>
-                  <th>Attendance Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(emp => {
-                  const u = getEmployeeUser(emp);
-                  const isLate = emp.login_time > "09:00 AM";
-                  const isPresent = emp.remote_status !== "offline";
-                  return (
-                    <tr key={emp.id}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{u?.name}</div>
-                        <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.department}</div>
-                      </td>
-                      <td>
-                        <strong>{emp.login_time}</strong>
-                      </td>
-                      <td>
-                        {emp.remote_status === "offline" ? (
-                          <span className="badge badge-gray">Not Checked In</span>
-                        ) : isLate ? (
-                          <span className="badge badge-amber">Late (+15m)</span>
+                        {emp.status === "Active" ? (
+                          <span><span className="wt-color-square sq-green" />Active</span>
                         ) : (
-                          <span className="badge badge-green">On Time (09:00)</span>
+                          <span style={{ color: "#64748b" }}><span className="wt-color-square sq-gray" />No monitoring</span>
                         )}
                       </td>
-                      <td style={{ color: "#15803d", fontWeight: 600 }}>{emp.active_time}</td>
-                      <td style={{ color: "#b45309" }}>{emp.idle_time}</td>
-                      <td>
-                        <strong>{emp.remote_status === "offline" ? "0h" : "6h 10m"}</strong>
-                      </td>
-                      <td>
-                        <span className={`badge ${isPresent ? "badge-green" : "badge-gray"}`}>
-                          {isPresent ? "Present (Remote)" : "Absent / Off"}
-                        </span>
-                      </td>
+                      <td><span className="wt-table-link">{emp.name}</span></td>
+                      <td><strong>{emp.activeTotal}</strong></td>
+                      <td>{emp.activeAvg}</td>
+                      <td>{emp.idleTotal}</td>
+                      <td>{emp.idleAvg}</td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: ACTIVE VS IDLE TIMELINE */}
-      {activeTab === "active_idle" && (
-        <div className="content-panel">
-          <div className="panel-header">
-            <div>
-              <h3 className="panel-title">Active vs. Idle Time Distribution Timeline</h3>
-              <div className="panel-subtitle">Non-invasive work duration analysis showing keyboard/mouse focus vs pauses</div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {filtered.map(emp => {
-              const u = getEmployeeUser(emp);
-              const activeRatio = emp.remote_status === "offline" ? 0 : Math.min(95, emp.productivity_score);
-              const idleRatio = emp.remote_status === "offline" ? 0 : 100 - activeRatio;
-              return (
-                <div key={emp.id} style={{ background: "#f9fafb", padding: 14, borderRadius: 8, border: "1px solid #e5e7eb" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "center" }}>
-                    <div>
-                      <strong style={{ fontSize: 14 }}>{u?.name}</strong>
-                      <span style={{ fontSize: 12, color: "#6b7280", marginLeft: 8 }}>{emp.position} · {emp.department}</span>
-                    </div>
-                    <div style={{ display: "flex", gap: 12, fontSize: 12 }}>
-                      <span style={{ color: "#15803d", fontWeight: 600 }}>🟢 Active: {emp.active_time} ({activeRatio}%)</span>
-                      <span style={{ color: "#b45309", fontWeight: 600 }}>🟡 Idle/Break: {emp.idle_time} ({idleRatio}%)</span>
-                    </div>
-                  </div>
-
-                  {/* Visual timeline bar */}
-                  <div style={{ height: 20, width: "100%", background: "#e5e7eb", borderRadius: 6, display: "flex", overflow: "hidden" }}>
-                    <div style={{ width: `${activeRatio * 0.4}%`, background: "#22c55e" }} title="Active morning session" />
-                    <div style={{ width: `${idleRatio * 0.5}%`, background: "#f59e0b" }} title="Break / Idle" />
-                    <div style={{ width: `${activeRatio * 0.6}%`, background: "#16a34a" }} title="Active afternoon session" />
-                    <div style={{ width: `${idleRatio * 0.5}%`, background: "#f59e0b" }} title="Break" />
-                  </div>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: "#9ca3af", marginTop: 4 }}>
-                    <span>09:00 AM</span>
-                    <span>11:00 AM</span>
-                    <span>01:00 PM (Lunch)</span>
-                    <span>03:00 PM</span>
-                    <span>05:00 PM</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: PRODUCTIVITY & DISTRACTION SCORING */}
-      {activeTab === "productivity" && (
-        <div className="content-panel">
-          <div className="panel-header">
-            <div>
-              <h3 className="panel-title">Productivity &amp; Application Categorization Scoring</h3>
-              <div className="panel-subtitle">Categorizes remote work hours into productive apps (IDE, Design), neutral apps (Email), and non-productive time</div>
-            </div>
-          </div>
-
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Employee</th>
-                  <th>Productive Work %</th>
-                  <th>Neutral / Comm %</th>
-                  <th>Distraction / Unproductive %</th>
-                  <th>Primary Productive Tool</th>
-                  <th>WorkTime Index</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(emp => {
-                  const u = getEmployeeUser(emp);
-                  const productive = emp.productivity_score;
-                  const neutral = Math.max(0, 100 - productive - (emp.remote_status === "idle" ? 10 : 3));
-                  const distraction = 100 - productive - neutral;
-                  return (
+            {/* Quadrant 4: Employee - active/idle per day */}
+            <div className="wt-card">
+              <div className="wt-card-header">
+                <h2 className="wt-card-title">Employee - active/idle per day</h2>
+              </div>
+              <table className="wt-table">
+                <thead>
+                  <tr><th>Date ▲</th><th>Employee</th><th>Active total</th><th>Idle total</th></tr>
+                </thead>
+                <tbody>
+                  {employeeLogs.map(emp => (
                     <tr key={emp.id}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{u?.name}</div>
-                        <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.department}</div>
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <strong style={{ color: "#16a34a" }}>{productive}%</strong>
-                          <div className="progress-bar" style={{ width: 60 }}>
-                            <div className="progress-fill" style={{ width: `${productive}%`, background: "#16a34a" }} />
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span style={{ color: "#2563eb", fontWeight: 600 }}>{neutral}%</span>
-                      </td>
-                      <td>
-                        <span style={{ color: distraction > 8 ? "#dc2626" : "#4b5563", fontWeight: 600 }}>
-                          {distraction}%
-                        </span>
-                      </td>
-                      <td>
-                        <span className="badge badge-purple">{emp.current_activity.split("·")[0] || "Code Editor"}</span>
-                      </td>
-                      <td>
-                        <span className={`badge ${productive >= 90 ? "badge-green" : productive >= 80 ? "badge-blue" : "badge-amber"}`}>
-                          {productive >= 90 ? "Outstanding" : productive >= 80 ? "Productive" : "Needs Review"}
-                        </span>
-                      </td>
+                      <td>{emp.date}</td>
+                      <td><span className="wt-table-link">{emp.name}</span></td>
+                      <td><strong>{emp.activeTotal}</strong></td>
+                      <td>{emp.idleTotal}</td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
-      {/* TAB 5: BURNOUT & OVERTIME RISK */}
-      {activeTab === "burnout" && (
-        <div className="content-panel">
-          <div className="panel-header">
-            <div>
-              <h3 className="panel-title">Workload Health &amp; Burnout Prevention</h3>
-              <div className="panel-subtitle">Highlights staff exceeding standard capacity, logging long shifts without breaks, or at risk of exhaustion</div>
+      {/* VIEW 2: EXECUTIVE SUMMARY (IMAGE 2) */}
+      {activeReportTab === "summary" && (
+        <div>
+          <div className="wt-grid-2x2">
+            <div className="wt-card">
+              <div className="wt-card-header"><h2 className="wt-card-title">Active/idle</h2></div>
+              <div className="wt-stat-block-row">
+                <div className="wt-stat-side">
+                  <div className="wt-count-callout"><strong>15</strong> active employees <span style={{ color: "#64748b", fontSize: 11 }}>(out of 15)</span></div>
+                  <table className="wt-mini-table">
+                    <thead><tr><th></th><th>Total time</th><th>Per empl/work day</th><th>%</th></tr></thead>
+                    <tbody>
+                      <tr><td><span className="wt-color-square sq-green" />Active</td><td>102:09:25</td><td>06:48:38</td><td><strong>85%</strong></td></tr>
+                      <tr><td><span className="wt-color-square sq-yellow" />Idle</td><td>25:42:25</td><td>01:42:50</td><td>21%</td></tr>
+                      <tr style={{ fontWeight: 700 }}><td>Total</td><td>127:51:50</td><td>08:31:28</td><td>107%</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="wt-donut-wrapper">
+                  <svg viewBox="0 0 36 36" width="110" height="110">
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="74 100" strokeDashoffset="25" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="18 100" strokeDashoffset="-49" />
+                  </svg>
+                </div>
+              </div>
+              <div className="wt-card-footer-link"><a href="#!">More info</a></div>
+            </div>
+
+            <div className="wt-card">
+              <div className="wt-card-header"><h2 className="wt-card-title">Productivity</h2></div>
+              <div className="wt-stat-block-row">
+                <div className="wt-stat-side">
+                  <div className="wt-count-callout"><strong>15</strong> active employees <span style={{ color: "#64748b", fontSize: 11 }}>(out of 15)</span></div>
+                  <table className="wt-mini-table">
+                    <thead><tr><th></th><th>Total time</th><th>Per empl/work day</th></tr></thead>
+                    <tbody>
+                      <tr><td><span className="wt-color-square sq-green" />Productive</td><td>99:20:29</td><td>06:37:22</td></tr>
+                      <tr><td><span className="wt-color-square sq-red" />Unproductive</td><td>02:00:28</td><td>00:08:02</td></tr>
+                      <tr><td><span className="wt-color-square sq-blue" /><a href="#!">Undefined</a></td><td>00:48:02</td><td>00:03:12</td></tr>
+                      <tr><td><span className="wt-color-square sq-yellow" />Idle</td><td>25:41:50</td><td>01:42:47</td></tr>
+                      <tr style={{ fontWeight: 700 }}><td>Total</td><td>127:50:49</td><td>08:31:23 (107%)</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="wt-donut-wrapper">
+                  <svg viewBox="0 0 36 36" width="110" height="110">
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="72 100" strokeDashoffset="25" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#ef4444" strokeWidth="6" strokeDasharray="4 100" strokeDashoffset="-47" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#3b82f6" strokeWidth="6" strokeDasharray="2 100" strokeDashoffset="-51" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="20 100" strokeDashoffset="-53" />
+                  </svg>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "auto", paddingTop: 10, fontSize: 11.5 }}>
+                <a href="#!">Assign productivity</a>
+                <a href="#!">More info</a>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {filtered.map(emp => {
-              const u = getEmployeeUser(emp);
-              const isHighRisk = emp.burnout_risk === "High";
-              return (
-                <div 
-                  key={emp.id} 
-                  style={{ 
-                    padding: 16, 
-                    borderRadius: 8, 
-                    border: isHighRisk ? "2px solid #ef4444" : "1px solid #e5e7eb",
-                    background: isHighRisk ? "#fef2f2" : "#ffffff"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>{u?.name}</h4>
-                      <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.position} · {emp.department}</div>
+          <div className="wt-grid-2x2">
+            <div className="wt-card">
+              <div className="wt-card-header"><h2 className="wt-card-title">Active/idle per hour (average per employee/day)</h2></div>
+              <div className="wt-hourly-chart">
+                <div className="wt-hourly-bars">
+                  {hourlyData.map((d, i) => (
+                    <div key={i} className="wt-hourly-col">
+                      <div className="wt-bar-idle" style={{ height: (d.idle / 60 * 100) + "%" }} />
+                      <div className="wt-bar-active" style={{ height: (d.active / 60 * 100) + "%" }} />
                     </div>
-                    <span className={`badge ${isHighRisk ? "badge-red" : emp.burnout_risk === "Moderate" ? "badge-amber" : "badge-green"}`}>
-                      {isHighRisk ? "⚠️ High Burnout Risk" : `${emp.burnout_risk} Risk`}
-                    </span>
-                  </div>
-
-                  <div style={{ fontSize: 12.5, color: "#374151", marginBottom: 10 }}>
-                    <div><strong>Workload Allocation:</strong> {emp.workload_percentage}% capacity</div>
-                    <div><strong>Active Shift Today:</strong> {emp.active_time} (Idle: {emp.idle_time})</div>
-                  </div>
-
-                  {isHighRisk && (
-                    <div style={{ padding: "8px 10px", background: "#fee2e2", borderRadius: 6, fontSize: 12, color: "#991b1b", marginBottom: 12 }}>
-                      ⚠️ Marcus has been assigned critical tasks totaling 90% capacity and logged 7h+ active focus with minimal breaks.
-                    </div>
-                  )}
-
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => alert(`Reallocating workload for ${u?.name}`)}>
-                      Rebalance Tasks
-                    </button>
-                    <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => alert(`Sent gentle break reminder to ${u?.name}`)}>
-                      Send Break Reminder
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              );
-            })}
+                <div className="wt-hourly-labels">
+                  <span>12:00 am</span><span>4:00 am</span><span>8:00 am</span><span>12:00 pm</span><span>4:00 pm</span><span>8:00 pm</span><span>11:00 pm</span>
+                </div>
+                <div className="wt-hourly-legend">
+                  <span><span className="wt-color-square sq-green" />Active</span>
+                  <span><span className="wt-color-square sq-yellow" />Idle</span>
+                </div>
+              </div>
+              <div className="wt-card-footer-link"><a href="#!">More info</a></div>
+            </div>
+
+            <div className="wt-card">
+              <div className="wt-card-header"><h2 className="wt-card-title">Attendance - work started</h2></div>
+              <div className="wt-stat-block-row">
+                <div className="wt-stat-side">
+                  <table className="wt-mini-table">
+                    <thead><tr><th>Event</th><th>Events#</th><th>Empl/day</th><th>%</th></tr></thead>
+                    <tbody>
+                      <tr><td><span className="wt-color-square sq-green" />Early</td><td>4</td><td>4</td><td>27%</td></tr>
+                      <tr><td><span className="wt-color-square sq-green" />On time</td><td>8</td><td>8</td><td><strong>53%</strong></td></tr>
+                      <tr><td><span className="wt-color-square sq-yellow" />Late</td><td>3</td><td>3</td><td>20%</td></tr>
+                      <tr><td>Off work</td><td>0</td><td>0</td><td>0%</td></tr>
+                      <tr style={{ fontWeight: 700 }}><td>Total</td><td>15</td><td>15</td><td>100%</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="wt-donut-wrapper">
+                  <svg viewBox="0 0 36 36" width="110" height="110">
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="80 100" strokeDashoffset="25" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="20 100" strokeDashoffset="-55" />
+                  </svg>
+                </div>
+              </div>
+              <div className="wt-card-footer-link"><a href="#!">More info</a></div>
+            </div>
           </div>
+
+          <div className="wt-card">
+            <div className="wt-card-header"><h2 className="wt-card-title">Active time progress</h2></div>
+            <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+              <div style={{ minWidth: 180 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#16a34a" }}>↑ 12%</div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>Active time %: <strong style={{ color: "#1e293b" }}>86%</strong></div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>Total active: <strong style={{ color: "#1e293b" }}>2 063:54:50</strong></div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>Per empl/day: <strong style={{ color: "#1e293b" }}>06:15:15</strong></div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <svg viewBox="0 0 500 80" width="100%" height="90">
+                  <line x1="0" y1="24" x2="500" y2="24" stroke="#94a3b8" strokeDasharray="3 3" />
+                  <text x="5" y="20" fontSize="9" fill="#94a3b8">Goal 80%</text>
+                  <path d="M 0 80 Q 50 15 100 24 T 200 20 T 300 22 T 400 18 T 500 20 L 500 80 Z" fill="#fef3c7" opacity="0.8" />
+                  <path d="M 0 80 Q 50 20 100 24 T 200 20 T 300 22 T 400 18 T 500 20 L 500 80 Z" fill="#bbf7d0" opacity="0.9" />
+                  <path d="M 0 35 Q 50 15 100 24 T 200 20 T 300 22 T 400 18 T 500 20" fill="none" stroke="#16a34a" strokeWidth="2" />
+                </svg>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "#94a3b8" }}>
+                  <span>5/20</span><span>5/25</span><span>5/30</span><span>6/4</span><span>6/9</span><span>6/14</span><span>6/18</span>
+                </div>
+              </div>
+            </div>
+            <div className="wt-card-footer-link"><a href="#!">More info</a></div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 3: IN-OFFICE / REMOTE (IMAGE 1) */}
+      {activeReportTab === "in_office_remote" && (
+        <div>
+          <div className="wt-card" style={{ marginBottom: 16 }}>
+            <div className="wt-card-header">
+              <div>
+                <h2 className="wt-card-title">In-office/remote</h2>
+                <div className="wt-card-subtitle"><strong>91</strong> employees monitored</div>
+              </div>
+            </div>
+            <div className="wt-stat-block-row">
+              <div className="wt-stat-side">
+                <table className="wt-table">
+                  <thead>
+                    <tr><th>Event</th><th>Events#</th><th>Employees#</th><th>Attendance</th><th>Active</th><th>Idle</th><th>Productivity</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><span className="wt-color-square sq-blue" />In-office</td><td>0</td><td>0</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr>
+                    <tr><td><span className="wt-color-square sq-teal" />Remote</td><td><strong>120</strong></td><td><strong>78</strong></td><td><strong>67%</strong></td><td><strong>59%</strong></td><td>8%</td><td><strong>50%</strong></td></tr>
+                    <tr><td><span className="wt-color-square sq-red" />Off work</td><td>62</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr>
+                    <tr><td><span className="wt-color-square sq-purple" />Wknd/day off</td><td>0</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="wt-donut-wrapper">
+                <svg viewBox="0 0 36 36" width="120" height="120">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#14b8a6" strokeWidth="6" strokeDasharray="67 100" strokeDashoffset="25" />
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#ef4444" strokeWidth="6" strokeDasharray="33 100" strokeDashoffset="-42" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="wt-grid-3col">
+            <div className="wt-card">
+              <div className="wt-card-header"><h3 className="wt-card-title">Top in-office apps</h3></div>
+              <table className="wt-mini-table">
+                <tbody>
+                  <tr><td><a href="#!">App 1 (Outlook)</a></td><td style={{ textAlign: "right" }}>454:31</td></tr>
+                  <tr><td><a href="#!">App 2 (Teams)</a></td><td style={{ textAlign: "right" }}>218:17</td></tr>
+                  <tr><td><a href="#!">App 3 (Excel)</a></td><td style={{ textAlign: "right" }}>130:14</td></tr>
+                  <tr><td><a href="#!">App 4 (Word)</a></td><td style={{ textAlign: "right" }}>107:14</td></tr>
+                  <tr><td><a href="#!">App 5 (SAP)</a></td><td style={{ textAlign: "right" }}>70:10</td></tr>
+                  <tr><td><a href="#!">App 6 (PowerPoint)</a></td><td style={{ textAlign: "right" }}>52:38</td></tr>
+                  <tr><td><a href="#!">App 7 (Slack)</a></td><td style={{ textAlign: "right" }}>32:55</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="wt-card">
+              <div className="wt-card-header"><h3 className="wt-card-title">Top remote apps</h3></div>
+              <table className="wt-mini-table">
+                <tbody>
+                  <tr><td><a href="#!">VS Code</a></td><td style={{ textAlign: "right" }}><strong>114:36</strong></td></tr>
+                  <tr><td><a href="#!">Figma Studio</a></td><td style={{ textAlign: "right" }}>56:04</td></tr>
+                  <tr><td><a href="#!">Google Meet</a></td><td style={{ textAlign: "right" }}>40:31</td></tr>
+                  <tr><td><a href="#!">PostgreSQL Studio</a></td><td style={{ textAlign: "right" }}>38:03</td></tr>
+                  <tr><td><a href="#!">Jupyter Notebook</a></td><td style={{ textAlign: "right" }}>22:38</td></tr>
+                  <tr><td><a href="#!">Git Terminal</a></td><td style={{ textAlign: "right" }}>13:04</td></tr>
+                  <tr><td><a href="#!">Slack Remote</a></td><td style={{ textAlign: "right" }}>09:44</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="wt-card">
+              <div className="wt-card-header"><h3 className="wt-card-title">Top in-office / remote websites</h3></div>
+              <table className="wt-mini-table">
+                <tbody>
+                  <tr><td><a href="#!">github.com</a></td><td style={{ textAlign: "right" }}>88:20</td></tr>
+                  <tr><td><a href="#!">stackoverflow.com</a></td><td style={{ textAlign: "right" }}>42:15</td></tr>
+                  <tr><td><a href="#!">aws.amazon.com</a></td><td style={{ textAlign: "right" }}>31:10</td></tr>
+                  <tr><td><a href="#!">atlassian.net (Jira)</a></td><td style={{ textAlign: "right" }}>28:44</td></tr>
+                  <tr><td><a href="#!">notion.so</a></td><td style={{ textAlign: "right" }}>19:12</td></tr>
+                  <tr><td><a href="#!">developer.mozilla.org</a></td><td style={{ textAlign: "right" }}>14:50</td></tr>
+                  <tr><td><a href="#!">google.com/search</a></td><td style={{ textAlign: "right" }}>11:05</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 4: 'WHAT'S NOW' REAL-TIME LIVE TELEMETRY */}
+      {activeReportTab === "whats_now" && (
+        <div className="wt-card">
+          <div className="wt-card-header">
+            <div>
+              <h2 className="wt-card-title">&quot;What&apos;s Going On In The Company Right Now&quot;</h2>
+              <div className="wt-card-subtitle">Live employee activity, focus applications, and real-time timers</div>
+            </div>
+            <span className="badge badge-green">🟢 Live Feed Connected</span>
+          </div>
+
+          <table className="wt-table">
+            <thead>
+              <tr>
+                <th>Current Status</th>
+                <th>Employee Name</th>
+                <th>Department</th>
+                <th>Current Active Application / Task</th>
+                <th>Active Today</th>
+                <th>Idle Today</th>
+                <th>WorkTime Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {EMPLOYEES.map(emp => {
+                const u = getEmployeeUser(emp);
+                return (
+                  <tr key={emp.id}>
+                    <td>
+                      {emp.remote_status === "active" ? (
+                        <span><span className="wt-color-square sq-green" />Active</span>
+                      ) : emp.remote_status === "in_meeting" ? (
+                        <span><span className="wt-color-square sq-purple" />In Meeting</span>
+                      ) : emp.remote_status === "idle" ? (
+                        <span><span className="wt-color-square sq-yellow" />Idle / Break</span>
+                      ) : (
+                        <span><span className="wt-color-square sq-gray" />Offline</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="wt-table-link">{u?.name}</span>
+                      <div style={{ fontSize: 11, color: "#64748b" }}>{emp.position}</div>
+                    </td>
+                    <td>{emp.department}</td>
+                    <td>
+                      <strong>{emp.current_activity}</strong>
+                    </td>
+                    <td><strong style={{ color: "#15803d" }}>{emp.active_time}</strong></td>
+                    <td style={{ color: "#b45309" }}>{emp.idle_time}</td>
+                    <td>
+                      <strong>{emp.productivity_score}%</strong>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

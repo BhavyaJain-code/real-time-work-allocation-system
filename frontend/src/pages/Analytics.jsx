@@ -1,160 +1,154 @@
-import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, SKILLS, getEmployeeUser } from "../data/mockData";
-import { MonitorCheck, Clock, Award, AlertTriangle, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { EMPLOYEES, getEmployeeUser } from "../data/mockData";
 
 export default function Analytics() {
-  const totalTasks     = TASKS.length;
-  const completedTasks = TASKS.filter(t => t.status === "done").length;
-  const inProgress     = TASKS.filter(t => t.status === "in_progress").length;
-  const completionRate = Math.round((completedTasks / totalTasks) * 100);
+  const [selectedOffice, setSelectedOffice] = useState("all");
 
-  const activeStaffCount = EMPLOYEES.filter(e => e.remote_status === "active").length;
-  const avgProductivity  = Math.round(EMPLOYEES.reduce((acc, curr) => acc + (curr.productivity_score || 0), 0) / EMPLOYEES.length);
-
-  const departments = [...new Set(EMPLOYEES.map(e => e.department))];
-
-  const deptStats = departments.map(dept => {
-    const emps = EMPLOYEES.filter(e => e.department === dept);
-    const avgWorkload = Math.round(emps.reduce((acc, curr) => acc + curr.workload_percentage, 0) / emps.length);
-    const avgScore = Math.round(emps.reduce((acc, curr) => acc + (curr.productivity_score || 0), 0) / emps.length);
-    return {
-      department: dept,
-      employeesCount: emps.length,
-      avgWorkload,
-      avgScore,
-      activeCount: emps.filter(e => e.remote_status === "active").length,
-    };
-  });
+  const deptStats = [
+    { department: "Engineering", employeesCount: 4, activeCount: 3, avgScore: 92, avgWorkload: 75 },
+    { department: "Design",      employeesCount: 1, activeCount: 1, avgScore: 88, avgWorkload: 40 },
+    { department: "Data",        employeesCount: 1, activeCount: 1, avgScore: 91, avgWorkload: 55 },
+  ];
 
   return (
     <div>
-      <div className="hero-section" style={{ marginBottom: 28 }}>
-        <h1 className="hero-title" style={{ fontSize: 32 }}>Remote Workload & Productivity Analytics</h1>
-        <p className="hero-subtitle">
-          Real-time telemetry on remote staff productivity, active vs idle duration, and department workload distribution.
-        </p>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="features-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginBottom: 32 }}>
-        <div className="feature-card card-green-1">
-          <h3 className="feature-card-title">{activeStaffCount} Active Staff</h3>
-          <p className="feature-card-desc">Remotely logged in and actively working today.</p>
-        </div>
-        <div className="feature-card card-yellow">
-          <h3 className="feature-card-title">{avgProductivity}% Productivity</h3>
-          <p className="feature-card-desc">Average focused active time vs idle hours across teams.</p>
-        </div>
-        <div className="feature-card card-blue">
-          <h3 className="feature-card-title">{completionRate}% Task Completion</h3>
-          <p className="feature-card-desc">{completedTasks} of {totalTasks} allocated deliverables finished.</p>
-        </div>
-        <div className="feature-card card-peach">
-          <h3 className="feature-card-title">0 Overtime Alerts</h3>
-          <p className="feature-card-desc">Workloads balanced to prevent employee burnout.</p>
-        </div>
-      </div>
-
-      {/* Remote Employee Productivity Leaderboard & Telemetry Table */}
-      <div className="content-panel" style={{ marginBottom: 28 }}>
-        <div className="panel-header">
+      {/* Top In-office / remote Card (Image 1) */}
+      <div className="wt-card" style={{ marginBottom: 16 }}>
+        <div className="wt-card-header">
           <div>
-            <h3 className="panel-title">Staff Productivity & Active Time Summary (WorkTime Metric)</h3>
-            <div className="panel-subtitle">Non-invasive productivity and focused work telemetry</div>
+            <h2 className="wt-card-title">In-office/remote</h2>
+            <div className="wt-card-subtitle"><strong>91</strong> employees monitored</div>
           </div>
         </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Employee Name</th>
-                <th>Department</th>
-                <th>Status</th>
-                <th>Active Time</th>
-                <th>Idle Time</th>
-                <th>Productivity Score</th>
-                <th>Burnout Risk</th>
-              </tr>
-            </thead>
-            <tbody>
-              {EMPLOYEES.map(emp => {
-                const u = getEmployeeUser(emp);
-                const pColor = emp.productivity_score >= 90 ? "#10b981" : emp.productivity_score >= 80 ? "#2563eb" : "#f59e0b";
-                return (
-                  <tr key={emp.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{u?.name}</div>
-                      <div style={{ fontSize: 12, color: "#6b7280" }}>{emp.position}</div>
-                    </td>
-                    <td>{emp.department}</td>
-                    <td>
-                      <span className={`badge ${emp.remote_status === "active" ? "badge-green" : emp.remote_status === "in_meeting" ? "badge-purple" : emp.remote_status === "idle" ? "badge-amber" : "badge-gray"}`}>
-                        {emp.remote_status || "offline"}
-                      </span>
-                    </td>
-                    <td><strong style={{ color: "#15803d" }}>{emp.active_time || "0h"}</strong></td>
-                    <td style={{ color: "#b45309" }}>{emp.idle_time || "0m"}</td>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ fontWeight: 700, color: pColor }}>{emp.productivity_score}%</span>
-                        <div className="progress-bar" style={{ width: 80 }}>
-                          <div className="progress-fill" style={{ width: `${emp.productivity_score}%`, background: pColor }} />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge ${emp.burnout_risk === "High" ? "badge-red" : emp.burnout_risk === "Moderate" ? "badge-amber" : "badge-green"}`}>
-                        {emp.burnout_risk}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Department Workload Summary */}
-      <div className="content-panel">
-        <div className="panel-header">
-          <div>
-            <h3 className="panel-title">Department Workload Distribution</h3>
-            <div className="panel-subtitle">Capacity allocation across functional teams</div>
-          </div>
-        </div>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Department</th>
-                <th>Total Team</th>
-                <th>Active Remotely</th>
-                <th>Average Productivity</th>
-                <th>Average Capacity Load</th>
-              </tr>
-            </thead>
-            <tbody>
-              {deptStats.map(d => (
-                <tr key={d.department}>
-                  <td style={{ fontWeight: 600 }}>{d.department}</td>
-                  <td>{d.employeesCount} staff</td>
-                  <td><span className="badge badge-green">{d.activeCount} active</span></td>
-                  <td><strong style={{ color: "#2563eb" }}>{d.avgScore}%</strong></td>
-                  <td style={{ minWidth: 160 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 3 }}>
-                      <span>{d.avgWorkload}%</span>
-                    </div>
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${d.avgWorkload}%` }} />
-                    </div>
-                  </td>
+        <div className="wt-stat-block-row">
+          <div className="wt-stat-side">
+            <table className="wt-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Events#</th>
+                  <th>Employees#</th>
+                  <th>Attendance</th>
+                  <th>Active</th>
+                  <th>Idle</th>
+                  <th>Productivity</th>
                 </tr>
-              ))}
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span className="wt-color-square sq-blue" />In-office</td>
+                  <td>0</td><td>0</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td>
+                </tr>
+                <tr>
+                  <td><span className="wt-color-square sq-teal" />Remote</td>
+                  <td><strong>120</strong></td><td><strong>78</strong></td><td><strong>67%</strong></td><td><strong>59%</strong></td><td>8%</td><td><strong>50%</strong></td>
+                </tr>
+                <tr>
+                  <td><span className="wt-color-square sq-red" />Off work</td>
+                  <td>62</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td>
+                </tr>
+                <tr>
+                  <td><span className="wt-color-square sq-purple" />Wknd/day off</td>
+                  <td>0</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="wt-donut-wrapper">
+            <svg viewBox="0 0 36 36" width="120" height="120">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#14b8a6" strokeWidth="6" strokeDasharray="67 100" strokeDashoffset="25" />
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#ef4444" strokeWidth="6" strokeDasharray="33 100" strokeDashoffset="-42" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* 3 Columns: Top in-office apps, Top remote apps, Top websites */}
+      <div className="wt-grid-3col">
+        <div className="wt-card">
+          <div className="wt-card-header"><h3 className="wt-card-title">Top in-office apps</h3></div>
+          <table className="wt-mini-table">
+            <tbody>
+              <tr><td><a href="#!">App 1 (Outlook)</a></td><td style={{ textAlign: "right" }}>454:31</td></tr>
+              <tr><td><a href="#!">App 2 (Teams)</a></td><td style={{ textAlign: "right" }}>218:17</td></tr>
+              <tr><td><a href="#!">App 3 (Excel)</a></td><td style={{ textAlign: "right" }}>130:14</td></tr>
+              <tr><td><a href="#!">App 4 (Word)</a></td><td style={{ textAlign: "right" }}>107:14</td></tr>
+              <tr><td><a href="#!">App 5 (SAP)</a></td><td style={{ textAlign: "right" }}>70:10</td></tr>
+              <tr><td><a href="#!">App 6 (PowerPoint)</a></td><td style={{ textAlign: "right" }}>52:38</td></tr>
+              <tr><td><a href="#!">App 7 (Slack)</a></td><td style={{ textAlign: "right" }}>32:55</td></tr>
             </tbody>
           </table>
         </div>
+
+        <div className="wt-card">
+          <div className="wt-card-header"><h3 className="wt-card-title">Top remote apps</h3></div>
+          <table className="wt-mini-table">
+            <tbody>
+              <tr><td><a href="#!">VS Code</a></td><td style={{ textAlign: "right" }}><strong>114:36</strong></td></tr>
+              <tr><td><a href="#!">Figma Studio</a></td><td style={{ textAlign: "right" }}>56:04</td></tr>
+              <tr><td><a href="#!">Google Meet</a></td><td style={{ textAlign: "right" }}>40:31</td></tr>
+              <tr><td><a href="#!">PostgreSQL Studio</a></td><td style={{ textAlign: "right" }}>38:03</td></tr>
+              <tr><td><a href="#!">Jupyter Notebook</a></td><td style={{ textAlign: "right" }}>22:38</td></tr>
+              <tr><td><a href="#!">Git Terminal</a></td><td style={{ textAlign: "right" }}>13:04</td></tr>
+              <tr><td><a href="#!">Slack Remote</a></td><td style={{ textAlign: "right" }}>09:44</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="wt-card">
+          <div className="wt-card-header"><h3 className="wt-card-title">Top in-office / remote websites</h3></div>
+          <table className="wt-mini-table">
+            <tbody>
+              <tr><td><a href="#!">github.com</a></td><td style={{ textAlign: "right" }}>88:20</td></tr>
+              <tr><td><a href="#!">stackoverflow.com</a></td><td style={{ textAlign: "right" }}>42:15</td></tr>
+              <tr><td><a href="#!">aws.amazon.com</a></td><td style={{ textAlign: "right" }}>31:10</td></tr>
+              <tr><td><a href="#!">atlassian.net (Jira)</a></td><td style={{ textAlign: "right" }}>28:44</td></tr>
+              <tr><td><a href="#!">notion.so</a></td><td style={{ textAlign: "right" }}>19:12</td></tr>
+              <tr><td><a href="#!">developer.mozilla.org</a></td><td style={{ textAlign: "right" }}>14:50</td></tr>
+              <tr><td><a href="#!">google.com/search</a></td><td style={{ textAlign: "right" }}>11:05</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Department Summary Table */}
+      <div className="wt-card" style={{ marginTop: 16 }}>
+        <div className="wt-card-header">
+          <h3 className="wt-card-title">Department Workload & Performance Summary</h3>
+        </div>
+        <table className="wt-table">
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Monitored Staff</th>
+              <th>Active Right Now</th>
+              <th>Avg Productivity</th>
+              <th>Workload Capacity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {deptStats.map(d => (
+              <tr key={d.department}>
+                <td><strong>{d.department}</strong></td>
+                <td>{d.employeesCount} employees</td>
+                <td><span className="badge badge-green">{d.activeCount} Active</span></td>
+                <td><strong style={{ color: "#16a34a" }}>{d.avgScore}%</strong></td>
+                <td style={{ minWidth: 140 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 2 }}>
+                    <span>Allocated</span>
+                    <strong>{d.avgWorkload}%</strong>
+                  </div>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: d.avgWorkload + "%" }} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
