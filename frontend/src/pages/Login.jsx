@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Check, AlertCircle, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -12,42 +12,13 @@ export default function Login() {
   const [role, setRole] = useState("admin");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
-  const [touchedEmail, setTouchedEmail] = useState(false);
-
-  // Email format validation regex
-  const isEmailValid = useMemo(() => {
-    if (!email) return false;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email.trim());
-  }, [email]);
-
-  // Password strength calculation
-  const passStrength = useMemo(() => {
-    if (!password) return { score: 0, label: "None", color: "#e2e8f0", width: "0%" };
-    let score = 0;
-    if (password.length >= 6) score += 1;
-    if (password.length >= 8) score += 1;
-    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
-    if (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password)) score += 1;
-
-    if (score <= 1) return { score: 1, label: "Weak", color: "#ef4444", width: "25%", tip: "Try adding numbers and uppercase letters" };
-    if (score === 2) return { score: 2, label: "Fair", color: "#f59e0b", width: "50%", tip: "Add symbols or mix of cases" };
-    if (score === 3) return { score: 3, label: "Good", color: "#2563eb", width: "75%", tip: "Almost strong! Make it 8+ chars" };
-    return { score: 4, label: "Strong", color: "#22c55e", width: "100%", tip: "Strong & secure password" };
-  }, [password]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
-    setTouchedEmail(true);
 
     if (!email.trim()) {
       setError("Please enter your email address.");
-      return;
-    }
-
-    if (!isEmailValid) {
-      setError("Please enter a valid email address (e.g. user@company.com).");
       return;
     }
 
@@ -56,16 +27,11 @@ export default function Login() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return;
-    }
-
     const user = login(email.trim(), password, role);
     if (user) {
       navigate(user.role === "admin" ? "/admin/dashboard" : user.role === "manager" ? "/manager/dashboard" : "/employee/dashboard");
     } else {
-      setError("Invalid login credentials for the selected role.");
+      setError("Invalid credentials. Please verify your email and role.");
     }
   };
 
@@ -74,7 +40,6 @@ export default function Login() {
     setEmail(demoEmail);
     setPassword(demoPass);
     setError("");
-    setTouchedEmail(true);
   };
 
   return (
@@ -102,7 +67,7 @@ export default function Login() {
         <div style={{ padding: "24px 28px 32px" }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1e293b", margin: "0 0 6px" }}>Sign In to Account</h2>
           <p style={{ fontSize: 12.5, color: "#64748b", margin: "0 0 18px" }}>
-            Enter your validated organization email &amp; credentials.
+            Enter your credentials to access the monitoring dashboard.
           </p>
 
           {/* Quick Demo Credential Buttons */}
@@ -114,21 +79,21 @@ export default function Login() {
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={() => setDemoCredentials("admin", "alex@workflow.io", "Admin@2026!")}
+                onClick={() => setDemoCredentials("admin", "alex@workflow.io", "admin123")}
               >
                 Admin
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={() => setDemoCredentials("manager", "ravi@workflow.io", "Mgr@Pass2026")}
+                onClick={() => setDemoCredentials("manager", "ravi@workflow.io", "mgr123")}
               >
                 Manager
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={() => setDemoCredentials("employee", "priya@workflow.io", "Priya@Dev2026")}
+                onClick={() => setDemoCredentials("employee", "priya@workflow.io", "emp123")}
               >
                 Employee
               </button>
@@ -160,51 +125,30 @@ export default function Login() {
               </select>
             </div>
 
-            {/* Email Address with validation feedback */}
+            {/* Email Address */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>
-                  Email Address
-                </label>
-                {touchedEmail && email && (
-                  <span style={{ fontSize: 11, fontWeight: 600, color: isEmailValid ? "#16a34a" : "#dc2626" }}>
-                    {isEmailValid ? "✓ Valid email format" : "✕ Invalid email format"}
-                  </span>
-                )}
-              </div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 4 }}>
+                Email Address
+              </label>
               <div style={{ position: "relative" }}>
                 <input
                   type="email"
                   className="form-control"
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px 8px 34px",
-                    borderColor: touchedEmail && email && !isEmailValid ? "#ef4444" : "#cbd5e1"
-                  }}
+                  style={{ width: "100%", padding: "8px 10px 8px 34px" }}
                   placeholder="e.g. alex@workflow.io"
                   value={email}
-                  onChange={e => {
-                    setEmail(e.target.value);
-                    if (!touchedEmail) setTouchedEmail(true);
-                  }}
-                  onBlur={() => setTouchedEmail(true)}
+                  onChange={e => setEmail(e.target.value)}
+                  required
                 />
                 <Mail size={15} style={{ position: "absolute", left: 10, top: 11, color: "#94a3b8" }} />
               </div>
             </div>
 
-            {/* Password with Strength Indicator */}
+            {/* Password */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>
-                  Password
-                </label>
-                {password && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: passStrength.color }}>
-                    Strength: {passStrength.label}
-                  </span>
-                )}
-              </div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 4 }}>
+                Password
+              </label>
               <div style={{ position: "relative" }}>
                 <input
                   type={showPass ? "text" : "password"}
@@ -213,6 +157,7 @@ export default function Login() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
+                  required
                 />
                 <Lock size={15} style={{ position: "absolute", left: 10, top: 11, color: "#94a3b8" }} />
                 <button
@@ -223,25 +168,6 @@ export default function Login() {
                   {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
-
-              {/* Real-time Password Strength Meter Bar */}
-              {password && (
-                <div style={{ marginTop: 6 }}>
-                  <div style={{ height: 4, background: "#e2e8f0", borderRadius: 2, overflow: "hidden", marginBottom: 4 }}>
-                    <div 
-                      style={{ 
-                        height: "100%", 
-                        width: passStrength.width, 
-                        background: passStrength.color,
-                        transition: "all 0.3s ease" 
-                      }} 
-                    />
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>
-                    {passStrength.tip}
-                  </div>
-                </div>
-              )}
             </div>
 
             <button
