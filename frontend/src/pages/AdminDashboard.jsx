@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowRight, MonitorCheck, Play, Pause, Download, ExternalLink } from "lucide-react";
+import { Plus, ArrowRight, MonitorCheck, Play, Pause, Download, ExternalLink, ShieldCheck, AlertTriangle } from "lucide-react";
 import { TASKS, EMPLOYEES, getEmployeeUser } from "../data/mockData";
 
 export default function AdminDashboard() {
@@ -8,7 +8,9 @@ export default function AdminDashboard() {
 
   const totalTasks = TASKS.length;
   const inProgressTasks = TASKS.filter(t => t.status === "in_progress").length;
+  const completedTasks = TASKS.filter(t => t.status === "done").length;
   const activeNow = EMPLOYEES.filter(e => e.remote_status === "active").length;
+  const overtimeCount = EMPLOYEES.filter(e => e.burnout_risk === "High").length;
 
   const hourlyData = [
     { hour: "12am", active: 0, idle: 0 },
@@ -39,12 +41,32 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      {/* Top 2 Quadrants (Image 2) */}
+      {/* Top Banner */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, background: "#ffffff", padding: "14px 18px", borderRadius: 4, border: "1px solid var(--wt-border)" }}>
+        <div>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--wt-text-main)", margin: 0 }}>
+            🏢 Enterprise Administration &amp; Global Operations Hub
+          </h2>
+          <div style={{ fontSize: 12, color: "var(--wt-text-muted)" }}>
+            Organization-wide oversight of all 3 departments, {EMPLOYEES.length} staff members, and real-time telemetry.
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn btn-primary btn-sm" onClick={() => navigate("/admin/tasks/create")}>
+            <Plus size={13} /> Create Master Task
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/monitoring")}>
+            Full Telemetry Hub →
+          </button>
+        </div>
+      </div>
+
+      {/* Top 2 Quadrants */}
       <div className="wt-grid-2x2">
-        {/* Card 1: Active/idle */}
+        {/* Card 1: Enterprise Active/idle */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Active/idle</h2>
+            <h2 className="wt-card-title">Company Active/idle (All Departments)</h2>
           </div>
           <div className="wt-stat-block-row">
             <div className="wt-stat-side">
@@ -75,10 +97,10 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 2: Productivity */}
+        {/* Card 2: Enterprise Productivity */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Productivity</h2>
+            <h2 className="wt-card-title">Organization Productivity Index</h2>
           </div>
           <div className="wt-stat-block-row">
             <div className="wt-stat-side">
@@ -117,7 +139,7 @@ export default function AdminDashboard() {
 
       {/* Middle 2 Quadrants */}
       <div className="wt-grid-2x2">
-        {/* Card 3: Hourly Bars */}
+        {/* Card 3: Hourly Chart */}
         <div className="wt-card">
           <div className="wt-card-header">
             <h2 className="wt-card-title">Active/idle per hour (average per employee/day)</h2>
@@ -144,10 +166,10 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 4: Attendance - work started */}
+        {/* Card 4: Attendance */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Attendance - work started</h2>
+            <h2 className="wt-card-title">Enterprise Attendance &amp; Punctuality</h2>
           </div>
           <div className="wt-stat-block-row">
             <div className="wt-stat-side">
@@ -176,45 +198,15 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Bottom Wave: Active Time Progress */}
-      <div className="wt-card" style={{ marginBottom: 20 }}>
-        <div className="wt-card-header">
-          <h2 className="wt-card-title">Active time progress</h2>
-        </div>
-        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          <div style={{ minWidth: 180 }}>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#16a34a" }}>↑ 12%</div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>Active time %: <strong style={{ color: "#1e293b" }}>86%</strong></div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>Total active: <strong style={{ color: "#1e293b" }}>2 063:54:50</strong></div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>Per empl/day: <strong style={{ color: "#1e293b" }}>06:15:15</strong></div>
-          </div>
-          <div style={{ flex: 1 }}>
-            <svg viewBox="0 0 500 80" width="100%" height="90">
-              <line x1="0" y1="24" x2="500" y2="24" stroke="#94a3b8" strokeDasharray="3 3" />
-              <text x="5" y="20" fontSize="9" fill="#94a3b8">Goal 80%</text>
-              <path d="M 0 80 Q 50 15 100 24 T 200 20 T 300 22 T 400 18 T 500 20 L 500 80 Z" fill="#fef3c7" opacity="0.8" />
-              <path d="M 0 80 Q 50 20 100 24 T 200 20 T 300 22 T 400 18 T 500 20 L 500 80 Z" fill="#bbf7d0" opacity="0.9" />
-              <path d="M 0 35 Q 50 15 100 24 T 200 20 T 300 22 T 400 18 T 500 20" fill="none" stroke="#16a34a" strokeWidth="2" />
-            </svg>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "#94a3b8" }}>
-              <span>5/20</span><span>5/25</span><span>5/30</span><span>6/4</span><span>6/9</span><span>6/14</span><span>6/18</span>
-            </div>
-          </div>
-        </div>
-        <div className="wt-card-footer-link">
-          <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>More info</span>
-        </div>
-      </div>
-
-      {/* Task Queue & Workload Allocation Panel */}
+      {/* Master Task Queue */}
       <div className="wt-card">
         <div className="wt-card-header">
           <div>
-            <h2 className="wt-card-title">Active Task Deliverables & Allocation</h2>
-            <div className="wt-card-subtitle">{totalTasks} tasks managed across departments</div>
+            <h2 className="wt-card-title">Master Enterprise Deliverables &amp; Workload</h2>
+            <div className="wt-card-subtitle">{totalTasks} total tasks scheduled ({inProgressTasks} in progress, {completedTasks} completed)</div>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={() => navigate("/admin/tasks/create")}>
-            <Plus size={12} /> Add Task
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/tasks")}>
+            View Full Queue
           </button>
         </div>
 
@@ -222,7 +214,7 @@ export default function AdminDashboard() {
           <thead>
             <tr>
               <th>Task Title</th>
-              <th>Department / Scope</th>
+              <th>Scope</th>
               <th>Hours</th>
               <th>Deadline</th>
               <th>Priority</th>
