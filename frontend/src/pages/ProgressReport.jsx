@@ -1,219 +1,270 @@
-import { useState } from "react";
-import { Printer, ChevronDown, ChevronUp, Star } from "lucide-react";
+import { useState, useRef } from "react";
+import { Printer, Download, User, ChevronDown, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import {
-  EMPLOYEES, TASKS, TASK_ASSIGNMENTS,
-  getEmployeeUser, getEmployeeSkills, getEmployeeProgress,
-  getEmployeeFeedback, getTask, getUser,
-  initials, getManagerEmployees
+import { 
+  EMPLOYEES, TASKS, TASK_ASSIGNMENTS, 
+  getEmployeeUser, getEmployeeSkills, getEmployeeProgress, 
+  getEmployeeFeedback, getTask, getUser, getManagerEmployees 
 } from "../data/mockData";
-import StatusBadge from "../components/StatusBadge";
-
-function StarRating({ rating }) {
-  return (
-    <span style={{ display: "flex", gap: 2 }}>
-      {[1,2,3,4,5].map(i => (
-        <Star key={i} size={13} fill={i <= rating ? "#ffc107" : "none"} color={i <= rating ? "#ffc107" : "#dee2e6"} />
-      ))}
-    </span>
-  );
-}
-
-function EmployeeReportCard({ employee, expanded, onToggle, printMode }) {
-  const user     = getEmployeeUser(employee);
-  const skills   = getEmployeeSkills(employee.id);
-  const progress = getEmployeeProgress(employee.id);
-  const feedback = getEmployeeFeedback(employee.id);
-  const assignments = TASK_ASSIGNMENTS.filter(a => a.employee_id === employee.id);
-  const wColor   = employee.workload_percentage >= 85 ? "#dc3545" : employee.workload_percentage >= 60 ? "#0d6efd" : "#198754";
-
-  return (
-    <div className="card" style={{ pageBreakInside: "avoid" }}>
-      {/* Header row */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", cursor: "pointer", borderBottom: expanded ? "1px solid var(--border)" : "none", background: "#ffffff" }}
-        onClick={onToggle}
-      >
-        <div className="avatar avatar-md" style={{ background: "#e9ecef", color: "#495057" }}>{initials(user?.name)}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 14 }}>{user?.name}</div>
-          <div style={{ fontSize: 12, color: "var(--muted)" }}>{employee.position} · {employee.department}</div>
-        </div>
-        {/* Quick stats */}
-        <div style={{ display: "flex", gap: 20 }}>
-          {[
-            { label: "Completed", value: progress.completed, color: "#198754" },
-            { label: "In Progress", value: progress.inProgress, color: "#0d6efd" },
-            { label: "Avg Score", value: progress.avgScore ?? "—", color: "#495057" },
-            { label: "On-Time", value: `${progress.onTimeRate}%`, color: "#0d6efd" },
-          ].map(s => (
-            <div key={s.label} style={{ textAlign: "center" }}>
-              <div style={{ fontWeight: 700, fontSize: 16, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)" }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-        {!printMode && (expanded ? <ChevronUp size={16} color="var(--muted)" /> : <ChevronDown size={16} color="var(--muted)" />)}
-      </div>
-
-      {(expanded || printMode) && (
-        <div style={{ padding: "16px 18px", background: "#f8f9fa", display: "flex", flexDirection: "column", gap: 14, borderTop: "1px solid var(--border)" }}>
-          {/* Progress Metrics Bar */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 4 }}>
-              <span>Completion Rate</span>
-              <strong>{progress.completionRate}%</strong>
-            </div>
-            <div className="progress-bar" style={{ height: 6 }}>
-              <div className="progress-fill" style={{ width: `${progress.completionRate}%`, background: "#198754" }} />
-            </div>
-          </div>
-
-          {/* Workload Bar */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 4 }}>
-              <span>Workload Capacity</span>
-              <strong style={{ color: wColor }}>{employee.workload_percentage}%</strong>
-            </div>
-            <div className="progress-bar" style={{ height: 6 }}>
-              <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: wColor }} />
-            </div>
-          </div>
-
-          {/* Skills list */}
-          <div>
-            <div style={{ fontSize: 11.5, fontWeight: 600, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Validated Skills</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-              {skills.map(s => <span key={s.id} className="skill-tag">{s.name}</span>)}
-            </div>
-          </div>
-
-          {/* Task History */}
-          <div>
-            <div style={{ fontSize: 11.5, fontWeight: 600, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Assigned Tasks ({assignments.length})</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {assignments.map(a => {
-                const t = getTask(a.task_id);
-                return (
-                  <div key={a.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--border)" }}>
-                    <div>
-                      <span style={{ fontWeight: 600, fontSize: 12.5 }}>{t?.title}</span>
-                      <span style={{ fontSize: 11.5, color: "var(--muted)", marginLeft: 6 }}>Due: {t?.deadline} · {t?.estimated_hours}h</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <StatusBadge value={a.status} />
-                      {a.assignment_score && (
-                        <span style={{ fontSize: 12, fontWeight: 600, color: "#0d6efd" }}>{a.assignment_score}/100</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Feedback Received */}
-          {feedback.length > 0 && (
-            <div>
-              <div style={{ fontSize: 11.5, fontWeight: 600, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Feedback Records ({feedback.length})</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {feedback.map(f => {
-                  const author = getUser(f.from_user_id);
-                  const t = getTask(f.task_id);
-                  return (
-                    <div key={f.id} style={{ padding: "8px 12px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--border)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                        <span style={{ fontWeight: 600, fontSize: 12 }}>{author?.name} ({author?.role})</span>
-                        <StarRating rating={f.rating} />
-                      </div>
-                      <p style={{ fontSize: 12, color: "var(--text-2)", margin: 0 }}>"{f.comment}"</p>
-                      {t && <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Task: {t.title}</div>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function ProgressReport() {
   const { user } = useAuth();
-  const [expanded, setExpanded] = useState({});
-  const [deptF, setDeptF] = useState("all");
-  const [selectedEmp, setSelectedEmp] = useState("all");
-
   const isManager = user?.role === "manager";
-  const allEmployees = isManager ? getManagerEmployees(user.id) : EMPLOYEES;
-  const departments = [...new Set(allEmployees.map(e => e.department))];
+  const allEmployees = isManager ? getManagerEmployees(user?.id) : EMPLOYEES;
 
-  const filtered = allEmployees.filter(e => {
-    const matchDept = deptF === "all" || e.department === deptF;
-    const matchEmp  = selectedEmp === "all" || e.id === Number(selectedEmp);
-    return matchDept && matchEmp;
-  });
+  const [selectedEmpId, setSelectedEmpId] = useState(allEmployees[0]?.id || 1);
+  const [reportPeriod, setReportPeriod] = useState("Quarterly (Q3 2026)");
+  const [reportDate, setReportDate] = useState("2026-08-27");
 
-  const toggleExpand = (id) => setExpanded(e => ({ ...e, [id]: !e[id] }));
-  const expandAll = () => {
-    const all = {};
-    filtered.forEach(e => { all[e.id] = true; });
-    setExpanded(all);
+  const selectedEmp = allEmployees.find(e => e.id === Number(selectedEmpId)) || allEmployees[0];
+  const empUser = getEmployeeUser(selectedEmp);
+  const empSkills = getEmployeeSkills(selectedEmp?.id);
+  const empProgress = getEmployeeProgress(selectedEmp?.id);
+  const empAssignments = TASK_ASSIGNMENTS.filter(a => a.employee_id === selectedEmp?.id);
+
+  // Dynamic Grade & Rating calculation
+  const score = selectedEmp?.productivity_score || 85;
+  const grade = score >= 92 ? "A" : score >= 80 ? "B" : score >= 65 ? "C" : "D";
+  const overallRating = score >= 92 ? "EXCELLENT (A+)" : score >= 85 ? "VERY GOOD (A)" : score >= 75 ? "GOOD (B+)" : "AVERAGE (B)";
+
+  const handlePrint = () => {
+    window.print();
   };
-  const collapseAll = () => setExpanded({});
-
-  const handlePrint = () => window.print();
 
   return (
     <div>
-      <div className="page-header">
+      {/* Top Controls Bar (Hidden during Print) */}
+      <div className="no-print" style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, background: "#ffffff", padding: "14px 18px", borderRadius: 4, border: "1px solid var(--wt-border)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontWeight: 700, fontSize: 13, color: "var(--wt-text-main)" }}>Select Employee Report:</span>
+            <select
+              className="form-control"
+              value={selectedEmpId}
+              onChange={(e) => setSelectedEmpId(Number(e.target.value))}
+              style={{ fontWeight: 600, minWidth: 200 }}
+            >
+              {allEmployees.map(e => {
+                const u = getEmployeeUser(e);
+                return <option key={e.id} value={e.id}>{u?.name} ({e.department} - {e.position})</option>;
+              })}
+            </select>
+
+            <select
+              className="form-control"
+              value={reportPeriod}
+              onChange={(e) => setReportPeriod(e.target.value)}
+            >
+              <option value="Quarterly (Q3 2026)">Quarterly (Q3 2026)</option>
+              <option value="Monthly (August 2026)">Monthly (August 2026)</option>
+              <option value="Annual Review (2026)">Annual Review (2026)</option>
+            </select>
+          </div>
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn btn-primary" onClick={handlePrint}>
+              <Printer size={14} /> Download / Print Report (PDF)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* =========================================================================
+          PRINTABLE REPORT CONTAINER (Exact match to uploaded template image)
+         ========================================================================= */}
+      <div 
+        className="employee-report-sheet"
+        style={{
+          maxWidth: 820,
+          margin: "0 auto",
+          background: "#ffffff",
+          padding: "24px 32px 40px",
+          border: "1px solid #d1d5db",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+          fontFamily: "'Inter', sans-serif",
+          color: "#111827"
+        }}
+      >
+        {/* 1. Yellow/Gold Top Banner */}
+        <div 
+          style={{
+            backgroundColor: "#f5a623",
+            color: "#111827",
+            textAlign: "center",
+            padding: "10px 16px",
+            fontWeight: 800,
+            fontSize: 20,
+            letterSpacing: "0.2px",
+            marginBottom: 16
+          }}
+        >
+          Employee Performance &amp; Progress Report
+        </div>
+
+        {/* 2. Top Right Company Header */}
+        <div style={{ display: "flex", justifyContent: "flex-end", textAlign: "right", marginBottom: 12 }}>
+          <div>
+            <div style={{ fontSize: 10, color: "#9ca3af", fontStyle: "italic" }}>⚡ inpaspages.com</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>AA Pvt.Ltd.</div>
+            <div style={{ fontSize: 11, color: "#4b5563" }}>JB 36, MKT Lang Market,</div>
+            <div style={{ fontSize: 11, color: "#4b5563" }}>CB Patel Road, TX, USA</div>
+          </div>
+        </div>
+
+        {/* 3. Center Subtitle: Report Period */}
+        <div style={{ textAlign: "center", fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 16 }}>
+          Report Period : <span style={{ fontWeight: 500, color: "#374151" }}>{reportPeriod}</span>
+        </div>
+
+        {/* 4. Employee Details Box (Light Grey Grid) */}
+        <div 
+          style={{
+            backgroundColor: "#f3f4f6",
+            padding: "14px 18px",
+            marginBottom: 14,
+            display: "grid",
+            gridTemplateColumns: "1.1fr 1fr",
+            gap: "8px 24px",
+            fontSize: 12.5,
+            border: "1px solid #e5e7eb"
+          }}
+        >
+          <div><strong>Employee Name :</strong> {empUser?.name || "Rone Gomal"}</div>
+          <div><strong>Employee ID :</strong> EMP-10{selectedEmp?.id || "23"}</div>
+          <div><strong>Department :</strong> {selectedEmp?.department || "Assembly Line"}</div>
+          <div><strong>Designation :</strong> {selectedEmp?.position || "Machine Operator"}</div>
+          <div><strong>Shift :</strong> Day (8:00 AM – 5:00 PM)</div>
+          <div><strong>Supervisor :</strong> Mr. S. Thekker</div>
+          <div><strong>Date :</strong> {reportDate}</div>
+          <div><strong>Location :</strong> Plant 1 / TX Headquarters</div>
+        </div>
+
+        {/* 5. Grading Legend */}
+        <div style={{ fontSize: 10.5, color: "#111827", fontWeight: 600, marginBottom: 8 }}>
+          (A=Excellent, B=Good, C=Average, D=Needs Improvement)
+        </div>
+
+        {/* 6. Competency Area Table */}
+        <table 
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 12,
+            marginBottom: 18,
+            border: "1px solid #e5e7eb"
+          }}
+        >
+          <thead>
+            <tr style={{ backgroundColor: "#f5a623", color: "#111827" }}>
+              <th style={{ padding: "8px 12px", textAlign: "left", width: "35%", fontWeight: 700, border: "1px solid #e5e7eb" }}>
+                Competency Area
+              </th>
+              <th style={{ padding: "8px 12px", textAlign: "center", width: "15%", fontWeight: 700, border: "1px solid #e5e7eb" }}>
+                Grade
+              </th>
+              <th style={{ padding: "8px 12px", textAlign: "left", width: "50%", fontWeight: 700, border: "1px solid #e5e7eb" }}>
+                Pending Tasks / Non-Compliance
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Technical Skills</td>
+              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>{grade}</td>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Needs refresher training on CNC machine setup</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Productivity</td>
+              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>A</td>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>None</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Quality Compliance</td>
+              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>{grade === "A" ? "A" : "B"}</td>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>2 instances of rework due to improper finishing</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Safety Practices</td>
+              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>A</td>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>None</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>Teamwork &amp; Discipline</td>
+              <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700, border: "1px solid #e5e7eb" }}>A</td>
+              <td style={{ padding: "8px 12px", border: "1px solid #e5e7eb" }}>None</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* 7. Bottom Section (Comments & Rating Box) */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginBottom: 18 }}>
+          {/* Left Column: Comments & Observations */}
+          <div>
+            <div style={{ display: "inline-block", backgroundColor: "#fae4d2", padding: "2px 8px", fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 8 }}>
+              Comments / Observations
+            </div>
+            <div style={{ fontSize: 11.5, lineHeight: 1.6, color: "#1f2937", marginBottom: 12 }}>
+              <div>✅ Delivers consistent work output.</div>
+              <div>✅ Works well with team members and supports junior staff.</div>
+              <div>⚠️ Needs to improve <strong>quality checks</strong> before passing products.</div>
+              <div>⚠️ Suggested <strong>CNC upskilling training</strong> in next quarter.</div>
+            </div>
+
+            <div style={{ display: "inline-block", backgroundColor: "#fae4d2", padding: "2px 8px", fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 6 }}>
+              Compliance &amp; Attendance
+            </div>
+            <div style={{ fontSize: 11.5, lineHeight: 1.6, color: "#1f2937" }}>
+              <div><strong>Attendance Record:</strong> 98% (1 late arrival recorded).</div>
+              <div><strong>PPE Usage:</strong> Always compliant.</div>
+              <div><strong>Incidents / Safety Violations:</strong> None.</div>
+            </div>
+          </div>
+
+          {/* Right Column: Overall Performance Rating Box */}
+          <div 
+            style={{
+              backgroundColor: "#fce9db",
+              padding: "18px 14px",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 2,
+              height: "fit-content"
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 8 }}>
+              Overall Performance Rating
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#c2410c" }}>
+              {overallRating}
+            </div>
+          </div>
+        </div>
+
+        {/* 8. Confidentiality Statement */}
+        <div style={{ fontSize: 10, color: "#6b7280", borderBottom: "1px solid #e5e7eb", paddingBottom: 10, marginBottom: 16 }}>
+          Confidentiality Statement: &quot;This document is confidential and intended only for internal HR/Performance review purposes.&quot;
+        </div>
+
+        {/* 9. Signatures */}
         <div>
-          <div className="page-title">Employee Progress Reports</div>
-          <div className="page-subtitle">Performance reviews, task metrics and appraisal logs</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#111827", marginBottom: 14 }}>
+            Signatures
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, fontSize: 12 }}>
+            <div>
+              <strong>Employee Signature:</strong> <span style={{ textDecoration: "underline", color: "#9ca3af" }}>_______________________________________</span>
+            </div>
+            <div>
+              <strong>Supervisor Signature:</strong> <span style={{ textDecoration: "underline", color: "#9ca3af" }}>_______________________________________</span>
+            </div>
+            <div>
+              <strong>HR / Manager Signature:</strong> <span style={{ textDecoration: "underline", color: "#9ca3af" }}>_______________________________________</span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <button className="btn btn-secondary btn-sm" onClick={expandAll}>Expand All</button>
-          <button className="btn btn-secondary btn-sm" onClick={collapseAll}>Collapse All</button>
-          <button className="btn btn-primary btn-sm" onClick={handlePrint}>
-            <Printer size={14} /> Print Report
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="filter-bar">
-        {!isManager && (
-          <select className="filter-select" value={deptF} onChange={e => { setDeptF(e.target.value); setSelectedEmp("all"); }}>
-            <option value="all">All Departments</option>
-            {departments.map(d => <option key={d} value={d}>{d}</option>)}
-          </select>
-        )}
-        <select className="filter-select" value={selectedEmp} onChange={e => setSelectedEmp(e.target.value)}>
-          <option value="all">All Employees</option>
-          {allEmployees
-            .filter(e => deptF === "all" || e.department === deptF)
-            .map(e => {
-              const u = getEmployeeUser(e);
-              return <option key={e.id} value={e.id}>{u?.name}</option>;
-            })}
-        </select>
-        <span style={{ fontSize: 13, color: "var(--muted)", marginLeft: "auto" }}>
-          Showing {filtered.length} employee report{filtered.length !== 1 ? "s" : ""}
-        </span>
-      </div>
-
-      {/* Reports List */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {filtered.map(emp => (
-          <EmployeeReportCard
-            key={emp.id}
-            employee={emp}
-            expanded={!!expanded[emp.id]}
-            onToggle={() => toggleExpand(emp.id)}
-          />
-        ))}
       </div>
     </div>
   );
