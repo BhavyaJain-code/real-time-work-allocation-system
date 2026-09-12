@@ -1,10 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Users, UserCheck, Plus, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import {
-  TASKS, EMPLOYEES, TASK_ASSIGNMENTS,
-  getEmployeeUser, getTask, getOverdueTasks
-} from "../data/mockData";
+import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getEmployeeUser } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 
 export default function ManagerDashboard() {
@@ -13,72 +9,57 @@ export default function ManagerDashboard() {
 
   const myEmployees = EMPLOYEES.filter(e => e.department === managedDept);
   const myEmpIds    = myEmployees.map(e => e.id);
-
   const deptAssignments = TASK_ASSIGNMENTS.filter(a => myEmpIds.includes(a.employee_id));
-  const activeTasks     = deptAssignments.filter(a => a.status === "in_progress").length;
-  const completedTasks  = deptAssignments.filter(a => a.status === "completed").length;
-  const availableEmps   = myEmployees.filter(e => e.availability_status === "available").length;
 
-  const stats = [
-    { label: "Team Members",     value: myEmployees.length, sub: `${managedDept} Department` },
-    { label: "Active Tasks",     value: activeTasks,        sub: "Currently in progress" },
-    { label: "Completed Tasks",  value: completedTasks,     sub: "Finished by team" },
-    { label: "Available Now",    value: availableEmps,      sub: "Ready for tasks" },
+  const features = [
+    { title: "Task Assignment", desc: `Assign ${managedDept} department tasks to team members.`, colorClass: "card-green-1", link: "/manager/tasks" },
+    { title: "Staff Allocation", desc: "Allocate team resources based on skills and availability.", colorClass: "card-peach", link: "/manager/assignments" },
+    { title: "Workload Tracking", desc: "Monitor active workloads and prevent department bottlenecks.", colorClass: "card-blue", link: "/manager/employees" },
+    { title: "Performance Reports", desc: "View task completion statistics and appraisal feedback.", colorClass: "card-pink", link: "/manager/progress" },
   ];
 
   return (
     <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">{managedDept} Department Dashboard</div>
-          <div className="page-subtitle">Manager view for task allocation and team status</div>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-secondary" onClick={() => navigate("/manager/tasks")}>
-            <ClipboardList size={15} /> Department Tasks
-          </button>
-          <button className="btn btn-primary" onClick={() => navigate("/manager/tasks")}>
-            <UserCheck size={15} /> Assign Task
-          </button>
+      <div className="hero-section">
+        <h1 className="hero-title">{managedDept || "Department"} Work Allocation</h1>
+        <p className="hero-subtitle">
+          Manage task assignments, track staff capacity, and oversee department operations in real time.
+        </p>
+      </div>
+
+      <div style={{ marginBottom: 36 }}>
+        <h2 className="section-heading">Department Features</h2>
+        <div className="features-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {features.map((f, i) => (
+            <div key={i} className={`feature-card ${f.colorClass}`} onClick={() => navigate(f.link)}>
+              <h3 className="feature-card-title">{f.title}</h3>
+              <p className="feature-card-desc">{f.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="stats-grid">
-        {stats.map((s, i) => (
-          <div key={i} className="stat-card">
-            <span className="stat-label">{s.label}</span>
-            <div className="stat-value">{s.value}</div>
-            <div className="stat-sub">{s.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Grid: Team Workload & Active Assignments */}
-      <div className="grid-2" style={{ alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
         {/* Team Members */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Team Workload ({myEmployees.length})</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/employees")}>
-              View All <ArrowRight size={13} />
-            </button>
+        <div className="content-panel">
+          <div className="panel-header">
+            <div>
+              <h3 className="panel-title">{managedDept} Team Members ({myEmployees.length})</h3>
+              <div className="panel-subtitle">Current workload distribution</div>
+            </div>
           </div>
-          <div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {myEmployees.map(emp => {
               const u = getEmployeeUser(emp);
-              const wColor = emp.workload_percentage >= 85 ? "#dc3545" : emp.workload_percentage >= 60 ? "#0d6efd" : "#198754";
+              const wColor = emp.workload_percentage >= 85 ? "#ef4444" : emp.workload_percentage >= 60 ? "#f59e0b" : "#10b981";
               return (
-                <div key={emp.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderBottom: "1px solid var(--border)" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13.5 }}>{u?.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--muted)" }}>{emp.position} · {emp.availability_status}</div>
+                <div key={emp.id} style={{ padding: "10px 12px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f3f4f6" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontWeight: 600 }}>{u?.name} ({emp.position})</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: wColor }}>{emp.workload_percentage}% Workload</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 120 }}>
-                    <div className="progress-bar" style={{ flex: 1 }}>
-                      <div className="progress-fill" style={{ width: `${emp.workload_percentage}%`, background: wColor }} />
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: wColor, minWidth: 32 }}>{emp.workload_percentage}%</span>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${emp.workload_percentage}%`, background: wColor }} />
                   </div>
                 </div>
               );
@@ -86,29 +67,39 @@ export default function ManagerDashboard() {
           </div>
         </div>
 
-        {/* Department Assignments */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Current Assignments</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/manager/assignments")}>
-              View All <ArrowRight size={13} />
+        {/* Active Department Assignments */}
+        <div className="content-panel">
+          <div className="panel-header">
+            <div>
+              <h3 className="panel-title">Active Department Assignments</h3>
+              <div className="panel-subtitle">{deptAssignments.length} total tasks assigned</div>
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate("/manager/tasks")}>
+              Allocate Task
             </button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            {deptAssignments.slice(0, 5).map(a => {
-              const task = getTask(a.task_id);
-              const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
-              const u    = emp ? getEmployeeUser(emp) : null;
-              return (
-                <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderBottom: "1px solid var(--border)" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13.5 }}>{task?.title}</div>
-                    <div style={{ fontSize: 12, color: "var(--muted)" }}>Assigned to: {u?.name} ({a.assigned_at})</div>
-                  </div>
-                  <StatusBadge value={a.status} />
-                </div>
-              );
-            })}
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Assigned Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deptAssignments.slice(0, 5).map(a => {
+                  const task = TASKS.find(t => t.id === a.task_id);
+                  return (
+                    <tr key={a.id}>
+                      <td style={{ fontWeight: 600 }}>{task?.title}</td>
+                      <td style={{ color: "#6b7280" }}>{a.assigned_at}</td>
+                      <td><StatusBadge value={a.status} /></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Users, CheckSquare, AlertCircle, Plus, ArrowRight } from "lucide-react";
-import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getEmployeeUser, getTask, initials, avatarColors, getOverdueTasks } from "../data/mockData";
+import { Plus, ArrowRight, UserCheck, CheckCircle2, Clock, Users } from "lucide-react";
+import { TASKS, EMPLOYEES, TASK_ASSIGNMENTS, getEmployeeUser, getTask, getOverdueTasks } from "../data/mockData";
 import StatusBadge from "../components/StatusBadge";
 
 export default function AdminDashboard() {
@@ -10,179 +10,126 @@ export default function AdminDashboard() {
   const activeTasks     = TASKS.filter(t => t.status === "in_progress").length;
   const completedTasks  = TASKS.filter(t => t.status === "done").length;
   const activeEmployees = EMPLOYEES.filter(e => e.availability_status !== "offline").length;
+
   const overdueTasks    = getOverdueTasks();
-  const overdueCount    = overdueTasks.length;
 
-  const recentTasks = TASKS.slice(0, 5);
-  const recentAssignments = TASK_ASSIGNMENTS.slice(0, 5);
-
-  const stats = [
-    { label: "Total Tasks",      value: totalTasks,      sub: `${activeTasks} In Progress` },
-    { label: "Total Employees",  value: EMPLOYEES.length, sub: `${activeEmployees} Active Now` },
-    { label: "Completed Tasks",  value: completedTasks,  sub: "Successfully Finished" },
-    { label: "Overdue Tasks",    value: overdueCount,    sub: "Action Required" },
+  // Features list exactly matching the user's uploaded screenshot
+  const features = [
+    {
+      title: "Task Assignment",
+      desc: "Allows administrators to assign tasks and responsibilities to staff members.",
+      colorClass: "card-green-1",
+      link: "/admin/tasks",
+    },
+    {
+      title: "Task Details",
+      desc: "Provides detailed task descriptions including deadlines, priorities, and instructions.",
+      colorClass: "card-yellow",
+      link: "/admin/tasks",
+    },
+    {
+      title: "Staff Allocation",
+      desc: "Assigns tasks based on staff expertise, qualifications, and availability.",
+      colorClass: "card-peach",
+      link: "/admin/assignments",
+    },
+    {
+      title: "Task Tracking",
+      desc: "Enables staff to monitor task progress and update completion status.",
+      colorClass: "card-pink",
+      link: "/admin/tasks",
+    },
+    {
+      title: "Workload Distribution",
+      desc: "Ensures balanced allocation of work across team members to prevent burnout.",
+      colorClass: "card-blue",
+      link: "/admin/analytics",
+    },
+    {
+      title: "Task Reassignment",
+      desc: "Allows reallocation of tasks based on changing workloads and schedule priorities.",
+      colorClass: "card-green-2",
+      link: "/admin/assignments",
+    },
+    {
+      title: "Task History",
+      desc: "Maintains records of completed and pending tasks for reporting and audit.",
+      colorClass: "card-sand",
+      link: "/admin/log",
+    },
+    {
+      title: "Notifications & Reminders",
+      desc: "Sends alerts for deadlines, assignments, and priority changes to staff.",
+      colorClass: "card-green-3",
+      link: "/admin/progress",
+    },
   ];
 
   return (
     <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">Admin Dashboard</div>
-          <div className="page-subtitle">Overview of tasks, employee workload, and allocation status</div>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-secondary" onClick={() => navigate("/admin/tasks")}>
-            <ClipboardList size={15} /> View Tasks
-          </button>
-          <button className="btn btn-primary" onClick={() => navigate("/admin/tasks/create")}>
-            <Plus size={15} /> Add Task
-          </button>
-        </div>
+      {/* Hero Section matching screenshot */}
+      <div className="hero-section">
+        <h1 className="hero-title">Work Allocation System</h1>
+        <p className="hero-subtitle">
+          The Work Allocation System ensures efficient task distribution, streamlined operations, and effective coordination among staff and administrators.
+        </p>
       </div>
 
-      {/* 4 Summary Stat Boxes */}
-      <div className="stats-grid">
-        {stats.map((s, i) => (
-          <div key={i} className="stat-card" style={{ borderLeftColor: i === 3 && overdueCount > 0 ? "#dc3545" : "#0d6efd" }}>
-            <span className="stat-label">{s.label}</span>
-            <div className="stat-value" style={{ color: i === 3 && overdueCount > 0 ? "#dc3545" : "#212529" }}>
-              {s.value}
+      {/* Features Section heading & 8 Pastel Cards matching screenshot */}
+      <div style={{ marginBottom: 36 }}>
+        <h2 className="section-heading">Features</h2>
+
+        <div className="features-grid">
+          {features.map((f, i) => (
+            <div
+              key={i}
+              className={`feature-card ${f.colorClass}`}
+              onClick={() => navigate(f.link)}
+            >
+              <h3 className="feature-card-title">{f.title}</h3>
+              <p className="feature-card-desc">{f.desc}</p>
             </div>
-            <div className="stat-sub">{s.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Two-column layout */}
-      <div className="grid-2" style={{ alignItems: "start" }}>
-        {/* Recent Tasks */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Recent Tasks</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/admin/tasks")}>
-              View All <ArrowRight size={13} />
-            </button>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            {recentTasks.map(task => (
-              <div
-                key={task.id}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderBottom: "1px solid var(--border)", cursor: "pointer" }}
-                onClick={() => navigate("/admin/tasks")}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13.5 }}>{task.title}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>Deadline: {task.deadline} · {task.estimated_hours} hrs</div>
-                </div>
-                <StatusBadge value={task.priority} type="priority" />
-                <StatusBadge value={task.status} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Employee Workload */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Employee Workload Status</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/admin/employees")}>
-              View All <ArrowRight size={13} />
-            </button>
-          </div>
-          <div>
-            {EMPLOYEES.map(emp => {
-              const user = getEmployeeUser(emp);
-              const wColor = emp.workload_percentage >= 85 ? "#dc3545" : emp.workload_percentage >= 60 ? "#0d6efd" : "#198754";
-              return (
-                <div
-                  key={emp.id}
-                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 16px", borderBottom: "1px solid var(--border)" }}
-                >
-                  <div className="avatar avatar-sm" style={{ background: "#e9ecef", color: "#495057" }}>{initials(user?.name)}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{user?.name}</div>
-                    <div style={{ fontSize: 11.5, color: "var(--muted)" }}>{emp.department} · {emp.position}</div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 120 }}>
-                    <div className="progress-bar" style={{ flex: 1 }}>
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${emp.workload_percentage}%`, background: wColor }}
-                      />
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: wColor, minWidth: 32 }}>{emp.workload_percentage}%</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Recent Assignments */}
-      <div className="card" style={{ marginTop: 16 }}>
-        <div className="card-header">
-          <span className="card-title">Recent Task Allocations</span>
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate("/admin/assignments")}>
-            View All <ArrowRight size={13} />
-          </button>
-        </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Task Title</th>
-                <th>Assigned Employee</th>
-                <th>Date Assigned</th>
-                <th>Status</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentAssignments.map(a => {
-                const task = getTask(a.task_id);
-                const emp  = EMPLOYEES.find(e => e.id === a.employee_id);
-                const user = emp ? getEmployeeUser(emp) : null;
-                return (
-                  <tr key={a.id}>
-                    <td className="td-bold">{task?.title}</td>
-                    <td>{user?.name || "—"}</td>
-                    <td className="td-muted">{a.assigned_at}</td>
-                    <td><StatusBadge value={a.status} /></td>
-                    <td><strong>{a.assignment_score ? `${a.assignment_score}/100` : "—"}</strong></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Overdue Tasks Alert */}
-      {overdueCount > 0 && (
-        <div className="card" style={{ marginTop: 16, borderLeft: "4px solid #dc3545" }}>
-          <div className="card-header" style={{ background: "#fff5f5" }}>
-            <span className="card-title" style={{ color: "#dc3545", display: "flex", alignItems: "center", gap: 6 }}>
-              <AlertCircle size={16} /> Overdue Tasks ({overdueCount})
-            </span>
+      {/* Interactive Quick Management Panels */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24, alignItems: "start" }}>
+        {/* Recent Tasks Panel */}
+        <div className="content-panel">
+          <div className="panel-header">
+            <div>
+              <h3 className="panel-title">Active Task Queue</h3>
+              <div className="panel-subtitle">{TASKS.length} total tasks registered in system</div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="btn btn-primary btn-sm" onClick={() => navigate("/admin/tasks/create")}>
+                <Plus size={14} /> Add Task
+              </button>
+              <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/tasks")}>
+                View All
+              </button>
+            </div>
           </div>
+
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Task Title</th>
-                  <th>Assigned To</th>
                   <th>Deadline</th>
                   <th>Priority</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {overdueTasks.map(({ task, assignee }) => (
-                  <tr key={task.id}>
-                    <td className="td-bold" style={{ color: "#dc3545" }}>{task.title}</td>
-                    <td>{assignee?.name || "Unassigned"}</td>
-                    <td style={{ color: "#dc3545", fontWeight: 600 }}>{task.deadline}</td>
+                {TASKS.slice(0, 5).map(task => (
+                  <tr key={task.id} style={{ cursor: "pointer" }} onClick={() => navigate("/admin/tasks")}>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{task.title}</div>
+                      <div style={{ fontSize: 12, color: "#6b7280" }}>{task.estimated_hours} hours allocated</div>
+                    </td>
+                    <td style={{ color: "#4b5563" }}>{task.deadline}</td>
                     <td><StatusBadge value={task.priority} type="priority" /></td>
                     <td><StatusBadge value={task.status} /></td>
                   </tr>
@@ -191,7 +138,43 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
-      )}
+
+        {/* Staff Workload Panel */}
+        <div className="content-panel">
+          <div className="panel-header">
+            <div>
+              <h3 className="panel-title">Staff Workload Overview</h3>
+              <div className="panel-subtitle">{EMPLOYEES.length} active team members</div>
+            </div>
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/employees")}>
+              View All
+            </button>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {EMPLOYEES.map(emp => {
+              const u = getEmployeeUser(emp);
+              const wColor = emp.workload_percentage >= 85 ? "#ef4444" : emp.workload_percentage >= 60 ? "#f59e0b" : "#10b981";
+              return (
+                <div key={emp.id} style={{ padding: "10px 12px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f3f4f6" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <div>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>{u?.name}</span>
+                      <span style={{ fontSize: 12, color: "#6b7280", marginLeft: 6 }}>({emp.department})</span>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: wColor }}>
+                      {emp.workload_percentage}% Capacity
+                    </span>
+                  </div>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${emp.workload_percentage}%`, background: wColor }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
