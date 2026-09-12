@@ -101,17 +101,7 @@ export default function ProgressReport() {
           Employee Performance &amp; Progress Report
         </div>
 
-        {/* 2. Top Right Company Header */}
-        <div style={{ display: "flex", justifyContent: "flex-end", textAlign: "right", marginBottom: 12 }}>
-          <div>
-            <div style={{ fontSize: 10, color: "#9ca3af", fontStyle: "italic" }}>⚡ inpaspages.com</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>AA Pvt.Ltd.</div>
-            <div style={{ fontSize: 11, color: "#4b5563" }}>JB 36, MKT Lang Market,</div>
-            <div style={{ fontSize: 11, color: "#4b5563" }}>CB Patel Road, TX, USA</div>
-          </div>
-        </div>
-
-        {/* 3. Center Subtitle: Report Period */}
+        {/* 2. Center Subtitle: Report Period */}
         <div style={{ textAlign: "center", fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 16 }}>
           Report Period : <span style={{ fontWeight: 500, color: "#374151" }}>{reportPeriod}</span>
         </div>
