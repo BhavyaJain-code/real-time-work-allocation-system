@@ -31,7 +31,7 @@ export default function Layout() {
 
   // Dynamic route helpers based on logged in user's role
   const dashboardRoute = isAdmin ? "/admin/dashboard" : isMgr ? "/manager/dashboard" : "/employee/dashboard";
-  const monitoringRoute = isAdmin ? "/admin/monitoring" : isMgr ? "/manager/monitoring" : "/employee/dashboard";
+  const monitoringRoute = isAdmin ? "/admin/monitoring" : isMgr ? "/manager/monitoring" : "/employee/monitoring";
   const tasksRoute = isAdmin ? "/admin/tasks" : isMgr ? "/manager/tasks" : "/employee/tasks";
   const assignmentsRoute = isAdmin ? "/admin/assignments" : isMgr ? "/manager/assignments" : "/employee/availability";
   const progressRoute = isAdmin ? "/admin/progress" : isMgr ? "/manager/progress" : "/employee/progress";

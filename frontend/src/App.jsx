@@ -84,6 +84,7 @@ function App() {
 
             {/* ── Employee ───────────────────────────────── */}
             <Route path="/employee/dashboard"     element={<EmployeeDashboard />} />
+            <Route path="/employee/monitoring"    element={<RemoteMonitoring />} />
             <Route path="/employee/tasks"         element={<MyTasks />} />
             <Route path="/employee/availability"  element={<Availability />} />
             <Route path="/employee/notifications" element={<Notifications />} />
