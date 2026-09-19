@@ -41,8 +41,8 @@ export default function Login() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#ffffff", padding: "20px" }}>
-      <div style={{ maxWidth: 420, width: "100%", border: "2px solid #000000", padding: "24px" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--bg-page)", padding: "20px" }}>
+      <div style={{ maxWidth: 420, width: "100%", border: "2px solid var(--border-dark)", backgroundColor: "var(--bg-surface)", padding: "24px" }}>
         
         <div style={{ textAlign: "center", borderBottom: "2px solid #000000", paddingBottom: 12, marginBottom: 16 }}>
           <h1 style={{ fontSize: 20, fontWeight: "bold", margin: 0, textTransform: "uppercase" }}>

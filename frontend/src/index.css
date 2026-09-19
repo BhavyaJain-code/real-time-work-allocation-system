@@ -1,8 +1,31 @@
 /* =========================================================
-   BLACK & WHITE MINIMALIST THEME
-   Font: Times New Roman
-   Color Palette: Pure Black (#000000) and White (#ffffff)
+   BROWN & BEIGE CLASSIC MINIMALIST THEME
+   Typography: Times New Roman
+   Palette:
+     - Deep Warm Brown: #3b2314
+     - Mocha / Cocoa Brown: #543620
+     - Deep Accent Brown: #2a170a
+     - Soft Warm Beige (Page BG): #f8f4ee
+     - Light Cream Beige (Sidebar/Topbar/Headers): #ede3d4
+     - Warm Ivory Surface (Cards/Tables): #ffffff
+     - Sand / Tan Borders: #cfbfad
+     - Dark Border: #543620
    ========================================================= */
+
+:root {
+  --bg-page: #f8f4ee;
+  --bg-surface: #ffffff;
+  --bg-surface-tint: #ede3d4;
+  --bg-surface-subtle: #f3ece1;
+  --text-main: #3b2314;
+  --text-muted: #6b5344;
+  --border-dark: #543620;
+  --border-light: #cfbfad;
+  --border-subtle: #e3d7c8;
+  --primary-brown: #543620;
+  --primary-hover: #3a2010;
+  --secondary-bg: #ede3d4;
+}
 
 * {
   box-sizing: border-box;
@@ -13,20 +36,20 @@
 
 body {
   font-family: 'Times New Roman', Times, serif !important;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--bg-page);
+  color: var(--text-main);
   line-height: 1.4;
   font-size: 14px;
 }
 
 a {
-  color: #000000;
+  color: var(--text-main);
   text-decoration: underline;
 }
 
 a:hover {
   text-decoration: underline;
-  background-color: #f0f0f0;
+  background-color: var(--bg-surface-tint);
 }
 
 /* =========================================================
@@ -35,31 +58,31 @@ a:hover {
 .wt-app-shell {
   display: flex;
   min-height: 100vh;
-  background-color: #ffffff;
-  border: 1px solid #000000;
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-dark);
 }
 
 /* Sidebar */
 .wt-sidebar {
   width: 220px;
   min-width: 220px;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--bg-surface-tint);
+  color: var(--text-main);
   display: flex;
   flex-direction: column;
   user-select: none;
-  border-right: 2px solid #000000;
+  border-right: 2px solid var(--border-dark);
 }
 
 .wt-logo-box {
-  background-color: #ffffff;
+  background-color: #e5d8c5;
   padding: 14px 16px;
-  border-bottom: 2px solid #000000;
+  border-bottom: 2px solid var(--border-dark);
   cursor: pointer;
 }
 
 .wt-logo-text {
-  color: #000000;
+  color: var(--text-main);
   font-size: 16px;
   font-weight: bold;
   letter-spacing: 0.5px;
@@ -83,17 +106,17 @@ a:hover {
   padding: 8px 16px;
   font-size: 14px;
   font-weight: normal;
-  color: #000000;
+  color: var(--text-main);
   cursor: pointer;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .wt-menu-header:hover {
-  background-color: #f0f0f0;
+  background-color: #dfceb7;
 }
 
 .wt-menu-header.active {
-  background-color: #000000;
+  background-color: var(--primary-brown);
   color: #ffffff !important;
   font-weight: bold;
 }
@@ -103,27 +126,27 @@ a:hover {
 }
 
 .wt-submenu {
-  background-color: #fafafa;
-  border-bottom: 1px solid #000000;
+  background-color: #f3ebe0;
+  border-bottom: 1px solid var(--border-dark);
 }
 
 .wt-submenu-item {
   display: block;
   padding: 6px 16px 6px 28px;
   font-size: 13px;
-  color: #000000;
+  color: var(--text-main);
   text-decoration: none;
   cursor: pointer;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted var(--border-light);
 }
 
 .wt-submenu-item:hover {
-  background-color: #e0e0e0;
+  background-color: #e2d2bd;
   text-decoration: underline;
 }
 
 .wt-submenu-item.active {
-  background-color: #000000;
+  background-color: var(--primary-brown);
   color: #ffffff !important;
   font-weight: bold;
   text-decoration: none;
@@ -135,12 +158,12 @@ a:hover {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background-color: #ffffff;
+  background-color: var(--bg-page);
 }
 
 .wt-topbar {
-  background-color: #ffffff;
-  border-bottom: 2px solid #000000;
+  background-color: var(--bg-surface-tint);
+  border-bottom: 2px solid var(--border-dark);
   padding: 10px 20px;
   display: flex;
   align-items: center;
@@ -157,24 +180,24 @@ a:hover {
 .wt-page-title {
   font-size: 18px;
   font-weight: bold;
-  color: #000000;
+  color: var(--text-main);
   margin: 0;
 }
 
 .wt-breadcrumb {
   font-size: 13px;
-  color: #444444;
+  color: var(--text-muted);
 }
 
 .wt-breadcrumb a {
-  color: #000000;
+  color: var(--text-main);
   font-weight: bold;
 }
 
 .wt-content-area {
   flex: 1;
   padding: 16px 20px 40px;
-  background-color: #ffffff;
+  background-color: var(--bg-page);
   overflow-y: auto;
 }
 
@@ -196,8 +219,8 @@ a:hover {
 }
 
 .wt-card {
-  background: #ffffff;
-  border: 1px solid #000000;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dark);
   padding: 14px 16px;
   position: relative;
   display: flex;
@@ -209,20 +232,20 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  border-bottom: 1px solid #000000;
+  border-bottom: 1px solid var(--border-dark);
   padding-bottom: 6px;
 }
 
 .wt-card-title {
   font-size: 15px;
   font-weight: bold;
-  color: #000000;
+  color: var(--text-main);
   margin: 0;
 }
 
 .wt-card-subtitle {
   font-size: 12px;
-  color: #444444;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -231,184 +254,73 @@ a:hover {
   padding-top: 8px;
   text-align: right;
   font-size: 12px;
-  color: #000000;
+  color: var(--text-main);
   font-weight: bold;
 }
 
 /* =========================================================
    METRIC TABLES
    ========================================================= */
-.wt-stat-block-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.wt-stat-side {
-  flex: 1;
-}
-
 .wt-count-callout {
   font-size: 13px;
-  color: #000000;
+  color: var(--text-main);
   margin-bottom: 8px;
 }
 
 .wt-count-callout strong {
   font-size: 15px;
-  color: #000000;
-}
-
-.wt-mini-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.wt-mini-table th {
-  text-align: left;
-  font-weight: bold;
-  color: #000000;
-  padding: 4px 6px;
-  border-bottom: 1px solid #000000;
-}
-
-.wt-mini-table td {
-  padding: 4px 6px;
-  color: #000000;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-/* Grayscale indicators */
-.wt-color-square {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border: 1px solid #000000;
-  background-color: #000000;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-.sq-green  { background-color: #000000; }
-.sq-blue   { background-color: #444444; }
-.sq-yellow { background-color: #888888; }
-.sq-orange { background-color: #888888; }
-.sq-red    { background-color: #ffffff; border: 1px solid #000000; }
-.sq-teal   { background-color: #666666; }
-.sq-purple { background-color: #555555; }
-.sq-gray   { background-color: #cccccc; }
-
-/* Donut Chart placeholder */
-.wt-donut-wrapper {
-  width: 100px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid #000000;
-  background: #f9f9f9;
-  text-align: center;
+  color: var(--text-main);
 }
 
 /* =========================================================
-   HOURLY BAR CHART (Grayscale)
-   ========================================================= */
-.wt-hourly-chart {
-  width: 100%;
-  padding-top: 8px;
-}
-
-.wt-hourly-bars {
-  display: flex;
-  align-items: flex-end;
-  height: 100px;
-  gap: 2px;
-  border-bottom: 1px solid #000000;
-  border-left: 1px solid #000000;
-  padding: 0 4px;
-  background: #fafafa;
-}
-
-.wt-hourly-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  height: 100%;
-  justify-content: flex-start;
-  position: relative;
-}
-
-.wt-bar-active {
-  width: 100%;
-  background-color: #000000;
-  transition: height 0.3s;
-}
-
-.wt-bar-idle {
-  width: 100%;
-  background-color: #888888;
-  transition: height 0.3s;
-}
-
-.wt-hourly-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: #000000;
-  margin-top: 4px;
-}
-
-.wt-hourly-legend {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  font-size: 12px;
-  margin-top: 6px;
-}
-
-/* =========================================================
-   DATA TABLES (Black & White Academic Style)
+   DATA TABLES (Brown & Beige Academic Style)
    ========================================================= */
 .wt-table, table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
   text-align: left;
-  border: 1px solid #000000;
+  border: 1px solid var(--border-dark);
+  background-color: var(--bg-surface);
 }
 
 .wt-table th, table th {
-  background-color: #f0f0f0;
-  color: #000000;
+  background-color: var(--bg-surface-tint);
+  color: var(--text-main);
   font-weight: bold;
   padding: 6px 8px;
-  border: 1px solid #000000;
+  border: 1px solid var(--border-dark);
   font-size: 13px;
 }
 
 .wt-table td, table td {
   padding: 6px 8px;
-  border: 1px solid #000000;
-  color: #000000;
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  background-color: var(--bg-surface);
 }
 
 .wt-table tr:hover, table tr:hover {
-  background-color: #f8f8f8;
+  background-color: #f7f1e7 !important;
+}
+
+.wt-table tr:hover td, table tr:hover td {
+  background-color: #f7f1e7 !important;
 }
 
 .wt-table-link {
-  color: #000000;
+  color: var(--text-main);
   font-weight: bold;
   text-decoration: underline;
   cursor: pointer;
 }
 
+.wt-table-link:hover {
+  color: var(--primary-brown);
+}
+
 /* =========================================================
-   BUTTONS & CONTROLS (Simple Black & White)
+   BUTTONS & CONTROLS (Brown & Beige)
    ========================================================= */
 .btn, button {
   display: inline-flex;
@@ -419,36 +331,36 @@ a:hover {
   font-weight: bold;
   padding: 4px 10px;
   border-radius: 0;
-  border: 1px solid #000000;
+  border: 1px solid var(--border-dark);
   cursor: pointer;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--secondary-bg);
+  color: var(--text-main);
 }
 
 .btn:hover, button:hover {
-  background-color: #000000;
+  background-color: var(--primary-brown);
   color: #ffffff !important;
 }
 
 .btn-primary {
-  background-color: #000000;
+  background-color: var(--primary-brown);
   color: #ffffff !important;
-  border: 1px solid #000000;
+  border: 1px solid var(--border-dark);
 }
 
 .btn-primary:hover {
-  background-color: #333333;
+  background-color: var(--primary-hover);
   color: #ffffff !important;
 }
 
 .btn-secondary {
-  background-color: #ffffff;
-  color: #000000;
-  border: 1px solid #000000;
+  background-color: var(--secondary-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-dark);
 }
 
 .btn-secondary:hover {
-  background-color: #000000;
+  background-color: var(--primary-brown);
   color: #ffffff !important;
 }
 
@@ -462,51 +374,89 @@ a:hover {
   font-size: 11px;
   font-weight: normal;
   padding: 1px 5px;
-  border: 1px solid #000000;
-  background: #ffffff;
-  color: #000000;
+  border: 1px solid var(--border-dark);
+  background: var(--bg-surface-tint);
+  color: var(--text-main);
 }
 
 .badge-green, .badge-amber, .badge-blue, .badge-purple, .badge-red, .badge-gray {
-  background: #ffffff;
-  color: #000000;
-  border: 1px solid #000000;
+  background: var(--bg-surface-tint);
+  color: var(--text-main);
+  border: 1px solid var(--border-dark);
 }
 
 .form-control, input, select, textarea {
   font-family: 'Times New Roman', Times, serif !important;
   font-size: 13px;
   padding: 4px 6px;
-  border: 1px solid #000000;
+  border: 1px solid var(--border-dark);
   border-radius: 0;
-  background: #ffffff;
-  color: #000000;
+  background: var(--bg-surface);
+  color: var(--text-main);
   outline: none;
 }
 
 .form-control:focus, input:focus, select:focus, textarea:focus {
-  border: 2px solid #000000;
-}
-
-.progress-bar {
-  height: 8px;
-  background: #ffffff;
-  border: 1px solid #000000;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: #000000;
+  border: 2px solid var(--primary-brown);
+  background-color: #fffefb;
 }
 
 /* =========================================================
-   PROGRESS REPORT B&W STYLES
+   MODAL POPUPS
+   ========================================================= */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(46, 27, 14, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.modal-box {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-dark);
+  color: var(--text-main);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(46, 27, 14, 0.2);
+}
+
+.modal-header {
+  background-color: var(--bg-surface-tint);
+  border-bottom: 2px solid var(--border-dark);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 14px 16px;
+}
+
+.modal-footer {
+  background-color: var(--bg-surface-subtle);
+  border-top: 1px solid var(--border-dark);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* =========================================================
+   PROGRESS REPORT BROWN & BEIGE STYLES
    ========================================================= */
 .employee-report-sheet {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: 2px solid #000000 !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border: 2px solid var(--border-dark) !important;
   box-shadow: none !important;
   font-family: 'Times New Roman', Times, serif !important;
 }

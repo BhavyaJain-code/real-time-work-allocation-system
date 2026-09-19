@@ -152,7 +152,6 @@ export default function AdminDashboard() {
               <th>Active Now</th>
               <th>Avg Productivity</th>
               <th>Active Tasks</th>
-              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -168,14 +167,6 @@ export default function AdminDashboard() {
                 <td><StatusBadge value="active" /> {dept.activeStaff}</td>
                 <td><strong>{dept.avgProductivity}%</strong></td>
                 <td>{dept.activeTasks} tasks</td>
-                <td>
-                  <button 
-                    className="btn btn-sm"
-                    onClick={(e) => { e.stopPropagation(); setSelectedDeptModal(dept); }}
-                  >
-                    View Details
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>
