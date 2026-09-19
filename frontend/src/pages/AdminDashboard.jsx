@@ -164,7 +164,7 @@ export default function AdminDashboard() {
                 <td><strong>{dept.name}</strong></td>
                 <td>{dept.head}</td>
                 <td>{dept.totalStaff} staff</td>
-                <td><StatusBadge value="active" /> {dept.activeStaff}</td>
+                <td>{dept.activeStaff} staff</td>
                 <td><strong>{dept.avgProductivity}%</strong></td>
                 <td>{dept.activeTasks} tasks</td>
               </tr>

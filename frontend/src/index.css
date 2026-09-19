@@ -370,19 +370,19 @@ a:hover {
 }
 
 .badge {
-  display: inline-block;
-  font-size: 11px;
+  display: inline;
+  font-size: inherit;
   font-weight: normal;
-  padding: 1px 5px;
-  border: 1px solid var(--border-dark);
-  background: var(--bg-surface-tint);
-  color: var(--text-main);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
 }
 
 .badge-green, .badge-amber, .badge-blue, .badge-purple, .badge-red, .badge-gray {
-  background: var(--bg-surface-tint);
-  color: var(--text-main);
-  border: 1px solid var(--border-dark);
+  background: transparent;
+  color: inherit;
+  border: none;
 }
 
 .form-control, input, select, textarea {

@@ -118,7 +118,7 @@ export default function ManagerEmployees() {
                   <td>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                       {skills.map(s => (
-                        <span key={s.id} style={{ fontSize: 11, border: "1px solid #000000", padding: "1px 4px" }}>
+                        <span key={s.id} style={{ fontSize: 11,  }}>
                           {s.name}
                         </span>
                       ))}
@@ -184,7 +184,7 @@ export default function ManagerEmployees() {
               <div style={{ fontWeight: "bold", fontSize: 12, marginBottom: 4 }}>Skills:</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
                 {getEmpSkills(selectedEmpPopup.id).map(s => (
-                  <span key={s.id} style={{ border: "1px solid #000000", padding: "2px 6px", fontSize: 11 }}>
+                  <span key={s.id} style={{ fontSize: 11 }}>
                     {s.name} ({s.category})
                   </span>
                 ))}

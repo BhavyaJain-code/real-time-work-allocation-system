@@ -197,7 +197,7 @@ export default function Employees() {
                   <td>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                       {skills.slice(0, 3).map(s => (
-                        <span key={s.id} style={{ fontSize: 11, border: "1px solid #000000", padding: "1px 4px" }}>
+                        <span key={s.id} style={{ fontSize: 11,  }}>
                           {s.name}
                         </span>
                       ))}
@@ -289,7 +289,7 @@ export default function Employees() {
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
                 {getEmpSkills(selectedEmpPopup.id).map(s => (
-                  <span key={s.id} style={{ border: "1px solid #000000", padding: "3px 8px", fontSize: 12 }}>
+                  <span key={s.id} style={{ fontSize: 12 }}>
                     {s.name} ({s.category})
                   </span>
                 ))}
