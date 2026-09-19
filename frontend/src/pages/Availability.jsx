@@ -100,13 +100,9 @@ export default function Availability() {
   const isEmployee = user?.role === "employee";
 
   // State for Staff Availability matrix (Admin / Manager)
-  const [staffData, setStaffData] = useState(INITIAL_STAFF_AVAILABILITY);
+  const [staffData] = useState(INITIAL_STAFF_AVAILABILITY);
   const [leaveRequests, setLeaveRequests] = useState(INITIAL_LEAVE_REQUESTS);
   const [deptFilter, setDeptFilter] = useState(isManager ? (managedDept || "All") : "All");
-  const [editingStaffId, setEditingStaffId] = useState(null);
-  const [editStatus, setEditStatus] = useState("available");
-  const [editShift, setEditShift] = useState("09:00 AM - 05:00 PM");
-  const [editNotes, setEditNotes] = useState("");
   const [notification, setNotification] = useState("");
 
   // State for Employee personal availability
@@ -143,28 +139,6 @@ export default function Availability() {
     const s = staffData.find(sd => sd.employeeId === e.id)?.status || e.availability_status;
     return s === "offline" || s === "off";
   }).length;
-
-  // Handle saving staff status override (Admin / Manager)
-  const handleSaveStaffStatus = (e) => {
-    e.preventDefault();
-    if (!editingStaffId) return;
-
-    setStaffData(prev => prev.map(sd => {
-      if (sd.employeeId === editingStaffId) {
-        return {
-          ...sd,
-          status: editStatus,
-          shift: editShift,
-          notes: editNotes || sd.notes
-        };
-      }
-      return sd;
-    }));
-
-    setEditingStaffId(null);
-    setNotification("Staff schedule and availability status updated.");
-    setTimeout(() => setNotification(""), 3000);
-  };
 
   // Handle approving or rejecting leave
   const handleLeaveDecision = (leaveId, newStatus) => {
@@ -278,66 +252,6 @@ export default function Availability() {
           </div>
         </div>
 
-        {/* Modal / Inline Editor for Staff Schedule Override */}
-        {editingStaffId && (
-          <div className="wt-card" style={{ marginBottom: 16, border: "2px solid var(--header)", backgroundColor: "var(--body)" }}>
-            <div className="wt-card-header">
-              <h2 className="wt-card-title">
-                Adjust Availability &amp; Shift Schedule for {getEmployeeUser(EMPLOYEES.find(e => e.id === editingStaffId))?.name}
-              </h2>
-            </div>
-            <form onSubmit={handleSaveStaffStatus} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr", gap: 12 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Availability Status:</label>
-                  <select
-                    className="form-control"
-                    value={editStatus}
-                    onChange={e => setEditStatus(e.target.value)}
-                  >
-                    <option value="available">Available (Active)</option>
-                    <option value="busy">Busy (In Deep Focus)</option>
-                    <option value="in_meeting">In Meeting</option>
-                    <option value="idle">Away / On Break</option>
-                    <option value="offline">Offline / Shift Over</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Shift Schedule:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={editShift}
-                    onChange={e => setEditShift(e.target.value)}
-                    placeholder="e.g. 09:00 AM - 05:00 PM"
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Schedule Notes / Reason:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={editNotes}
-                    onChange={e => setEditNotes(e.target.value)}
-                    placeholder="e.g. Extended sprint support or assigned on-call"
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: 8 }}>
-                <button type="submit" className="btn btn-primary">
-                  Save Changes
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => setEditingStaffId(null)}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
         {/* Staff Availability Roster Table */}
         <div className="wt-card" style={{ marginBottom: 16 }}>
           <div className="wt-card-header">
@@ -357,7 +271,6 @@ export default function Availability() {
                 <th>Workload</th>
                 <th>Weekly Hours</th>
                 <th>Schedule Notes</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -388,19 +301,6 @@ export default function Availability() {
                     </td>
                     <td>{sd.weeklyHours}</td>
                     <td style={{ fontSize: 12 }}>{sd.notes}</td>
-                    <td>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => {
-                          setEditingStaffId(emp.id);
-                          setEditStatus(sd.status);
-                          setEditShift(sd.shift);
-                          setEditNotes(sd.notes);
-                        }}
-                      >
-                        Adjust
-                      </button>
-                    </td>
                   </tr>
                 );
               })}
