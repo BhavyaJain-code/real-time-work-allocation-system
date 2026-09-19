@@ -34,6 +34,7 @@ export default function Layout() {
   const monitoringRoute = isAdmin ? "/admin/monitoring" : isMgr ? "/manager/monitoring" : "/employee/monitoring";
   const tasksRoute = isAdmin ? "/admin/tasks" : isMgr ? "/manager/tasks" : "/employee/tasks";
   const assignmentsRoute = isAdmin ? "/admin/assignments" : isMgr ? "/manager/assignments" : "/employee/availability";
+  const availabilityRoute = isAdmin ? "/admin/availability" : isMgr ? "/manager/availability" : "/employee/availability";
   const progressRoute = isAdmin ? "/admin/progress" : isMgr ? "/manager/progress" : "/employee/progress";
   const employeesRoute = isAdmin ? "/admin/employees" : isMgr ? "/manager/employees" : "/profile";
   const analyticsRoute = isAdmin ? "/admin/analytics" : isMgr ? "/manager/analytics" : "/employee/dashboard";
@@ -54,9 +55,12 @@ export default function Layout() {
   } else if (location.pathname.includes("/tasks")) {
     pageTitle = "Task Allocation";
     breadcrumbText = "Deliverables & Workload Queue";
-  } else if (location.pathname.includes("/assignments") || location.pathname.includes("/availability")) {
-    pageTitle = isEmp ? "My Availability" : "Staff Allocation";
-    breadcrumbText = isEmp ? "Working Schedule" : "Resource Matrix";
+  } else if (location.pathname.includes("/availability")) {
+    pageTitle = isEmp ? "My Availability" : "Staff Availability";
+    breadcrumbText = isEmp ? "Working Schedule & Timesheet" : "Staff Shift & Availability Matrix";
+  } else if (location.pathname.includes("/assignments")) {
+    pageTitle = "Staff Allocation";
+    breadcrumbText = "Resource Matrix";
   } else if (location.pathname.includes("/employees")) {
     pageTitle = "Staff Directory";
     breadcrumbText = "Employee Registry";
@@ -140,6 +144,7 @@ export default function Layout() {
                 <NavLink to={tasksRoute} className="wt-submenu-item">{isEmp ? "My Tasks" : "Task Queue"}</NavLink>
                 {!isEmp && <NavLink to={isAdmin ? "/admin/tasks/create" : "/manager/tasks/create"} className="wt-submenu-item">Create Task</NavLink>}
                 <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Availability" : "Staff Allocation"}</NavLink>
+                {!isEmp && <NavLink to={availabilityRoute} className="wt-submenu-item">Staff Availability</NavLink>}
                 {!isEmp && <NavLink to={employeesRoute} className="wt-submenu-item">Staff Directory</NavLink>}
                 {!isEmp && <NavLink to={skillsRoute} className="wt-submenu-item">Skills Matrix</NavLink>}
               </div>

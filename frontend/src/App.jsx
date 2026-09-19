@@ -60,6 +60,7 @@ function App() {
             <Route path="/admin/tasks"         element={<Tasks />} />
             <Route path="/admin/tasks/create"  element={<CreateTask />} />
             <Route path="/admin/assignments"   element={<Assignments />} />
+            <Route path="/admin/availability"  element={<Availability />} />
             <Route path="/admin/employees"     element={<Employees />} />
             <Route path="/admin/employees/:id" element={<EmployeeProfile />} />
             <Route path="/admin/skills"        element={<Skills />} />
@@ -76,6 +77,7 @@ function App() {
             <Route path="/manager/tasks/create" element={<CreateTask />} />
             <Route path="/manager/employees"   element={<ManagerEmployees />} />
             <Route path="/manager/assignments" element={<ManagerAssignments />} />
+            <Route path="/manager/availability" element={<Availability />} />
             <Route path="/manager/analytics"   element={<Analytics />} />
             <Route path="/manager/skills"      element={<Skills />} />
             <Route path="/manager/progress"    element={<ProgressReport />} />
