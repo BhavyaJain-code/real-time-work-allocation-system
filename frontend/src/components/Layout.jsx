@@ -116,10 +116,10 @@ export default function Layout() {
             </NavLink>
           </div>
 
-          {/* Attendance (Dropdown) */}
+          {/* Tasks Management (Dropdown) */}
           <div className="wt-menu-group">
             <div className="wt-menu-header" onClick={() => toggleSection("attendance")}>
-              <span>Attendance </span>
+              <span>Tasks Management</span>
             </div>
             {expandedSections.attendance && (
               <div className="wt-submenu">
