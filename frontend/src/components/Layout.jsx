@@ -123,7 +123,7 @@ export default function Layout() {
             </div>
             {expandedSections.attendance && (
               <div className="wt-submenu">
-                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Schedule" : "Timesheet & Schedule"}</NavLink>
+                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Schedule" : "Tasks Allocation"}</NavLink>
                 <NavLink to={analyticsRoute} className="wt-submenu-item">Overtime Tracking</NavLink>
                 <NavLink to={logRoute} className="wt-submenu-item">Activity Log</NavLink>
               </div>
