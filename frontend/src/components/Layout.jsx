@@ -138,7 +138,7 @@ export default function Layout() {
             {expandedSections.tasks && (
               <div className="wt-submenu">
                 <NavLink to={tasksRoute} className="wt-submenu-item">{isEmp ? "My Tasks" : "Task Queue"}</NavLink>
-                {isAdmin && <NavLink to="/admin/tasks/create" className="wt-submenu-item">Create Task</NavLink>}
+                {!isEmp && <NavLink to={isAdmin ? "/admin/tasks/create" : "/manager/tasks/create"} className="wt-submenu-item">Create Task</NavLink>}
                 <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Availability" : "Staff Allocation"}</NavLink>
                 {!isEmp && <NavLink to={employeesRoute} className="wt-submenu-item">Staff Directory</NavLink>}
                 {!isEmp && <NavLink to={skillsRoute} className="wt-submenu-item">Skills Matrix</NavLink>}

@@ -73,6 +73,7 @@ function App() {
             <Route path="/manager/dashboard"   element={<ManagerDashboard />} />
             <Route path="/manager/monitoring"  element={<RemoteMonitoring />} />
             <Route path="/manager/tasks"       element={<ManagerTasks />} />
+            <Route path="/manager/tasks/create" element={<CreateTask />} />
             <Route path="/manager/employees"   element={<ManagerEmployees />} />
             <Route path="/manager/assignments" element={<ManagerAssignments />} />
             <Route path="/manager/analytics"   element={<Analytics />} />
