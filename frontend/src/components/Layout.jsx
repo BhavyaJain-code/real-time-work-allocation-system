@@ -39,6 +39,7 @@ export default function Layout() {
   const analyticsRoute = isAdmin ? "/admin/analytics" : isMgr ? "/manager/analytics" : "/employee/dashboard";
   const skillsRoute = isAdmin ? "/admin/skills" : isMgr ? "/manager/skills" : "/profile";
   const logRoute = isAdmin ? "/admin/log" : isMgr ? "/manager/log" : "/employee/notifications";
+  const feedbackRoute = isAdmin ? "/admin/feedback" : isMgr ? "/manager/feedback" : "/employee/feedback";
 
   // Determine current active page label for breadcrumb
   let pageTitle = "Dashboard";
@@ -65,6 +66,9 @@ export default function Layout() {
   } else if (location.pathname.includes("/progress")) {
     pageTitle = "Performance Progress Report";
     breadcrumbText = "Appraisal Document";
+  } else if (location.pathname.includes("/feedback")) {
+    pageTitle = "Performance Feedback";
+    breadcrumbText = "Evaluation & Appraisal Notes";
   } else if (location.pathname.includes("/profile")) {
     pageTitle = "User Profile";
     breadcrumbText = "Account Settings";
@@ -116,18 +120,14 @@ export default function Layout() {
             </NavLink>
           </div>
 
-          {/* Tasks Management (Dropdown) */}
+          {/* Feedback */}
           <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("attendance")}>
-              <span>Tasks Management</span>
-            </div>
-            {expandedSections.attendance && (
-              <div className="wt-submenu">
-                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Schedule" : "Tasks Allocation"}</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Overtime Tracking</NavLink>
-                <NavLink to={logRoute} className="wt-submenu-item">Activity Log</NavLink>
-              </div>
-            )}
+            <NavLink
+              to={feedbackRoute}
+              className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}
+            >
+              <span>Feedback</span>
+            </NavLink>
           </div>
 
           {/* Work Allocation & Tasks */}
