@@ -1,5 +1,6 @@
 /* =========================================================
-   SAGE GREEN PALETTE THEME & SITKA FONT SYSTEM
+   SAGE GREEN PALETTE THEME
+   Typography: Times New Roman
    ========================================================= */
 
 :root {
@@ -12,64 +13,21 @@
   --text: #2f3f2f;
   --accent: #9ec29e;
   --border: #c1d9c1;
-
-  /* Sitka Optical Size Font Family Hierarchy */
-  --font-banner: 'Sitka Banner', 'Sitka Display', Georgia, 'Times New Roman', serif;
-  --font-display: 'Sitka Display', 'Sitka Heading', Georgia, 'Times New Roman', serif;
-  --font-heading: 'Sitka Heading', 'Sitka Display', Georgia, 'Times New Roman', serif;
-  --font-subheading: 'Sitka Subheading', 'Sitka Text', Georgia, 'Times New Roman', serif;
-  --font-text: 'Sitka Text', 'Times New Roman', Georgia, serif;
-  --font-small: 'Sitka Small', 'Sitka Text', 'Times New Roman', Georgia, serif;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: var(--font-text);
+  font-family: 'Times New Roman', Times, serif !important;
 }
 
 body {
-  font-family: var(--font-text);
+  font-family: 'Times New Roman', Times, serif !important;
   background-color: var(--background);
   color: var(--text);
   line-height: 1.4;
   font-size: 14px;
-}
-
-/* ── Typography Content Hierarchy ───────────────────────── */
-
-/* 1. Sitka Banner: Main Application Title, Hero Headers, Logo text */
-h1, .font-banner, .wt-logo-text {
-  font-family: var(--font-banner) !important;
-  font-weight: 600;
-}
-
-/* 2. Sitka Display: Page Titles, Main Section Titles, Modal Headers */
-h2, .font-display, .wt-page-title {
-  font-family: var(--font-display) !important;
-  font-weight: 600;
-}
-
-/* 3. Sitka Heading: Card Titles, Table Headers, Step Names */
-h3, th, table th, .font-heading, .wt-card-title {
-  font-family: var(--font-heading) !important;
-  font-weight: 600;
-}
-
-/* 4. Sitka Subheading: Subtitles, Breadcrumbs, Form Labels */
-h4, label, .font-subheading, .wt-card-subtitle, .wt-breadcrumb {
-  font-family: var(--font-subheading) !important;
-}
-
-/* 5. Sitka Text: Paragraphs, Table Content, Inputs, Buttons, Menu Links */
-p, td, table td, .form-control, input, select, textarea, .btn, button, .wt-menu-header, .wt-submenu-item {
-  font-family: var(--font-text) !important;
-}
-
-/* 6. Sitka Small: Small details, Status Badges, Chart Labels, Disclaimers */
-small, .font-small, .badge, .status-badge, .wt-hourly-labels, .wt-hourly-legend, .text-muted, .form-hint {
-  font-family: var(--font-small) !important;
 }
 
 a {
@@ -377,7 +335,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: var(--font-text) !important;
+  font-family: 'Times New Roman', Times, serif !important;
   font-size: 13px;
   font-weight: bold;
   padding: 4px 10px;
@@ -428,7 +386,7 @@ a:hover {
   border: none;
   background: transparent;
   color: inherit;
-  font-family: var(--font-small) !important;
+  font-family: 'Times New Roman', Times, serif !important;
 }
 
 .badge-green, .badge-amber, .badge-blue, .badge-purple, .badge-red, .badge-gray {
@@ -438,7 +396,7 @@ a:hover {
 }
 
 .form-control, input, select, textarea {
-  font-family: var(--font-text) !important;
+  font-family: 'Times New Roman', Times, serif !important;
   font-size: 13px;
   padding: 4px 6px;
   border: 1px solid var(--border);
@@ -462,41 +420,44 @@ a:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(47, 63, 47, 0.45);
+  background-color: rgba(47, 63, 47, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  padding: 16px;
+  z-index: 1000;
 }
 
-.modal-box {
+.modal-content {
   background: #ffffff;
-  border: 2px solid var(--border);
-  color: var(--text);
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(47, 63, 47, 0.2);
+  border: 1px solid var(--border);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .modal-header {
-  background-color: var(--body);
-  border-bottom: 2px solid var(--border);
-  padding: 10px 14px;
+  background-color: var(--header);
+  color: #ffffff;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.modal-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
 .modal-body {
-  padding: 14px 16px;
+  padding: 12px;
+  font-size: 13px;
 }
 
 .modal-footer {
-  background-color: var(--background);
+  padding: 8px 12px;
+  background-color: var(--body);
   border-top: 1px solid var(--border);
-  padding: 10px 14px;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -511,7 +472,7 @@ a:hover {
   color: var(--text) !important;
   border: 2px solid var(--header) !important;
   box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  font-family: var(--font-text) !important;
+  font-family: 'Times New Roman', Times, serif !important;
 }
 
 /* Strict A4 Print Formatting */
