@@ -153,7 +153,7 @@ export default function Register() {
               </label>
               {touchedEmail && email && (
                 <span style={{ fontSize: 11, fontWeight: "bold" }}>
-                  [{isEmailValid ? "Valid Email" : "Invalid Email"}]
+                  {isEmailValid ? "Valid Email" : "Invalid Email"}
                 </span>
               )}
             </div>
@@ -232,7 +232,7 @@ export default function Register() {
               </label>
               {touchedConfirm && confirmPass && (
                 <span style={{ fontSize: 11, fontWeight: "bold" }}>
-                  [{passwordsMatch ? "Passwords Match" : "Do Not Match"}]
+                  {passwordsMatch ? "Passwords Match" : "Do Not Match"}
                 </span>
               )}
             </div>

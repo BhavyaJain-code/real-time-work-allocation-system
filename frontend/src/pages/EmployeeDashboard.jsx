@@ -36,7 +36,7 @@ export default function EmployeeDashboard() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <span className="badge">[Shift: Active]</span>
+          <span className="badge">Shift: Active</span>
           <button className="btn btn-primary btn-sm" onClick={() => navigate("/employee/tasks")}>
             My Tasks ({tasks.length})
           </button>
@@ -99,7 +99,7 @@ export default function EmployeeDashboard() {
             </div>
           </div>
           <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/employee/progress")}>[ View Progress Report ]</span>
+            <span className="wt-table-link" onClick={() => navigate("/employee/progress")}>View Progress Report</span>
           </div>
         </div>
       </div>

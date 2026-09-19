@@ -45,7 +45,7 @@ export default function ManagerDashboard() {
             <h2 className="wt-card-title">1. Live &quot;What&#39;s Now&quot; Team Telemetry Feed</h2>
             <div className="wt-card-subtitle">Real-time application windows and active working status for {departmentName}</div>
           </div>
-          <span className="wt-table-link" onClick={() => navigate("/manager/monitoring")}>[ Full Telemetry ]</span>
+          <span className="wt-table-link" onClick={() => navigate("/manager/monitoring")}>Full Telemetry</span>
         </div>
         <table className="wt-table">
           <thead>

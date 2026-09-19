@@ -162,14 +162,14 @@ export default function Feedback() {
             {feedbackList.map(fb => (
               <tr key={fb.id}>
                 <td>{fb.date}</td>
-                <td><strong>[{fb.roleFlow}]</strong></td>
+                <td><strong>{fb.roleFlow}</strong></td>
                 <td>{fb.fromName}</td>
                 <td>{fb.toName}</td>
                 <td>
                   <strong>{fb.subject}</strong>
                   <div style={{ fontSize: 12, marginTop: 2, color: "#333333" }}>{fb.message}</div>
                 </td>
-                <td><strong>[{fb.status}]</strong></td>
+                <td><strong>{fb.status}</strong></td>
               </tr>
             ))}
           </tbody>

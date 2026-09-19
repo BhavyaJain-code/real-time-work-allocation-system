@@ -275,7 +275,7 @@ export default function Tasks() {
                 Create New Task Deliverable
               </h3>
               <button className="btn btn-sm" onClick={() => setShowCreateModal(false)}>
-                [X] Close
+                Close
               </button>
             </div>
             <form onSubmit={handleCreateTask}>
@@ -371,7 +371,7 @@ export default function Tasks() {
                 Update Task Deliverable
               </h3>
               <button className="btn btn-sm" onClick={() => setEditTaskModal(null)}>
-                [X] Close
+                Close
               </button>
             </div>
             <form onSubmit={handleEditTask}>

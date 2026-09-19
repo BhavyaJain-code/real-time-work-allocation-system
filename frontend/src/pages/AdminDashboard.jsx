@@ -87,7 +87,7 @@ export default function AdminDashboard() {
             </table>
           </div>
           <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ more info ]</span>
+            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>More info</span>
           </div>
         </div>
 
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
                 onClick={() => setSelectedDeptModal(null)}
                 style={{ fontWeight: "bold" }}
               >
-                [X] Close
+                Close
               </button>
             </div>
             <div className="modal-body">

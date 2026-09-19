@@ -5,7 +5,7 @@ export default function StatusBadge({ value, type = "status" }) {
 
   return (
     <span className="badge">
-      [{label}]
+      {label}
     </span>
   );
 }

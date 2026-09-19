@@ -148,7 +148,7 @@ export default function ManagerEmployees() {
                 Staff Profile: {getEmployeeUser(selectedEmpPopup)?.name}
               </h3>
               <button className="btn btn-sm" onClick={() => setSelectedEmpPopup(null)}>
-                [X] Close
+                Close
               </button>
             </div>
             <div className="modal-body">

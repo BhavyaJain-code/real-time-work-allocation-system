@@ -119,7 +119,7 @@ export default function Layout() {
           {/* Attendance (Dropdown) */}
           <div className="wt-menu-group">
             <div className="wt-menu-header" onClick={() => toggleSection("attendance")}>
-              <span>Attendance [{expandedSections.attendance ? "-" : "+"}]</span>
+              <span>Attendance </span>
             </div>
             {expandedSections.attendance && (
               <div className="wt-submenu">
@@ -135,7 +135,7 @@ export default function Layout() {
           {/* Productivity (Dropdown) */}
           <div className="wt-menu-group">
             <div className="wt-menu-header" onClick={() => toggleSection("productivity")}>
-              <span>Productivity [{expandedSections.productivity ? "-" : "+"}]</span>
+              <span>Productivity </span>
             </div>
             {expandedSections.productivity && (
               <div className="wt-submenu">
@@ -148,7 +148,7 @@ export default function Layout() {
           {/* Work Allocation & Tasks */}
           <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid #000000", paddingTop: 6 }}>
             <div className="wt-menu-header" onClick={() => toggleSection("tasks")}>
-              <span>Work Allocation [{expandedSections.tasks ? "-" : "+"}]</span>
+              <span>Work Allocation </span>
             </div>
             {expandedSections.tasks && (
               <div className="wt-submenu">

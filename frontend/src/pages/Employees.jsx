@@ -245,7 +245,7 @@ export default function Employees() {
                 onClick={() => setSelectedEmpPopup(null)}
                 style={{ fontWeight: "bold" }}
               >
-                [X] Close
+                Close
               </button>
             </div>
             <div className="modal-body">
@@ -336,7 +336,7 @@ export default function Employees() {
                 className="btn btn-sm" 
                 onClick={() => setEditRoleModal(null)}
               >
-                [X] Close
+                Close
               </button>
             </div>
             <form onSubmit={handleSaveRole}>

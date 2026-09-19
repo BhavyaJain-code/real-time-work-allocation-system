@@ -91,8 +91,8 @@ export default function RemoteMonitoring() {
                   <span>12:00 am</span><span>6:00 am</span><span>12:00 pm</span><span>6:00 pm</span><span>10:00 pm</span>
                 </div>
                 <div className="wt-hourly-legend">
-                  <span>[Black: Active]</span>
-                  <span>[Gray: Idle]</span>
+                  <span>Solid: Active</span>
+                  <span>Light: Idle</span>
                 </div>
               </div>
             </div>
