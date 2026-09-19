@@ -48,7 +48,7 @@ export default function Layout() {
     pageTitle = "Active / Idle Monitoring";
     breadcrumbText = "Activity & Performance Telemetry";
   } else if (location.pathname.includes("/dashboard")) {
-    pageTitle = "Summary Dashboard";
+    pageTitle = "Dashboard";
     breadcrumbText = user.role.toUpperCase() + " Overview - " + user.name;
   } else if (location.pathname.includes("/tasks")) {
     pageTitle = "Task Allocation";
@@ -86,13 +86,13 @@ export default function Layout() {
 
         {/* Navigation Menu */}
         <nav className="wt-nav-menu">
-          {/* Summary */}
+          {/* Dashboard */}
           <div className="wt-menu-group">
             <NavLink
               to={dashboardRoute}
               className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}
             >
-              <span>Summary</span>
+              <span>Dashboard</span>
             </NavLink>
           </div>
 

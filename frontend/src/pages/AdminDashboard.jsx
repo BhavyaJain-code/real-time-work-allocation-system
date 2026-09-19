@@ -66,10 +66,10 @@ export default function AdminDashboard() {
 
       {/* 2x2 Telemetry & Active Status Grid */}
       <div className="wt-grid-2x2">
-        {/* Card 1: Active vs Idle Summary */}
+        {/* Card 1: Active/Idle */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Active / Idle Telemetry Summary</h2>
+            <h2 className="wt-card-title">Active/Idle</h2>
           </div>
           <div>
             <div className="wt-count-callout">
@@ -107,14 +107,14 @@ export default function AdminDashboard() {
             </table>
           </div>
           <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ Detailed Telemetry Logs ]</span>
+            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ more info ]</span>
           </div>
         </div>
 
-        {/* Card 2: Attendance & Punctuality */}
+        {/* Card 2: Attendance */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Attendance &amp; Punctuality (Today)</h2>
+            <h2 className="wt-card-title">Attendance</h2>
           </div>
           <table className="wt-table" style={{ marginBottom: 8 }}>
             <thead>
@@ -152,9 +152,6 @@ export default function AdminDashboard() {
               </tr>
             </tbody>
           </table>
-          <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ Live Feed ]</span>
-          </div>
         </div>
       </div>
 
@@ -162,7 +159,7 @@ export default function AdminDashboard() {
       <div className="wt-card" style={{ marginBottom: 16 }}>
         <div className="wt-card-header">
           <div>
-            <h2 className="wt-card-title">Department Performance &amp; Operations Table</h2>
+            <h2 className="wt-card-title">Department Performance</h2>
             <div className="wt-card-subtitle">Click on any department row to view detailed statistics and staff pop-up</div>
           </div>
         </div>
@@ -205,11 +202,11 @@ export default function AdminDashboard() {
         </table>
       </div>
 
-      {/* Master Task Deliverables */}
+      {/* Workload Queue */}
       <div className="wt-card">
         <div className="wt-card-header">
           <div>
-            <h2 className="wt-card-title">Master Task Deliverables &amp; Workload Queue</h2>
+            <h2 className="wt-card-title">Workload Queue</h2>
             <div className="wt-card-subtitle">{totalTasks} tasks ({inProgressTasks} in progress, {completedTasks} completed)</div>
           </div>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/tasks")}>
