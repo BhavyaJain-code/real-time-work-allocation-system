@@ -86,6 +86,22 @@ a:hover {
   margin-bottom: 2px;
 }
 
+.wt-sidebar a,
+.wt-nav-menu a,
+.wt-menu-header,
+.wt-submenu-item {
+  text-decoration: none !important;
+}
+
+.wt-sidebar a:hover,
+.wt-nav-menu a:hover,
+.wt-menu-header:hover,
+.wt-submenu-item:hover,
+.wt-menu-header.active,
+.wt-submenu-item.active {
+  text-decoration: none !important;
+}
+
 .wt-menu-header {
   display: flex;
   align-items: center;
@@ -96,10 +112,12 @@ a:hover {
   color: var(--text);
   cursor: pointer;
   border-bottom: 1px solid var(--border);
+  text-decoration: none !important;
 }
 
 .wt-menu-header:hover {
   background-color: var(--accent);
+  text-decoration: none !important;
 }
 
 .wt-menu-header.active {
@@ -107,10 +125,12 @@ a:hover {
   color: #ffffff !important;
   font-weight: bold;
   border-left: 4px solid var(--footer);
+  text-decoration: none !important;
 }
 
 .wt-menu-header.active * {
   color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .wt-submenu {
@@ -123,21 +143,21 @@ a:hover {
   padding: 6px 16px 6px 28px;
   font-size: 13px;
   color: var(--text);
-  text-decoration: none;
+  text-decoration: none !important;
   cursor: pointer;
   border-bottom: 1px dotted var(--border);
 }
 
 .wt-submenu-item:hover {
   background-color: var(--accent);
-  text-decoration: underline;
+  text-decoration: none !important;
 }
 
 .wt-submenu-item.active {
   background-color: var(--header);
   color: #ffffff !important;
   font-weight: bold;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 /* Main Area */
