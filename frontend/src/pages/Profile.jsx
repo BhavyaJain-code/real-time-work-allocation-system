@@ -1,226 +1,209 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { EMPLOYEES, USERS, getEmployeeUser, getEmployeeSkills, getEmployeeAvailability, initials, avatarColors } from "../data/mockData";
-import StatusBadge from "../components/StatusBadge";
-import { User, Mail, Briefcase, Building, Edit2, Check, X, Shield, Zap } from "lucide-react";
+import { EMPLOYEES, USERS } from "../data/mockData";
 
 export default function Profile() {
-  const { user, employee, managedDept } = useAuth();
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({
-    name:       user?.name       || "",
-    email:      user?.email      || "",
-    position:   employee?.position   || "",
-    department: employee?.department || "",
-  });
-  const [saved, setSaved] = useState({ ...form });
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
-  if (!user) return null;
+  const [notification, setNotification] = useState("");
+  const [name, setName] = useState(user?.name || "Administrator");
+  const [email, setEmail] = useState(user?.email || "alex@workflow.io");
 
-  const skills  = employee ? getEmployeeSkills(employee.id) : [];
-  const avail   = employee ? getEmployeeAvailability(employee.id) : [];
+  // Admin position governance state
+  const [selectedUserToEdit, setSelectedUserToEdit] = useState(USERS[0]?.id || 1);
+  const [editPosition, setEditPosition] = useState("Senior Lead");
+  const [editRole, setEditRole] = useState("manager");
+  const [editDept, setEditDept] = useState("Engineering");
 
-  const handleSave = () => { setSaved({ ...form }); setEditing(false); };
-  const handleCancel = () => { setForm({ ...saved }); setEditing(false); };
+  const handleUpdateSelf = (e) => {
+    e.preventDefault();
+    setNotification("Profile details updated successfully.");
+    setTimeout(() => setNotification(""), 3000);
+  };
 
-  const wColor = employee ? (employee.workload_percentage >= 85 ? "#dc3545" : employee.workload_percentage >= 60 ? "#0d6efd" : "#198754") : null;
+  const handleAdminGovernanceChange = (e) => {
+    e.preventDefault();
+    const targetUser = USERS.find(u => u.id === Number(selectedUserToEdit));
+    const targetEmp = EMPLOYEES.find(emp => emp.user_id === Number(selectedUserToEdit));
+
+    if (targetUser) targetUser.role = editRole;
+    if (targetEmp) {
+      targetEmp.position = editPosition;
+      targetEmp.department = editDept;
+    }
+
+    setNotification("Admin governance: Successfully updated position and role for " + (targetUser?.name || "user") + ".");
+    setTimeout(() => setNotification(""), 4000);
+  };
 
   return (
     <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">User Profile</div>
-          <div className="page-subtitle">View and update account information</div>
+      {/* Top Banner */}
+      <div style={{ border: "1px solid #000000", padding: "12px 16px", marginBottom: 16 }}>
+        <h2 style={{ fontSize: 18, fontWeight: "bold", margin: 0 }}>
+          User Profile &amp; Account Settings
+        </h2>
+        <div style={{ fontSize: 13, color: "#444444", marginTop: 2 }}>
+          Manage personal credentials, account preferences, and administrative organizational governance.
         </div>
-        {!editing && (
-          <button
-            className="btn btn-secondary"
-            onClick={() => setEditing(true)}
-          >
-            <Edit2 size={14} /> Edit Profile
-          </button>
-        )}
       </div>
 
-      <div className="grid-2" style={{ alignItems: "start" }}>
-        {/* Main profile card */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div className="card">
-            <div className="profile-header">
-              <div
-                className="avatar avatar-xl"
-                style={{
-                  background: "#0d6efd",
-                  color: "#ffffff",
-                  fontSize: 20,
-                  fontWeight: 700,
-                }}
-              >
-                {initials(saved.name)}
-              </div>
-              <div className="profile-info">
-                <h2>{saved.name}</h2>
-                <p>{saved.email}</p>
-                <div className="profile-meta">
-                  <span className="badge badge-blue">{user.role.toUpperCase()}</span>
-                  {saved.department && <span className="badge badge-gray">{saved.department}</span>}
-                  {employee?.availability_status && (
-                    <StatusBadge value={employee.availability_status} />
-                  )}
-                </div>
-              </div>
+      {notification && (
+        <div style={{ border: "1px solid #000000", padding: "8px 12px", marginBottom: 16, fontWeight: "bold" }}>
+          Notice: {notification}
+        </div>
+      )}
+
+      <div className="wt-grid-2x2">
+        {/* Personal Account Information */}
+        <div className="wt-card">
+          <div className="wt-card-header">
+            <h2 className="wt-card-title">Personal Account Information</h2>
+          </div>
+          <form onSubmit={handleUpdateSelf} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Full Name:</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={name} 
+                onChange={e => setName(e.target.value)} 
+                required 
+              />
             </div>
 
-            <div className="card-body">
-              {editing ? (
-                <div className="form-grid">
-                  <div className="field">
-                    <label>Full Name</label>
-                    <input
-                      className="field-input"
-                      value={form.name}
-                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    />
-                  </div>
-                  <div className="field">
-                    <label>Email Address</label>
-                    <input
-                      className="field-input"
-                      value={form.email}
-                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    />
-                  </div>
-                  {employee && (
-                    <>
-                      <div className="field">
-                        <label>Job Position</label>
-                        <input
-                          className="field-input"
-                          value={form.position}
-                          onChange={e => setForm(f => ({ ...f, position: e.target.value }))}
-                        />
-                      </div>
-                      <div className="field">
-                        <label>Department</label>
-                        <input
-                          className="field-input"
-                          value={form.department}
-                          onChange={e => setForm(f => ({ ...f, department: e.target.value }))}
-                        />
-                      </div>
-                    </>
-                  )}
-                  <div className="form-grid-full" style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                    <button className="btn btn-secondary" onClick={handleCancel}>
-                      <X size={14} /> Cancel
-                    </button>
-                    <button className="btn btn-primary" onClick={handleSave}>
-                      <Check size={14} /> Save Changes
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <User size={15} color="var(--muted)" />
-                    <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Full Name:</span>
-                    <strong style={{ fontSize: 13.5 }}>{saved.name}</strong>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <Mail size={15} color="var(--muted)" />
-                    <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Email:</span>
-                    <strong style={{ fontSize: 13.5 }}>{saved.email}</strong>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <Shield size={15} color="var(--muted)" />
-                    <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>System Role:</span>
-                    <span className="badge badge-blue">{user.role}</span>
-                  </div>
-                  {saved.position && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <Briefcase size={15} color="var(--muted)" />
-                      <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Position:</span>
-                      <strong style={{ fontSize: 13.5 }}>{saved.position}</strong>
-                    </div>
-                  )}
-                  {saved.department && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <Building size={15} color="var(--muted)" />
-                      <span style={{ color: "var(--muted)", width: 100, fontSize: 13 }}>Department:</span>
-                      <strong style={{ fontSize: 13.5 }}>{saved.department}</strong>
-                    </div>
-                  )}
-                </div>
-              )}
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Email Address:</label>
+              <input 
+                type="email" 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={email} 
+                onChange={e => setEmail(e.target.value)} 
+                required 
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>System Role:</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                style={{ width: "100%", backgroundColor: "#f0f0f0" }}
+                value={user?.role?.toUpperCase() || "ADMIN"} 
+                disabled 
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ marginTop: 4 }}>
+              Save Account Details
+            </button>
+          </form>
+        </div>
+
+        {/* Security & Password */}
+        <div className="wt-card">
+          <div className="wt-card-header">
+            <h2 className="wt-card-title">Security &amp; Password</h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Current Password:</label>
+              <input type="password" className="form-control" style={{ width: "100%" }} placeholder="••••••••" />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>New Password:</label>
+              <input type="password" className="form-control" style={{ width: "100%" }} placeholder="Minimum 6 characters" />
+            </div>
+            <button className="btn btn-secondary" onClick={() => { setNotification("Password updated."); setTimeout(() => setNotification(""), 3000); }}>
+              Update Password
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ADMIN GOVERNANCE SECTION */}
+      {isAdmin && (
+        <div className="wt-card" style={{ marginTop: 16 }}>
+          <div className="wt-card-header">
+            <div>
+              <h2 className="wt-card-title">Admin Governance: Modify Positions &amp; Roles of Managers and Employees</h2>
+              <div className="wt-card-subtitle">Administrator rights to reassign designation, department, and role access across the organization</div>
             </div>
           </div>
-
-          {/* Workload card if employee */}
-          {employee && (
-            <div className="card">
-              <div className="card-header">
-                <span className="card-title">Workload & Capacity Status</span>
-              </div>
-              <div className="card-body">
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
-                  <span>Current Workload: <strong>{employee.workload_percentage}%</strong></span>
-                  <span style={{ color: wColor, fontWeight: 600 }}>{employee.availability_status.toUpperCase()}</span>
-                </div>
-                <div className="progress-bar" style={{ height: 8 }}>
-                  <div className="progress-fill" style={{ width: `${employee.workload_percentage}%`, background: wColor }} />
-                </div>
-              </div>
+          <form onSubmit={handleAdminGovernanceChange} style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr auto", gap: 12, alignItems: "flex-end" }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Select User / Staff:</label>
+              <select 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={selectedUserToEdit}
+                onChange={e => {
+                  const uid = Number(e.target.value);
+                  setSelectedUserToEdit(uid);
+                  const u = USERS.find(x => x.id === uid);
+                  const emp = EMPLOYEES.find(x => x.user_id === uid);
+                  if (u) setEditRole(u.role);
+                  if (emp) {
+                    setEditPosition(emp.position);
+                    setEditDept(emp.department);
+                  }
+                }}
+              >
+                {USERS.map(u => (
+                  <option key={u.id} value={u.id}>{u.name} ({u.role} - {u.email})</option>
+                ))}
+              </select>
             </div>
-          )}
+
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>System Access Role:</label>
+              <select 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={editRole}
+                onChange={e => setEditRole(e.target.value)}
+              >
+                <option value="employee">Employee</option>
+                <option value="manager">Department Manager</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Designation / Position:</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={editPosition}
+                onChange={e => setEditPosition(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Department:</label>
+              <select 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={editDept}
+                onChange={e => setEditDept(e.target.value)}
+              >
+                <option value="Engineering">Engineering</option>
+                <option value="Design">Design</option>
+                <option value="Data">Data</option>
+              </select>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ padding: "8px 16px" }}>
+              Apply Position Change
+            </button>
+          </form>
         </div>
-
-        {/* Right side: Skills & Shifts */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {employee && (
-            <div className="card">
-              <div className="card-header">
-                <span className="card-title">Registered Skills</span>
-              </div>
-              <div className="card-body">
-                {skills.length === 0 ? (
-                  <span className="text-muted">No skills assigned yet.</span>
-                ) : (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {skills.map(s => (
-                      <span key={s.id} className="skill-tag">
-                        {s.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {employee && (
-            <div className="card">
-              <div className="card-header">
-                <span className="card-title">Weekly Schedule Slots</span>
-              </div>
-              <div className="card-body">
-                {avail.length === 0 ? (
-                  <span className="text-muted">No schedule records.</span>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {avail.map(a => (
-                      <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#f8f9fa", borderRadius: 4, border: "1px solid var(--border)" }}>
-                        <span style={{ fontWeight: 600, fontSize: 13 }}>{a.date}</span>
-                        <span style={{ fontSize: 12, color: "var(--muted)" }}>{a.start_time} - {a.end_time}</span>
-                        <StatusBadge value={a.status} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

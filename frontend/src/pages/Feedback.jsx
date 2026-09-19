@@ -1,189 +1,179 @@
 import { useState } from "react";
-import { Star, Send } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import {
-  EMPLOYEES, TASKS, FEEDBACK,
-  getEmployeeUser, getTask, getUser,
-  initials
-} from "../data/mockData";
+import { EMPLOYEES, USERS, getEmployeeUser } from "../data/mockData";
 
-function StarPicker({ value, onChange }) {
-  const [hover, setHover] = useState(0);
-  return (
-    <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-      {[1,2,3,4,5].map(i => (
-        <Star
-          key={i}
-          size={20}
-          style={{ cursor: "pointer" }}
-          fill={(hover || value) >= i ? "#ffc107" : "none"}
-          color={(hover || value) >= i ? "#ffc107" : "#ced4da"}
-          onMouseEnter={() => setHover(i)}
-          onMouseLeave={() => setHover(0)}
-          onClick={() => onChange(i)}
-        />
-      ))}
-      <span style={{ marginLeft: 6, fontSize: 13, color: "#495057", fontWeight: 600 }}>
-        {value ? ["","1/5 Poor","2/5 Fair","3/5 Good","4/5 Very Good","5/5 Excellent"][value] : "Select Rating"}
-      </span>
-    </div>
-  );
-}
+const INITIAL_FEEDBACK = [
+  {
+    id: 1,
+    fromName: "Alex Vance (Admin)",
+    toName: "Ravi Kapoor (Manager)",
+    roleFlow: "Admin to Manager",
+    subject: "Q3 Sprint Delivery & Architecture Alignment",
+    message: "Excellent leadership in coordinating the backend database migration. Ensure team workload remains balanced across junior developers.",
+    date: "2026-08-20",
+    status: "Acknowledged"
+  },
+  {
+    id: 2,
+    fromName: "Ravi Kapoor (Manager)",
+    toName: "Priya Sharma (Employee)",
+    roleFlow: "Manager to Employee",
+    subject: "UI Component Refactor Commendation",
+    message: "Great work completing the frontend components ahead of schedule. Your peer review notes have significantly assisted the team.",
+    date: "2026-08-22",
+    status: "Received"
+  },
+  {
+    id: 3,
+    fromName: "Nina Torres (Manager)",
+    toName: "Elena Rostova (Employee)",
+    roleFlow: "Manager to Employee",
+    subject: "Design Token Library Handoff",
+    message: "The design tokens and wireframes for the telemetry pages are clean and well structured. Excellent attention to typography guidelines.",
+    date: "2026-08-24",
+    status: "Received"
+  }
+];
 
 export default function Feedback() {
-  const { user, managedDept } = useAuth();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const isManager = user?.role === "manager";
 
-  const visibleEmps = managedDept
-    ? EMPLOYEES.filter(e => e.department === managedDept)
-    : EMPLOYEES;
+  const [feedbackList, setFeedbackList] = useState(INITIAL_FEEDBACK);
+  const [toUser, setToUser] = useState(USERS[1]?.name || "Ravi Kapoor");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [notification, setNotification] = useState("");
 
-  const [feedbackList, setFeedbackList] = useState(FEEDBACK);
-  const [form, setForm] = useState({ to_employee_id: "", task_id: "", rating: 0, comment: "" });
-  const [filterEmp, setFilterEmp] = useState("all");
-
-  const handleSubmit = (e) => {
+  const handleSendFeedback = (e) => {
     e.preventDefault();
-    if (!form.to_employee_id || !form.rating) return;
-    const newFb = {
-      id: Date.now(),
-      from_user_id: user.id,
-      to_employee_id: Number(form.to_employee_id),
-      task_id: form.task_id ? Number(form.task_id) : null,
-      rating: form.rating,
-      comment: form.comment,
-      created_at: new Date().toISOString(),
-    };
-    setFeedbackList(f => [newFb, ...f]);
-    setForm({ to_employee_id: "", task_id: "", rating: 0, comment: "" });
-  };
+    if (!subject.trim() || !message.trim()) return;
 
-  const filtered = feedbackList.filter(f => {
-    if (filterEmp === "all") return true;
-    return f.to_employee_id === Number(filterEmp);
-  });
+    const newFb = {
+      id: feedbackList.length + 1,
+      fromName: user?.name + " (" + user?.role + ")",
+      toName: toUser,
+      roleFlow: isAdmin ? "Admin to Manager" : isManager ? "Manager to Employee" : "Peer Feedback",
+      subject: subject.trim(),
+      message: message.trim(),
+      date: new Date().toISOString().split("T")[0],
+      status: "Sent"
+    };
+
+    setFeedbackList([newFb, ...feedbackList]);
+    setSubject("");
+    setMessage("");
+    setNotification("Feedback recorded and transmitted successfully.");
+    setTimeout(() => setNotification(""), 3000);
+  };
 
   return (
     <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">Performance Feedback</div>
-          <div className="page-subtitle">Submit and review employee appraisals and ratings</div>
+      {/* Top Banner */}
+      <div style={{ border: "1px solid #000000", padding: "12px 16px", marginBottom: 16 }}>
+        <h2 style={{ fontSize: 18, fontWeight: "bold", margin: 0 }}>
+          Organizational Feedback &amp; Performance Review Channel
+        </h2>
+        <div style={{ fontSize: 13, color: "#444444", marginTop: 2 }}>
+          Structured feedback loops: Admin &rarr; Manager leadership appraisal and Manager &rarr; Employee operational feedback.
         </div>
       </div>
 
-      <div className="grid-2" style={{ alignItems: "start" }}>
-        {/* Submit Feedback Form */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Leave Employee Feedback</span>
-          </div>
-          <form onSubmit={handleSubmit} className="card-body form-grid">
-            <div className="field form-grid-full">
-              <label>Employee to Review</label>
-              <select
-                className="field-select"
-                required
-                value={form.to_employee_id}
-                onChange={e => setForm(f => ({ ...f, to_employee_id: e.target.value }))}
+      {notification && (
+        <div style={{ border: "1px solid #000000", padding: "8px 12px", marginBottom: 16, fontWeight: "bold" }}>
+          Notice: {notification}
+        </div>
+      )}
+
+      {/* Feedback Submission Form */}
+      <div className="wt-card" style={{ marginBottom: 16 }}>
+        <div className="wt-card-header">
+          <h2 className="wt-card-title">
+            Submit Feedback ({isAdmin ? "Admin to Manager" : isManager ? "Manager to Employee" : "Performance Input"})
+          </h2>
+        </div>
+        <form onSubmit={handleSendFeedback} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Recipient:</label>
+              <select 
+                className="form-control" 
+                style={{ width: "100%" }}
+                value={toUser}
+                onChange={e => setToUser(e.target.value)}
               >
-                <option value="">Select Employee</option>
-                {visibleEmps.map(e => {
-                  const u = getEmployeeUser(e);
-                  return <option key={e.id} value={e.id}>{u?.name} ({e.department} - {e.position})</option>;
-                })}
+                {USERS.map(u => (
+                  <option key={u.id} value={u.name}>{u.name} ({u.role})</option>
+                ))}
               </select>
             </div>
 
-            <div className="field form-grid-full">
-              <label>Related Task (Optional)</label>
-              <select
-                className="field-select"
-                value={form.task_id}
-                onChange={e => setForm(f => ({ ...f, task_id: e.target.value }))}
-              >
-                <option value="">General / None</option>
-                {TASKS.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
-              </select>
-            </div>
-
-            <div className="field form-grid-full">
-              <label>Rating (1 to 5 Stars)</label>
-              <StarPicker value={form.rating} onChange={r => setForm(f => ({ ...f, rating: r }))} />
-            </div>
-
-            <div className="field form-grid-full">
-              <label>Feedback & Comments</label>
-              <textarea
-                className="field-textarea"
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Subject / Area:</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                style={{ width: "100%" }}
+                placeholder="e.g. Sprint Delivery &amp; Code Quality" 
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
                 required
-                rows={4}
-                value={form.comment}
-                onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
-                placeholder="Enter feedback notes, work quality, areas of improvement..."
               />
             </div>
-
-            <div className="form-grid-full" style={{ display: "flex", justifyContent: "flex-end" }}>
-              <button
-                type="submit"
-                className="btn btn-primary"
-              >
-                <Send size={14} /> Submit Feedback
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Feedback Feed */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div className="filter-bar" style={{ marginBottom: 0 }}>
-            <select className="filter-select" value={filterEmp} onChange={e => setFilterEmp(e.target.value)} style={{ width: "100%" }}>
-              <option value="all">All Feedback Records</option>
-              {visibleEmps.map(e => {
-                const u = getEmployeeUser(e);
-                return <option key={e.id} value={e.id}>Feedback for {u?.name}</option>;
-              })}
-            </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {filtered.length === 0 ? (
-              <div className="card"><div className="empty-state"><h3>No feedback records found</h3></div></div>
-            ) : filtered.map(fb => {
-              const author = getUser(fb.from_user_id);
-              const targetEmp = EMPLOYEES.find(e => e.id === fb.to_employee_id);
-              const targetUser = targetEmp ? getEmployeeUser(targetEmp) : null;
-              const task = fb.task_id ? getTask(fb.task_id) : null;
-
-              return (
-                <div key={fb.id} className="card" style={{ padding: 14 }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <div className="avatar avatar-sm" style={{ background: "#e9ecef", color: "#495057" }}>{initials(targetUser?.name)}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div>
-                          <span style={{ fontWeight: 600, fontSize: 13.5 }}>{targetUser?.name}</span>
-                          <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 6 }}>reviewed by <strong>{author?.name}</strong></span>
-                        </div>
-                        <div style={{ display: "flex", gap: 2 }}>
-                          {[1,2,3,4,5].map(i => (
-                            <Star key={i} size={12} fill={i <= fb.rating ? "#ffc107" : "none"} color={i <= fb.rating ? "#ffc107" : "#dee2e6"} />
-                          ))}
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 13, color: "var(--text)", marginTop: 6, lineHeight: 1.4 }}>"{fb.comment}"</p>
-                      {task && (
-                        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 4 }}>
-                          Task: <strong>{task.title}</strong>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div>
+            <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 2 }}>Feedback Observations &amp; Action Items:</label>
+            <textarea 
+              className="form-control" 
+              style={{ width: "100%", height: 80 }}
+              placeholder="Enter constructive feedback, observations, and recommendations..."
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              required
+            />
           </div>
+
+          <button type="submit" className="btn btn-primary" style={{ alignSelf: "flex-start", padding: "8px 16px" }}>
+            Submit Formal Feedback
+          </button>
+        </form>
+      </div>
+
+      {/* Feedback Log */}
+      <div className="wt-card">
+        <div className="wt-card-header">
+          <h2 className="wt-card-title">Feedback Communication Records</h2>
         </div>
+
+        <table className="wt-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Channel Flow</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Subject &amp; Remarks</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {feedbackList.map(fb => (
+              <tr key={fb.id}>
+                <td>{fb.date}</td>
+                <td><strong>[{fb.roleFlow}]</strong></td>
+                <td>{fb.fromName}</td>
+                <td>{fb.toName}</td>
+                <td>
+                  <strong>{fb.subject}</strong>
+                  <div style={{ fontSize: 12, marginTop: 2, color: "#333333" }}>{fb.message}</div>
+                </td>
+                <td><strong>[{fb.status}]</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

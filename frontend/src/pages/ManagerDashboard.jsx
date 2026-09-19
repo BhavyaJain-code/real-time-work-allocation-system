@@ -38,81 +38,105 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      <div className="wt-grid-2x2">
-        {/* Team Live Status */}
-        <div className="wt-card">
-          <div className="wt-card-header">
-            <h2 className="wt-card-title">Team Active Status &amp; Focus</h2>
+      {/* 1. What's Now Data (Live Team Telemetry) */}
+      <div className="wt-card" style={{ marginBottom: 16 }}>
+        <div className="wt-card-header">
+          <div>
+            <h2 className="wt-card-title">1. Live &quot;What&#39;s Now&quot; Team Telemetry Feed</h2>
+            <div className="wt-card-subtitle">Real-time application windows and active working status for {departmentName}</div>
           </div>
-          <table className="wt-table">
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Status</th>
-                <th>Current Focus Task</th>
-                <th>Active Hours</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myEmployees.map(emp => {
-                const u = getEmployeeUser(emp);
-                return (
-                  <tr key={emp.id}>
-                    <td>
-                      <strong>{u?.name}</strong>
-                      <div style={{ fontSize: 11, color: "#444444" }}>{emp.position}</div>
-                    </td>
-                    <td>
-                      <StatusBadge value={emp.remote_status} />
-                    </td>
-                    <td>{emp.current_activity}</td>
-                    <td><strong>{emp.active_time}</strong></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/manager/monitoring")}>[ Full Telemetry ]</span>
-          </div>
+          <span className="wt-table-link" onClick={() => navigate("/manager/monitoring")}>[ Full Telemetry ]</span>
         </div>
-
-        {/* Team Capacity */}
-        <div className="wt-card">
-          <div className="wt-card-header">
-            <h2 className="wt-card-title">Team Workload Capacity &amp; Balance</h2>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <table className="wt-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Team Member</th>
+              <th>Position</th>
+              <th>Current Active Window / Task</th>
+              <th>Active Hours</th>
+              <th>Idle Hours</th>
+              <th>Productivity</th>
+            </tr>
+          </thead>
+          <tbody>
             {myEmployees.map(emp => {
               const u = getEmployeeUser(emp);
               return (
-                <div key={emp.id} style={{ border: "1px solid #000000", padding: "6px 10px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 13 }}>
-                    <span><strong>{u?.name}</strong> ({emp.position})</span>
-                    <span><strong>{emp.workload_percentage}%</strong></span>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: emp.workload_percentage + "%" }} />
-                  </div>
-                </div>
+                <tr key={emp.id}>
+                  <td><StatusBadge value={emp.remote_status} /></td>
+                  <td><strong>{u?.name}</strong></td>
+                  <td>{emp.position}</td>
+                  <td>{emp.current_activity}</td>
+                  <td><strong>{emp.active_time}</strong></td>
+                  <td>{emp.idle_time}</td>
+                  <td><strong>{emp.productivity_score}%</strong></td>
+                </tr>
               );
             })}
-          </div>
-          <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/manager/assignments")}>[ Reallocate Tasks ]</span>
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
 
-      {/* Active Department Assignments */}
+      {/* 2. Workload & Performance Review */}
+      <div className="wt-card" style={{ marginBottom: 16 }}>
+        <div className="wt-card-header">
+          <div>
+            <h2 className="wt-card-title">2. Workload Capacity &amp; Performance Review</h2>
+            <div className="wt-card-subtitle">Capacity allocation and burnout risk for each staff member under your supervision</div>
+          </div>
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate("/manager/employees")}>
+            Staff Directory ({myEmployees.length})
+          </button>
+        </div>
+        <table className="wt-table">
+          <thead>
+            <tr>
+              <th>Staff Name</th>
+              <th>Position</th>
+              <th>Assigned Tasks</th>
+              <th>Workload Allocation</th>
+              <th>Productivity Rating</th>
+              <th>Burnout Risk</th>
+              <th>Review Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {myEmployees.map(emp => {
+              const u = getEmployeeUser(emp);
+              const assignedCount = deptAssignments.filter(a => a.employee_id === emp.id).length;
+              return (
+                <tr key={emp.id}>
+                  <td><strong>{u?.name}</strong></td>
+                  <td>{emp.position}</td>
+                  <td>{assignedCount} tasks</td>
+                  <td><strong>{emp.workload_percentage}%</strong></td>
+                  <td><strong>{emp.productivity_score}%</strong></td>
+                  <td>{emp.burnout_risk || "Low"}</td>
+                  <td>
+                    <button 
+                      className="btn btn-sm" 
+                      onClick={() => navigate("/manager/progress")}
+                    >
+                      View Report
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 3. Tasks Info (Table) */}
       <div className="wt-card">
         <div className="wt-card-header">
           <div>
-            <h2 className="wt-card-title">{departmentName} Active Deliverables</h2>
-            <div className="wt-card-subtitle">{deptAssignments.length} total tasks assigned</div>
+            <h2 className="wt-card-title">3. Department Tasks &amp; Deliverables Info</h2>
+            <div className="wt-card-subtitle">{deptAssignments.length} active assignments in {departmentName}</div>
           </div>
-          <button className="btn btn-secondary btn-sm" onClick={() => navigate("/manager/assignments")}>
-            Assign Task
+          <button className="btn btn-primary btn-sm" onClick={() => navigate("/manager/assignments")}>
+            + Allocate Task
           </button>
         </div>
 
@@ -121,7 +145,8 @@ export default function ManagerDashboard() {
             <tr>
               <th>Task Deliverable</th>
               <th>Assigned Staff</th>
-              <th>Assigned Date</th>
+              <th>Estimated Duration</th>
+              <th>Deadline</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -134,12 +159,14 @@ export default function ManagerDashboard() {
                 <tr key={a.id}>
                   <td>
                     <strong>{task?.title}</strong>
-                    <div style={{ fontSize: 11, color: "#444444" }}>Deadline: {task?.deadline} | {task?.estimated_hours} hrs</div>
+                    <div style={{ fontSize: 11, color: "#444444" }}>{task?.description}</div>
                   </td>
                   <td>
-                    <span className="wt-table-link">{u?.name}</span>
+                    <strong>{u?.name}</strong>
+                    <div style={{ fontSize: 11, color: "#444444" }}>{emp?.position}</div>
                   </td>
-                  <td>{a.assigned_at}</td>
+                  <td>{task?.estimated_hours} hrs</td>
+                  <td><strong>{task?.deadline}</strong></td>
                   <td><StatusBadge value={a.status} /></td>
                 </tr>
               );

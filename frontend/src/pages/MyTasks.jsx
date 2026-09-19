@@ -1,56 +1,75 @@
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getTask, getEmployeeAssignments } from "../data/mockData";
-import TaskCard from "../components/TaskCard";
-
-const COLUMNS = [
-  { key: "assigned",    label: "Assigned",    color: "var(--primary)" },
-  { key: "in_progress", label: "In Progress", color: "var(--blue)" },
-  { key: "completed",   label: "Completed",   color: "var(--green)" },
-];
+import { getEmployeeTasks, TASKS } from "../data/mockData";
+import StatusBadge from "../components/StatusBadge";
 
 export default function MyTasks() {
   const { employee } = useAuth();
+  const empId = employee?.id || 1;
+  const [tasks, setTasks] = useState(getEmployeeTasks(empId));
 
-  if (!employee) return (
-    <div className="card"><div className="empty-state"><h3>No profile linked</h3></div></div>
-  );
-
-  const assignments = getEmployeeAssignments(employee.id);
+  const handleUpdateStatus = (taskId, newStatus) => {
+    const updated = tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t);
+    setTasks(updated);
+    const globalTask = TASKS.find(t => t.id === taskId);
+    if (globalTask) globalTask.status = newStatus;
+  };
 
   return (
     <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">My Tasks</div>
-          <div className="page-subtitle">{assignments.length} total assignments</div>
+      <div style={{ border: "1px solid #000000", padding: "12px 16px", marginBottom: 16 }}>
+        <h2 style={{ fontSize: 18, fontWeight: "bold", margin: 0 }}>
+          My Scheduled Tasks &amp; Deliverables
+        </h2>
+        <div style={{ fontSize: 13, color: "#444444", marginTop: 2 }}>
+          Your active queue of assigned project deliverables and sprint milestones.
         </div>
       </div>
 
-      <div className="kanban">
-        {COLUMNS.map(col => {
-          const colAssignments = assignments.filter(a => a.status === col.key);
-          return (
-            <div className="kanban-col" key={col.key}>
-              <div className="kanban-col-header">
-                <span style={{ width: 10, height: 10, borderRadius: "99px", background: col.color, display: "inline-block" }} />
-                {col.label}
-                <span className="kanban-col-count">{colAssignments.length}</span>
-              </div>
-              <div className="kanban-col-body">
-                {colAssignments.length === 0 ? (
-                  <div style={{ padding: "20px 0", textAlign: "center", color: "var(--muted)", fontSize: 12.5 }}>
-                    No tasks here
-                  </div>
-                ) : (
-                  colAssignments.map(a => {
-                    const task = getTask(a.task_id);
-                    return task ? <TaskCard key={a.id} task={task} /> : null;
-                  })
-                )}
-              </div>
-            </div>
-          );
-        })}
+      <div className="wt-card">
+        <div className="wt-card-header">
+          <h2 className="wt-card-title">Assigned Deliverables ({tasks.length} tasks)</h2>
+        </div>
+        <table className="wt-table">
+          <thead>
+            <tr>
+              <th>Task Deliverable</th>
+              <th>Scope / Type</th>
+              <th>Estimated Duration</th>
+              <th>Target Deadline</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.map(t => (
+              <tr key={t.id}>
+                <td>
+                  <strong>{t.title}</strong>
+                  <div style={{ fontSize: 11, color: "#444444" }}>{t.description}</div>
+                </td>
+                <td>{t.task_type}</td>
+                <td>{t.estimated_hours} hrs</td>
+                <td><strong>{t.deadline}</strong></td>
+                <td><StatusBadge value={t.priority} type="priority" /></td>
+                <td><StatusBadge value={t.status} /></td>
+                <td>
+                  <select
+                    className="form-control"
+                    style={{ fontSize: 12, padding: "2px 4px" }}
+                    value={t.status}
+                    onChange={(e) => handleUpdateStatus(t.id, e.target.value)}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Completed</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
