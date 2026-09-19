@@ -36,12 +36,6 @@ export default function RemoteMonitoring() {
           Active / Idle Report
         </button>
         <button
-          onClick={() => setActiveTab("summary")}
-          className={"btn " + (activeTab === "summary" ? "btn-primary" : "btn-secondary")}
-        >
-          Executive Summary
-        </button>
-        <button
           onClick={() => setActiveTab("in_office_remote")}
           className={"btn " + (activeTab === "in_office_remote" ? "btn-primary" : "btn-secondary")}
         >
@@ -169,30 +163,6 @@ export default function RemoteMonitoring() {
                   </tr>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {activeTab === "summary" && (
-        <div className="wt-card">
-          <div className="wt-card-header">
-            <h2 className="wt-card-title">Executive Summary Overview</h2>
-          </div>
-          <table className="wt-table">
-            <thead>
-              <tr>
-                <th>Performance Category</th>
-                <th>Total Hours</th>
-                <th>Average / Staff</th>
-                <th>Compliance</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Productive Engineering &amp; Design</td><td>99h 20m</td><td>06h 37m</td><td>Optimal</td></tr>
-              <tr><td>Unproductive / Neutral Time</td><td>02h 00m</td><td>00h 08m</td><td>Normal</td></tr>
-              <tr><td>Scheduled Break &amp; Idle Hours</td><td>25h 41m</td><td>01h 42m</td><td>Compliant</td></tr>
-              <tr style={{ fontWeight: "bold" }}><td>Total Workload Logged</td><td>127h 50m</td><td>08h 31m</td><td>100%</td></tr>
             </tbody>
           </table>
         </div>
