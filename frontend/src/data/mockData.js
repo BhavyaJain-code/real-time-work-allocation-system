@@ -20,18 +20,18 @@ export const SKILLS = [
 
 // Roles: admin | manager | employee
 export const USERS = [
-  { id: 1,  name: "Alex Johnson",    email: "alex@workflow.io",    role: "admin",    is_active: true,  created_at: "2025-01-10", temp_password: null,       created_by: null },
-  { id: 2,  name: "Priya Sharma",    email: "priya@workflow.io",   role: "employee", is_active: true,  created_at: "2025-01-12", temp_password: "Tmp@1234", created_by: 1 },
-  { id: 3,  name: "Marcus Lee",      email: "marcus@workflow.io",  role: "employee", is_active: true,  created_at: "2025-01-14", temp_password: "Tmp@5678", created_by: 1 },
-  { id: 4,  name: "Sara Patel",      email: "sara@workflow.io",    role: "employee", is_active: true,  created_at: "2025-01-15", temp_password: "Tmp@9012", created_by: 1 },
-  { id: 5,  name: "James Wilson",    email: "james@workflow.io",   role: "employee", is_active: false, created_at: "2025-01-18", temp_password: "Tmp@3456", created_by: 1 },
-  { id: 6,  name: "Aisha Okonkwo",  email: "aisha@workflow.io",   role: "employee", is_active: true,  created_at: "2025-02-01", temp_password: "Tmp@7890", created_by: 1 },
-  { id: 7,  name: "Chen Wei",        email: "chen@workflow.io",    role: "employee", is_active: true,  created_at: "2025-02-05", temp_password: "Tmp@2345", created_by: 1 },
-  { id: 8,  name: "Laura Müller",    email: "laura@workflow.io",   role: "admin",    is_active: true,  created_at: "2025-02-10", temp_password: null,       created_by: null },
+  { id: 1,  name: "Alex Johnson",    email: "alex@workflow.io",    password: "Password@123", role: "admin",    is_active: true,  created_at: "2025-01-10", temp_password: null,       created_by: null },
+  { id: 2,  name: "Priya Sharma",    email: "priya@workflow.io",   password: "Password@123", role: "employee", is_active: true,  created_at: "2025-01-12", temp_password: "Tmp@1234", created_by: 1 },
+  { id: 3,  name: "Marcus Lee",      email: "marcus@workflow.io",  password: "Password@123", role: "employee", is_active: true,  created_at: "2025-01-14", temp_password: "Tmp@5678", created_by: 1 },
+  { id: 4,  name: "Sara Patel",      email: "sara@workflow.io",    password: "Password@123", role: "employee", is_active: true,  created_at: "2025-01-15", temp_password: "Tmp@9012", created_by: 1 },
+  { id: 5,  name: "James Wilson",    email: "james@workflow.io",   password: "Password@123", role: "employee", is_active: false, created_at: "2025-01-18", temp_password: "Tmp@3456", created_by: 1 },
+  { id: 6,  name: "Aisha Okonkwo",  email: "aisha@workflow.io",   password: "Password@123", role: "employee", is_active: true,  created_at: "2025-02-01", temp_password: "Tmp@7890", created_by: 1 },
+  { id: 7,  name: "Chen Wei",        email: "chen@workflow.io",    password: "Password@123", role: "employee", is_active: true,  created_at: "2025-02-05", temp_password: "Tmp@2345", created_by: 1 },
+  { id: 8,  name: "Laura Müller",    email: "laura@workflow.io",   password: "Password@123", role: "admin",    is_active: true,  created_at: "2025-02-10", temp_password: null,       created_by: null },
   // Managers (created by admin)
-  { id: 9,  name: "Ravi Kapoor",     email: "ravi@workflow.io",    role: "manager",  is_active: true,  created_at: "2025-03-01", temp_password: "Mgr@1234", created_by: 1 },
-  { id: 10, name: "Nina Torres",     email: "nina@workflow.io",    role: "manager",  is_active: true,  created_at: "2025-03-05", temp_password: "Mgr@5678", created_by: 1 },
-  { id: 11, name: "Sam Osei",        email: "sam@workflow.io",     role: "manager",  is_active: true,  created_at: "2025-03-10", temp_password: "Mgr@9012", created_by: 1 },
+  { id: 9,  name: "Ravi Kapoor",     email: "ravi@workflow.io",    password: "Password@123", role: "manager",  is_active: true,  created_at: "2025-03-01", temp_password: "Mgr@1234", created_by: 1 },
+  { id: 10, name: "Nina Torres",     email: "nina@workflow.io",    password: "Password@123", role: "manager",  is_active: true,  created_at: "2025-03-05", temp_password: "Mgr@5678", created_by: 1 },
+  { id: 11, name: "Sam Osei",        email: "sam@workflow.io",     password: "Password@123", role: "manager",  is_active: true,  created_at: "2025-03-10", temp_password: "Mgr@9012", created_by: 1 },
 ];
 
 // Maps department → manager user_id
@@ -333,3 +333,49 @@ export const TASK_TYPE_BADGE = {
   quarterly: "badge-wine",   // Berry Wine #76283d
   yearly:    "badge-green",
 };
+
+// Password Security Validation Helper
+export function validatePasswordSecurity(password) {
+  const p = password || "";
+  const minLength = p.length >= 8;
+  const hasUpper = /[A-Z]/.test(p);
+  const hasLower = /[a-z]/.test(p);
+  const hasNumber = /[0-9]/.test(p);
+  const hasSpecial = /[^A-Za-z0-9]/.test(p);
+
+  const isStrong = minLength && hasUpper && hasLower && hasNumber && hasSpecial;
+  
+  let score = 0;
+  if (p.length >= 6) score++;
+  if (minLength) score++;
+  if (hasUpper && hasLower) score++;
+  if (hasNumber) score++;
+  if (hasSpecial) score++;
+
+  let strength = "Weak";
+  if (score >= 5) strength = "Strong";
+  else if (score >= 3) strength = "Moderate";
+
+  return {
+    isStrong,
+    strength,
+    score,
+    checks: {
+      minLength,
+      hasUpper,
+      hasLower,
+      hasNumber,
+      hasSpecial
+    }
+  };
+}
+
+export function updateUserPassword(userId, newPassword) {
+  const u = USERS.find(user => user.id === userId);
+  if (u) {
+    u.password = newPassword;
+    u.temp_password = null;
+    return true;
+  }
+  return false;
+}

@@ -238,8 +238,6 @@ export default function ProgressReport() {
       ? EMPLOYEES.filter(e => e.user_id === user?.id)
       : EMPLOYEES;
 
-  // Admin can choose report type: "employee" vs "manager"
-  // Manager is RESTRICTED to "employee" only
   const [personnelType, setPersonnelType] = useState(isAdmin ? "employee" : "employee");
   const [selectedEmpId, setSelectedEmpId] = useState(employeeList[0]?.id || 1);
   const [selectedMgrId, setSelectedMgrId] = useState(managerUsers[0]?.id || 9);
@@ -262,7 +260,6 @@ export default function ProgressReport() {
       {/* Controls Bar */}
       <div className="no-print" style={{ border: "1px solid var(--border)", padding: "12px 16px", marginBottom: 16, backgroundColor: "#ffffff", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          {/* Admin Type Switcher: Employee vs Manager */}
           {isAdmin && (
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <label style={{ fontWeight: "bold", fontSize: 13 }}>Report Type:</label>
@@ -278,14 +275,12 @@ export default function ProgressReport() {
             </div>
           )}
 
-          {/* Manager notice: Employee only */}
           {isManager && (
             <div style={{ fontSize: 13, color: "var(--footer)" }}>
               Scope: <strong>Department Employee Reports Only</strong>
             </div>
           )}
 
-          {/* Personnel Selector */}
           {personnelType === "employee" && !isEmployee && (
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <label style={{ fontWeight: "bold", fontSize: 13 }}>Select Employee:</label>
@@ -334,42 +329,44 @@ export default function ProgressReport() {
         </div>
 
         <button className="btn btn-primary" onClick={handlePrint}>
-          Print / Save as PDF
+          Print / Save as PDF (A4)
         </button>
       </div>
 
       {/* ───────────────────────────────────────────────────────── */}
-      {/* 1. EMPLOYEE PROGRESS REPORT DOCUMENT */}
+      {/* 1. EMPLOYEE PROGRESS REPORT DOCUMENT (A4 SAGE GREEN) */}
       {/* ───────────────────────────────────────────────────────── */}
       {personnelType === "employee" && (
         <div 
           className="employee-report-sheet"
           style={{
-            maxWidth: 800,
+            maxWidth: 820,
             margin: "0 auto",
             padding: "24px 30px",
-            border: "2px solid #000000",
+            border: "2px solid var(--header)",
             backgroundColor: "#ffffff",
-            color: "#000000"
+            color: "var(--text)"
           }}
         >
-          {/* Title Header */}
+          {/* Title Header Banner */}
           <div 
             style={{
-              border: "2px solid #000000",
+              border: "2px solid var(--header)",
+              backgroundColor: "var(--body)",
               textAlign: "center",
-              padding: "8px 12px",
+              padding: "10px 14px",
               fontWeight: "bold",
               fontSize: 18,
               textTransform: "uppercase",
-              marginBottom: 14
+              marginBottom: 14,
+              color: "var(--text)"
             }}
           >
             Employee Performance &amp; Progress Report
           </div>
 
           {/* Subtitle */}
-          <div style={{ textAlign: "center", fontSize: 13, fontWeight: "bold", marginBottom: 14 }}>
+          <div style={{ textAlign: "center", fontSize: 13, fontWeight: "bold", marginBottom: 14, color: "var(--footer)" }}>
             Report Period : {reportPeriod}
           </div>
 
@@ -377,51 +374,51 @@ export default function ProgressReport() {
           <table className="wt-table" style={{ marginBottom: 12 }}>
             <tbody>
               <tr>
-                <td style={{ width: "20%", fontWeight: "bold" }}>Employee Name:</td>
+                <td style={{ width: "20%", fontWeight: "bold", backgroundColor: "var(--body)" }}>Employee Name:</td>
                 <td style={{ width: "30%" }}>{empUser?.name}</td>
-                <td style={{ width: "20%", fontWeight: "bold" }}>Employee ID:</td>
+                <td style={{ width: "20%", fontWeight: "bold", backgroundColor: "var(--body)" }}>Employee ID:</td>
                 <td style={{ width: "30%" }}>{empRepData.empIdCode}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold" }}>Department:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Department:</td>
                 <td>{selectedEmp?.department}</td>
-                <td style={{ fontWeight: "bold" }}>Designation:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Designation:</td>
                 <td>{selectedEmp?.position}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold" }}>Shift Schedule:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Shift Schedule:</td>
                 <td>{empRepData.shift}</td>
-                <td style={{ fontWeight: "bold" }}>Supervisor:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Supervisor:</td>
                 <td>{empRepData.supervisor}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold" }}>Date of Review:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Date of Review:</td>
                 <td>{reportDate}</td>
-                <td style={{ fontWeight: "bold" }}>Location:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Location:</td>
                 <td>{empRepData.location}</td>
               </tr>
             </tbody>
           </table>
 
           {/* Legend */}
-          <div style={{ fontSize: 11, fontStyle: "italic", marginBottom: 6 }}>
-            (Grading System: A = Excellent, B = Good, C = Average, D = Needs Improvement)
+          <div style={{ fontSize: 11, fontStyle: "italic", marginBottom: 6, color: "var(--footer)" }}>
+            (Grading Standard: A = Excellent, B = Good, C = Average, D = Needs Improvement)
           </div>
 
           {/* Competencies Table */}
           <table className="wt-table" style={{ marginBottom: 14 }}>
             <thead>
               <tr>
-                <th style={{ width: "35%" }}>Competency Area</th>
-                <th style={{ width: "15%", textAlign: "center" }}>Grade</th>
-                <th style={{ width: "50%" }}>Pending Tasks / Observations</th>
+                <th style={{ width: "35%", backgroundColor: "var(--body)", color: "var(--text)" }}>Competency Area</th>
+                <th style={{ width: "15%", textAlign: "center", backgroundColor: "var(--body)", color: "var(--text)" }}>Grade</th>
+                <th style={{ width: "50%", backgroundColor: "var(--body)", color: "var(--text)" }}>Pending Tasks / Observations</th>
               </tr>
             </thead>
             <tbody>
               {empRepData.competencies.map((comp, idx) => (
                 <tr key={idx}>
-                  <td>{comp.area}</td>
-                  <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.grade}</td>
+                  <td><strong>{comp.area}</strong></td>
+                  <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--header)" }}>{comp.grade}</td>
                   <td>{comp.pending}</td>
                 </tr>
               ))}
@@ -430,8 +427,8 @@ export default function ProgressReport() {
 
           {/* Comments and Rating */}
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14, marginBottom: 14 }}>
-            <div style={{ border: "1px solid #000000", padding: "10px" }}>
-              <div style={{ fontWeight: "bold", borderBottom: "1px solid #000000", paddingBottom: 4, marginBottom: 6 }}>
+            <div style={{ border: "1px solid var(--border)", padding: "12px", backgroundColor: "#ffffff" }}>
+              <div style={{ fontWeight: "bold", borderBottom: "1px solid var(--border)", paddingBottom: 4, marginBottom: 6, color: "var(--footer)" }}>
                 Comments &amp; Observations
               </div>
               <ul style={{ paddingLeft: 18, fontSize: 13, lineHeight: 1.5, marginBottom: 10 }}>
@@ -440,48 +437,48 @@ export default function ProgressReport() {
                 ))}
               </ul>
 
-              <div style={{ fontWeight: "bold", borderBottom: "1px solid #000000", paddingBottom: 4, marginBottom: 6 }}>
+              <div style={{ fontWeight: "bold", borderBottom: "1px solid var(--border)", paddingBottom: 4, marginBottom: 6, color: "var(--footer)" }}>
                 Compliance &amp; Attendance
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-                <div>- Attendance Record: {empRepData.attendanceRecord}</div>
-                <div>- Protocol Compliance: {empRepData.protocolUsage}</div>
-                <div>- Safety / Violations: {empRepData.violations}</div>
+                <div>- Attendance Record: <strong>{empRepData.attendanceRecord}</strong></div>
+                <div>- Protocol Compliance: <strong>{empRepData.protocolUsage}</strong></div>
+                <div>- Safety / Violations: <strong>{empRepData.violations}</strong></div>
               </div>
             </div>
 
-            <div style={{ border: "1px solid #000000", padding: "14px", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div style={{ fontSize: 12, fontWeight: "bold", textTransform: "uppercase", marginBottom: 6 }}>
+            <div style={{ border: "2px solid var(--header)", backgroundColor: "var(--body)", padding: "14px", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <div style={{ fontSize: 12, fontWeight: "bold", textTransform: "uppercase", marginBottom: 6, color: "var(--footer)" }}>
                 Overall Performance Rating
               </div>
-              <div style={{ fontSize: 18, fontWeight: "bold", padding: "8px 4px", border: "2px solid #000000" }}>
+              <div style={{ fontSize: 18, fontWeight: "bold", padding: "10px 6px", border: "2px solid var(--header)", backgroundColor: "#ffffff", color: "var(--footer)" }}>
                 {empRepData.overallRating}
               </div>
             </div>
           </div>
 
-          {/* Disclaimer */}
-          <div style={{ fontSize: 11, fontStyle: "italic", borderBottom: "1px solid #000000", paddingBottom: 6, marginBottom: 14 }}>
-            Confidentiality Statement: &quot;This document is confidential and intended solely for internal organizational performance evaluation.&quot;
+          {/* Confidentiality Statement */}
+          <div style={{ fontSize: 11, fontStyle: "italic", borderBottom: "1px solid var(--border)", paddingBottom: 6, marginBottom: 14, color: "var(--footer)" }}>
+            Confidentiality Statement: &quot;This appraisal document is confidential and intended solely for enterprise performance evaluation.&quot;
           </div>
 
           {/* Signatures */}
           <div>
-            <div style={{ fontWeight: "bold", fontSize: 13, marginBottom: 10 }}>Signatures &amp; Approvals</div>
+            <div style={{ fontWeight: "bold", fontSize: 13, marginBottom: 10, color: "var(--text)" }}>Signatures &amp; Approvals</div>
             <table className="wt-table" style={{ border: "none" }}>
               <tbody>
                 <tr>
                   <td style={{ border: "none", width: "33%" }}>
                     <div>Employee Signature:</div>
-                    <div style={{ marginTop: 24, borderBottom: "1px solid #000000", width: "90%" }}></div>
+                    <div style={{ marginTop: 24, borderBottom: "1px solid var(--header)", width: "90%" }}></div>
                   </td>
                   <td style={{ border: "none", width: "33%" }}>
                     <div>Supervisor Signature:</div>
-                    <div style={{ marginTop: 24, borderBottom: "1px solid #000000", width: "90%" }}></div>
+                    <div style={{ marginTop: 24, borderBottom: "1px solid var(--header)", width: "90%" }}></div>
                   </td>
                   <td style={{ border: "none", width: "33%" }}>
-                    <div>Manager / HR Signature:</div>
-                    <div style={{ marginTop: 24, borderBottom: "1px solid #000000", width: "90%" }}></div>
+                    <div>Department / HR Director:</div>
+                    <div style={{ marginTop: 24, borderBottom: "1px solid var(--header)", width: "90%" }}></div>
                   </td>
                 </tr>
               </tbody>
@@ -497,31 +494,33 @@ export default function ProgressReport() {
         <div 
           className="manager-report-sheet"
           style={{
-            maxWidth: 800,
+            maxWidth: 820,
             margin: "0 auto",
             padding: "24px 30px",
-            border: "2px solid #000000",
+            border: "2px solid var(--header)",
             backgroundColor: "#ffffff",
-            color: "#000000"
+            color: "var(--text)"
           }}
         >
-          {/* Title Header */}
+          {/* Title Header Banner */}
           <div 
             style={{
-              border: "2px solid #000000",
+              border: "2px solid var(--header)",
+              backgroundColor: "var(--body)",
               textAlign: "center",
-              padding: "8px 12px",
+              padding: "10px 14px",
               fontWeight: "bold",
               fontSize: 18,
               textTransform: "uppercase",
-              marginBottom: 14
+              marginBottom: 14,
+              color: "var(--text)"
             }}
           >
             Manager Leadership &amp; Performance Appraisal Report
           </div>
 
           {/* Subtitle */}
-          <div style={{ textAlign: "center", fontSize: 13, fontWeight: "bold", marginBottom: 14 }}>
+          <div style={{ textAlign: "center", fontSize: 13, fontWeight: "bold", marginBottom: 14, color: "var(--footer)" }}>
             Report Period : {reportPeriod} | Evaluated by Executive Administration
           </div>
 
@@ -529,51 +528,51 @@ export default function ProgressReport() {
           <table className="wt-table" style={{ marginBottom: 12 }}>
             <tbody>
               <tr>
-                <td style={{ width: "20%", fontWeight: "bold" }}>Manager Name:</td>
+                <td style={{ width: "20%", fontWeight: "bold", backgroundColor: "var(--body)" }}>Manager Name:</td>
                 <td style={{ width: "30%" }}>{mgrRepData.name}</td>
-                <td style={{ width: "20%", fontWeight: "bold" }}>Manager ID:</td>
+                <td style={{ width: "20%", fontWeight: "bold", backgroundColor: "var(--body)" }}>Manager ID:</td>
                 <td style={{ width: "30%" }}>{mgrRepData.managerIdCode}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold" }}>Department:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Department:</td>
                 <td>{mgrRepData.department}</td>
-                <td style={{ fontWeight: "bold" }}>Role:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Role:</td>
                 <td>{mgrRepData.position}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold" }}>Supervising Team:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Supervising Team:</td>
                 <td>{mgrRepData.teamSize}</td>
-                <td style={{ fontWeight: "bold" }}>Executive Supervisor:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Executive Supervisor:</td>
                 <td>{mgrRepData.supervisor}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: "bold" }}>Date of Review:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Date of Review:</td>
                 <td>{reportDate}</td>
-                <td style={{ fontWeight: "bold" }}>Operational Center:</td>
+                <td style={{ fontWeight: "bold", backgroundColor: "var(--body)" }}>Operational Center:</td>
                 <td>{mgrRepData.location}</td>
               </tr>
             </tbody>
           </table>
 
           {/* Legend */}
-          <div style={{ fontSize: 11, fontStyle: "italic", marginBottom: 6 }}>
-            (Leadership Grading System: A+ = Outstanding, A = Excellent, B = Satisfactory, C = Needs Alignment)
+          <div style={{ fontSize: 11, fontStyle: "italic", marginBottom: 6, color: "var(--footer)" }}>
+            (Leadership Grading Standard: A+ = Outstanding, A = Excellent, B = Satisfactory, C = Needs Alignment)
           </div>
 
           {/* Competencies Table */}
           <table className="wt-table" style={{ marginBottom: 14 }}>
             <thead>
               <tr>
-                <th style={{ width: "40%" }}>Leadership &amp; Management Competency</th>
-                <th style={{ width: "15%", textAlign: "center" }}>Grade</th>
-                <th style={{ width: "45%" }}>Directives &amp; Action Items</th>
+                <th style={{ width: "40%", backgroundColor: "var(--body)", color: "var(--text)" }}>Leadership &amp; Management Competency</th>
+                <th style={{ width: "15%", textAlign: "center", backgroundColor: "var(--body)", color: "var(--text)" }}>Grade</th>
+                <th style={{ width: "45%", backgroundColor: "var(--body)", color: "var(--text)" }}>Directives &amp; Action Items</th>
               </tr>
             </thead>
             <tbody>
               {mgrRepData.competencies.map((comp, idx) => (
                 <tr key={idx}>
-                  <td>{comp.area}</td>
-                  <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.grade}</td>
+                  <td><strong>{comp.area}</strong></td>
+                  <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--header)" }}>{comp.grade}</td>
                   <td>{comp.pending}</td>
                 </tr>
               ))}
@@ -582,8 +581,8 @@ export default function ProgressReport() {
 
           {/* Comments and Rating */}
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 14, marginBottom: 14 }}>
-            <div style={{ border: "1px solid #000000", padding: "10px" }}>
-              <div style={{ fontWeight: "bold", borderBottom: "1px solid #000000", paddingBottom: 4, marginBottom: 6 }}>
+            <div style={{ border: "1px solid var(--border)", padding: "12px", backgroundColor: "#ffffff" }}>
+              <div style={{ fontWeight: "bold", borderBottom: "1px solid var(--border)", paddingBottom: 4, marginBottom: 6, color: "var(--footer)" }}>
                 Executive Leadership Observations
               </div>
               <ul style={{ paddingLeft: 18, fontSize: 13, lineHeight: 1.5, marginBottom: 10 }}>
@@ -592,48 +591,48 @@ export default function ProgressReport() {
                 ))}
               </ul>
 
-              <div style={{ fontWeight: "bold", borderBottom: "1px solid #000000", paddingBottom: 4, marginBottom: 6 }}>
+              <div style={{ fontWeight: "bold", borderBottom: "1px solid var(--border)", paddingBottom: 4, marginBottom: 6, color: "var(--footer)" }}>
                 Department Governance &amp; Compliance
               </div>
               <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-                <div>- Meeting &amp; Standup Record: {mgrRepData.attendanceRecord}</div>
-                <div>- Governance Compliance: {mgrRepData.protocolUsage}</div>
-                <div>- Operational Discrepancies: {mgrRepData.violations}</div>
+                <div>- Meeting &amp; Standup Record: <strong>{mgrRepData.attendanceRecord}</strong></div>
+                <div>- Governance Compliance: <strong>{mgrRepData.protocolUsage}</strong></div>
+                <div>- Operational Discrepancies: <strong>{mgrRepData.violations}</strong></div>
               </div>
             </div>
 
-            <div style={{ border: "1px solid #000000", padding: "14px", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div style={{ fontSize: 12, fontWeight: "bold", textTransform: "uppercase", marginBottom: 6 }}>
+            <div style={{ border: "2px solid var(--header)", backgroundColor: "var(--body)", padding: "14px", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <div style={{ fontSize: 12, fontWeight: "bold", textTransform: "uppercase", marginBottom: 6, color: "var(--footer)" }}>
                 Executive Leadership Rating
               </div>
-              <div style={{ fontSize: 17, fontWeight: "bold", padding: "8px 4px", border: "2px solid #000000" }}>
+              <div style={{ fontSize: 17, fontWeight: "bold", padding: "10px 6px", border: "2px solid var(--header)", backgroundColor: "#ffffff", color: "var(--footer)" }}>
                 {mgrRepData.overallRating}
               </div>
             </div>
           </div>
 
-          {/* Disclaimer */}
-          <div style={{ fontSize: 11, fontStyle: "italic", borderBottom: "1px solid #000000", paddingBottom: 6, marginBottom: 14 }}>
+          {/* Confidentiality Statement */}
+          <div style={{ fontSize: 11, fontStyle: "italic", borderBottom: "1px solid var(--border)", paddingBottom: 6, marginBottom: 14, color: "var(--footer)" }}>
             Confidentiality Statement: &quot;This leadership appraisal is confidential and intended solely for executive performance reviews.&quot;
           </div>
 
           {/* Signatures */}
           <div>
-            <div style={{ fontWeight: "bold", fontSize: 13, marginBottom: 10 }}>Signatures &amp; Executive Approval</div>
+            <div style={{ fontWeight: "bold", fontSize: 13, marginBottom: 10, color: "var(--text)" }}>Signatures &amp; Executive Approval</div>
             <table className="wt-table" style={{ border: "none" }}>
               <tbody>
                 <tr>
                   <td style={{ border: "none", width: "33%" }}>
                     <div>Department Manager Signature:</div>
-                    <div style={{ marginTop: 24, borderBottom: "1px solid #000000", width: "90%" }}></div>
+                    <div style={{ marginTop: 24, borderBottom: "1px solid var(--header)", width: "90%" }}></div>
                   </td>
                   <td style={{ border: "none", width: "33%" }}>
                     <div>Lead Executive Administrator:</div>
-                    <div style={{ marginTop: 24, borderBottom: "1px solid #000000", width: "90%" }}></div>
+                    <div style={{ marginTop: 24, borderBottom: "1px solid var(--header)", width: "90%" }}></div>
                   </td>
                   <td style={{ border: "none", width: "33%" }}>
                     <div>HR Board Director:</div>
-                    <div style={{ marginTop: 24, borderBottom: "1px solid #000000", width: "90%" }}></div>
+                    <div style={{ marginTop: 24, borderBottom: "1px solid var(--header)", width: "90%" }}></div>
                   </td>
                 </tr>
               </tbody>

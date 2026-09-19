@@ -8,15 +8,28 @@ export function AuthProvider({ children }) {
   const [employee, setEmployee] = useState(null);
 
   function login(email, password, role) {
-    let found = USERS.find(u => u.email === email && u.is_active);
+    if (!email || !password) return { success: false, error: "Email and password are required." };
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const found = USERS.find(u => u.email.toLowerCase() === normalizedEmail && u.is_active);
+    
     if (!found) {
-      found = USERS.find(u => u.role === (role || "employee") && u.is_active);
+      return { success: false, error: "Invalid login ID. No active account found with this email." };
     }
-    if (!found) return false;
+
+    if (role && found.role !== role) {
+      return { success: false, error: `Account exists, but not with the selected role (${role}).` };
+    }
+
+    const isPasswordCorrect = found.password === password || (found.temp_password && found.temp_password === password);
+    if (!isPasswordCorrect) {
+      return { success: false, error: "Invalid password. Please check your credentials and try again." };
+    }
+
     const emp = EMPLOYEES.find(e => e.user_id === found.id) || null;
     setUser(found);
     setEmployee(emp);
-    return found;
+    return { success: true, user: found };
   }
 
   function logout() { setUser(null); setEmployee(null); }
