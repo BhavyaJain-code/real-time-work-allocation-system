@@ -1,35 +1,17 @@
 /* =========================================================
-   CUSTOM PALETTE THEME
-   Palette:
-     - #F7F4F1: Surface & Card Background (Alabaster Cream)
-     - #F6EBE7: App Page Background (Soft Blush Beige)
-     - #ECD9D2: Sidebar / Topbar / Table Headers (Muted Rose Beige)
-     - #E0C5BB: Borders & Dividers (Dusty Rose Tan)
-     - #D29A89: Primary Buttons / Active Accents (Terracotta Rose)
-   Typography:
-     - Fonts: Times New Roman ('Times New Roman', Times, serif)
-     - Font Color: Deep Brown (#3E2319 / #5C3A2D)
+   SAGE GREEN PALETTE THEME
+   Typography: Times New Roman
    ========================================================= */
 
 :root {
-  --palette-1: #F7F4F1;
-  --palette-2: #F6EBE7;
-  --palette-3: #ECD9D2;
-  --palette-4: #E0C5BB;
-  --palette-5: #D29A89;
-  
-  --bg-page: #F6EBE7;
-  --bg-surface: #F7F4F1;
-  --bg-surface-tint: #ECD9D2;
-  --bg-surface-hover: #E8D3CB;
-  --text-main: #3E2319;
-  --text-muted: #6E4D40;
-  --border-dark: #A87667;
-  --border-light: #E0C5BB;
-  --border-subtle: #E8D4CC;
-  --primary-btn: #D29A89;
-  --primary-hover: #BF8573;
-  --secondary-bg: #ECD9D2;
+  --header: #6b8e6b;
+  --navigation: #85a885;
+  --background: #f3f7f3;
+  --body: #e3ebe3;
+  --footer: #557555;
+  --text: #2f3f2f;
+  --accent: #9ec29e;
+  --border: #c1d9c1;
 }
 
 * {
@@ -41,20 +23,20 @@
 
 body {
   font-family: 'Times New Roman', Times, serif !important;
-  background-color: var(--bg-page);
-  color: var(--text-main);
+  background-color: var(--background);
+  color: var(--text);
   line-height: 1.4;
   font-size: 14px;
 }
 
 a {
-  color: var(--text-main);
+  color: var(--text);
   text-decoration: underline;
 }
 
 a:hover {
   text-decoration: underline;
-  background-color: var(--bg-surface-tint);
+  background-color: var(--body);
 }
 
 /* =========================================================
@@ -63,31 +45,31 @@ a:hover {
 .wt-app-shell {
   display: flex;
   min-height: 100vh;
-  background-color: var(--bg-page);
-  border: 1px solid var(--border-dark);
+  background-color: var(--background);
+  border: 1px solid var(--border);
 }
 
 /* Sidebar */
 .wt-sidebar {
   width: 220px;
   min-width: 220px;
-  background-color: var(--bg-surface-tint);
-  color: var(--text-main);
+  background-color: var(--body);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   user-select: none;
-  border-right: 2px solid var(--border-dark);
+  border-right: 2px solid var(--border);
 }
 
 .wt-logo-box {
-  background-color: #E2C9C0;
+  background-color: var(--navigation);
   padding: 14px 16px;
-  border-bottom: 2px solid var(--border-dark);
+  border-bottom: 2px solid var(--border);
   cursor: pointer;
 }
 
 .wt-logo-text {
-  color: var(--text-main);
+  color: #ffffff;
   font-size: 16px;
   font-weight: bold;
   letter-spacing: 0.5px;
@@ -111,49 +93,49 @@ a:hover {
   padding: 8px 16px;
   font-size: 14px;
   font-weight: normal;
-  color: var(--text-main);
+  color: var(--text);
   cursor: pointer;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border);
 }
 
 .wt-menu-header:hover {
-  background-color: #DFCCC3;
+  background-color: var(--accent);
 }
 
 .wt-menu-header.active {
-  background-color: var(--primary-btn);
-  color: #3E2319 !important;
+  background-color: var(--header);
+  color: #ffffff !important;
   font-weight: bold;
-  border-left: 4px solid #3E2319;
+  border-left: 4px solid var(--footer);
 }
 
 .wt-menu-header.active * {
-  color: #3E2319 !important;
+  color: #ffffff !important;
 }
 
 .wt-submenu {
-  background-color: #F1E2DC;
-  border-bottom: 1px solid var(--border-dark);
+  background-color: #d6e2d6;
+  border-bottom: 1px solid var(--border);
 }
 
 .wt-submenu-item {
   display: block;
   padding: 6px 16px 6px 28px;
   font-size: 13px;
-  color: var(--text-main);
+  color: var(--text);
   text-decoration: none;
   cursor: pointer;
-  border-bottom: 1px dotted var(--border-light);
+  border-bottom: 1px dotted var(--border);
 }
 
 .wt-submenu-item:hover {
-  background-color: #E2C9C0;
+  background-color: var(--accent);
   text-decoration: underline;
 }
 
 .wt-submenu-item.active {
-  background-color: var(--primary-btn);
-  color: #3E2319 !important;
+  background-color: var(--header);
+  color: #ffffff !important;
   font-weight: bold;
   text-decoration: none;
 }
@@ -164,12 +146,12 @@ a:hover {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background-color: var(--bg-page);
+  background-color: var(--background);
 }
 
 .wt-topbar {
-  background-color: var(--bg-surface-tint);
-  border-bottom: 2px solid var(--border-dark);
+  background-color: var(--body);
+  border-bottom: 2px solid var(--border);
   padding: 10px 20px;
   display: flex;
   align-items: center;
@@ -186,24 +168,24 @@ a:hover {
 .wt-page-title {
   font-size: 18px;
   font-weight: bold;
-  color: var(--text-main);
+  color: var(--text);
   margin: 0;
 }
 
 .wt-breadcrumb {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--footer);
 }
 
 .wt-breadcrumb a {
-  color: var(--text-main);
+  color: var(--text);
   font-weight: bold;
 }
 
 .wt-content-area {
   flex: 1;
   padding: 16px 20px 40px;
-  background-color: var(--bg-page);
+  background-color: var(--background);
   overflow-y: auto;
 }
 
@@ -225,8 +207,8 @@ a:hover {
 }
 
 .wt-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-dark);
+  background: #ffffff;
+  border: 1px solid var(--border);
   padding: 14px 16px;
   position: relative;
   display: flex;
@@ -238,20 +220,20 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-dark);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 6px;
 }
 
 .wt-card-title {
   font-size: 15px;
   font-weight: bold;
-  color: var(--text-main);
+  color: var(--text);
   margin: 0;
 }
 
 .wt-card-subtitle {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--footer);
   margin-top: 2px;
 }
 
@@ -260,7 +242,7 @@ a:hover {
   padding-top: 8px;
   text-align: right;
   font-size: 12px;
-  color: var(--text-main);
+  color: var(--text);
   font-weight: bold;
 }
 
@@ -269,13 +251,13 @@ a:hover {
    ========================================================= */
 .wt-count-callout {
   font-size: 13px;
-  color: var(--text-main);
+  color: var(--text);
   margin-bottom: 8px;
 }
 
 .wt-count-callout strong {
   font-size: 15px;
-  color: var(--text-main);
+  color: var(--text);
 }
 
 /* =========================================================
@@ -286,43 +268,43 @@ a:hover {
   border-collapse: collapse;
   font-size: 13px;
   text-align: left;
-  border: 1px solid var(--border-dark);
-  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  background-color: #ffffff;
 }
 
 .wt-table th, table th {
-  background-color: var(--bg-surface-tint);
-  color: var(--text-main);
+  background-color: var(--body);
+  color: var(--text);
   font-weight: bold;
   padding: 6px 8px;
-  border: 1px solid var(--border-dark);
+  border: 1px solid var(--border);
   font-size: 13px;
 }
 
 .wt-table td, table td {
   padding: 6px 8px;
-  border: 1px solid var(--border-light);
-  color: var(--text-main);
-  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  background-color: #ffffff;
 }
 
 .wt-table tr:hover, table tr:hover {
-  background-color: #F1E5E0 !important;
+  background-color: var(--background) !important;
 }
 
 .wt-table tr:hover td, table tr:hover td {
-  background-color: #F1E5E0 !important;
+  background-color: var(--background) !important;
 }
 
 .wt-table-link {
-  color: var(--text-main);
+  color: var(--text);
   font-weight: bold;
   text-decoration: underline;
   cursor: pointer;
 }
 
 .wt-table-link:hover {
-  color: #8C5343;
+  color: var(--footer);
 }
 
 /* =========================================================
@@ -337,37 +319,37 @@ a:hover {
   font-weight: bold;
   padding: 4px 10px;
   border-radius: 0;
-  border: 1px solid var(--border-dark);
+  border: 1px solid var(--border);
   cursor: pointer;
-  background-color: var(--secondary-bg);
-  color: var(--text-main);
+  background-color: var(--body);
+  color: var(--text);
 }
 
 .btn:hover, button:hover {
-  background-color: var(--primary-btn);
-  color: var(--text-main) !important;
+  background-color: var(--navigation);
+  color: #ffffff !important;
 }
 
 .btn-primary {
-  background-color: var(--primary-btn);
-  color: var(--text-main) !important;
-  border: 1px solid var(--border-dark);
+  background-color: var(--header);
+  color: #ffffff !important;
+  border: 1px solid var(--footer);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover);
-  color: var(--text-main) !important;
+  background-color: var(--footer);
+  color: #ffffff !important;
 }
 
 .btn-secondary {
-  background-color: var(--secondary-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border-dark);
+  background-color: var(--body);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-  background-color: var(--primary-btn);
-  color: var(--text-main) !important;
+  background-color: var(--navigation);
+  color: #ffffff !important;
 }
 
 .btn-sm {
@@ -395,16 +377,16 @@ a:hover {
   font-family: 'Times New Roman', Times, serif !important;
   font-size: 13px;
   padding: 4px 6px;
-  border: 1px solid var(--border-dark);
+  border: 1px solid var(--border);
   border-radius: 0;
-  background: var(--bg-surface);
-  color: var(--text-main);
+  background: #ffffff;
+  color: var(--text);
   outline: none;
 }
 
 .form-control:focus, input:focus, select:focus, textarea:focus {
-  border: 2px solid var(--border-dark);
-  background-color: #FFFFFF;
+  border: 2px solid var(--header);
+  background-color: #ffffff;
 }
 
 /* =========================================================
@@ -416,7 +398,7 @@ a:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(62, 35, 25, 0.45);
+  background-color: rgba(47, 63, 47, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -425,18 +407,18 @@ a:hover {
 }
 
 .modal-box {
-  background: var(--bg-surface);
-  border: 2px solid var(--border-dark);
-  color: var(--text-main);
+  background: #ffffff;
+  border: 2px solid var(--border);
+  color: var(--text);
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(62, 35, 25, 0.2);
+  box-shadow: 0 4px 20px rgba(47, 63, 47, 0.2);
 }
 
 .modal-header {
-  background-color: var(--bg-surface-tint);
-  border-bottom: 2px solid var(--border-dark);
+  background-color: var(--body);
+  border-bottom: 2px solid var(--border);
   padding: 10px 14px;
   display: flex;
   justify-content: space-between;
@@ -448,8 +430,8 @@ a:hover {
 }
 
 .modal-footer {
-  background-color: #F1E2DC;
-  border-top: 1px solid var(--border-dark);
+  background-color: var(--background);
+  border-top: 1px solid var(--border);
   padding: 10px 14px;
   display: flex;
   justify-content: flex-end;
@@ -460,9 +442,9 @@ a:hover {
    PROGRESS REPORT
    ========================================================= */
 .employee-report-sheet {
-  background: var(--bg-surface) !important;
-  color: var(--text-main) !important;
-  border: 2px solid var(--border-dark) !important;
+  background: #ffffff !important;
+  color: var(--text) !important;
+  border: 2px solid var(--border) !important;
   box-shadow: none !important;
   font-family: 'Times New Roman', Times, serif !important;
 }
