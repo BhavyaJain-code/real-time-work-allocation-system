@@ -88,8 +88,9 @@ function App() {
             <Route path="/employee/tasks"         element={<MyTasks />} />
             <Route path="/employee/availability"  element={<Availability />} />
             <Route path="/employee/notifications" element={<Notifications />} />
-            <Route path="/employee/progress"      element={<ProgressReport />} />
-            <Route path="/employee/feedback"      element={<Feedback />} />
+            <Route path="/employee/progress"          element={<ProgressReport />} />
+            <Route path="/employee/feedback"          element={<Feedback />} />
+            <Route path="/employee/help-suggestions" element={<Feedback />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

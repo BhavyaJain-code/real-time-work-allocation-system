@@ -39,7 +39,7 @@ export default function Layout() {
   const analyticsRoute = isAdmin ? "/admin/analytics" : isMgr ? "/manager/analytics" : "/employee/dashboard";
   const skillsRoute = isAdmin ? "/admin/skills" : isMgr ? "/manager/skills" : "/profile";
   const logRoute = isAdmin ? "/admin/log" : isMgr ? "/manager/log" : "/employee/notifications";
-  const feedbackRoute = isAdmin ? "/admin/feedback" : isMgr ? "/manager/feedback" : "/employee/feedback";
+  const feedbackRoute = isAdmin ? "/admin/feedback" : isMgr ? "/manager/feedback" : "/employee/help-suggestions";
 
   // Determine current active page label for breadcrumb
   let pageTitle = "Dashboard";
@@ -66,9 +66,9 @@ export default function Layout() {
   } else if (location.pathname.includes("/progress")) {
     pageTitle = "Performance Progress Report";
     breadcrumbText = "Appraisal Document";
-  } else if (location.pathname.includes("/feedback")) {
-    pageTitle = "Performance Feedback";
-    breadcrumbText = "Evaluation & Appraisal Notes";
+  } else if (location.pathname.includes("/feedback") || location.pathname.includes("/help-suggestions")) {
+    pageTitle = isEmp ? "Help & Suggestion Box" : "Performance Feedback";
+    breadcrumbText = isEmp ? "Submit Queries, Blockers & Suggestions" : "Evaluation & Appraisal Notes";
   } else if (location.pathname.includes("/profile")) {
     pageTitle = "User Profile";
     breadcrumbText = "Account Settings";
@@ -120,13 +120,13 @@ export default function Layout() {
             </NavLink>
           </div>
 
-          {/* Feedback */}
+          {/* Feedback for Admin & Manager / Help Box for Employee */}
           <div className="wt-menu-group">
             <NavLink
               to={feedbackRoute}
               className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}
             >
-              <span>Feedback</span>
+              <span>{isEmp ? "Help / Suggestion Box" : "Feedback"}</span>
             </NavLink>
           </div>
 
