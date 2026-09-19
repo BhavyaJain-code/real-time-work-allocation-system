@@ -176,9 +176,6 @@ export default function Layout() {
         <header className="wt-topbar">
           <div className="wt-page-title-section">
             <h1 className="wt-page-title">{pageTitle}</h1>
-            <div className="wt-breadcrumb">
-              [ {breadcrumbText} ]
-            </div>
           </div>
 
           {/* User Profile & Logout */}
