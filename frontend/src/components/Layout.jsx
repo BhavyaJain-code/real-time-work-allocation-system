@@ -130,21 +130,8 @@ export default function Layout() {
             )}
           </div>
 
-          {/* Productivity (Dropdown) */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("productivity")}>
-              <span>Productivity </span>
-            </div>
-            {expandedSections.productivity && (
-              <div className="wt-submenu">
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Productivity Index</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Department Performance</NavLink>
-              </div>
-            )}
-          </div>
-
           {/* Work Allocation & Tasks */}
-          <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid #000000", paddingTop: 6 }}>
+          <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 6 }}>
             <div className="wt-menu-header" onClick={() => toggleSection("tasks")}>
               <span>Work Allocation </span>
             </div>
@@ -160,7 +147,7 @@ export default function Layout() {
           </div>
 
           {/* Settings */}
-          <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid #000000", paddingTop: 6 }}>
+          <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 6 }}>
             <NavLink to="/profile" className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}>
               <span>User Profile / Settings</span>
             </NavLink>
