@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowRight, MonitorCheck, Play, Pause, Download, ExternalLink, ShieldCheck, AlertTriangle } from "lucide-react";
 import { TASKS, EMPLOYEES, getEmployeeUser } from "../data/mockData";
+import StatusBadge from "../components/StatusBadge";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -10,17 +10,12 @@ export default function AdminDashboard() {
   const inProgressTasks = TASKS.filter(t => t.status === "in_progress").length;
   const completedTasks = TASKS.filter(t => t.status === "done").length;
   const activeNow = EMPLOYEES.filter(e => e.remote_status === "active").length;
-  const overtimeCount = EMPLOYEES.filter(e => e.burnout_risk === "High").length;
 
   const hourlyData = [
     { hour: "12am", active: 0, idle: 0 },
-    { hour: "1am", active: 0, idle: 0 },
     { hour: "2am", active: 0, idle: 0 },
-    { hour: "3am", active: 0, idle: 0 },
     { hour: "4am", active: 0, idle: 0 },
-    { hour: "5am", active: 0, idle: 0 },
     { hour: "6am", active: 2, idle: 2 },
-    { hour: "7am", active: 5, idle: 4 },
     { hour: "8am", active: 16, idle: 4 },
     { hour: "9am", active: 48, idle: 4 },
     { hour: "10am", active: 52, idle: 3 },
@@ -32,168 +27,188 @@ export default function AdminDashboard() {
     { hour: "4pm", active: 8, idle: 3 },
     { hour: "5pm", active: 4, idle: 2 },
     { hour: "6pm", active: 3, idle: 2 },
-    { hour: "7pm", active: 3, idle: 1 },
     { hour: "8pm", active: 1, idle: 1 },
-    { hour: "9pm", active: 1, idle: 0 },
     { hour: "10pm", active: 0, idle: 0 },
-    { hour: "11pm", active: 0, idle: 0 },
   ];
 
   return (
     <div>
       {/* Top Banner */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, background: "#ffffff", padding: "14px 18px", borderRadius: 4, border: "1px solid var(--wt-border)" }}>
+      <div style={{ border: "1px solid #000000", padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--wt-text-main)", margin: 0 }}>
-            🏢 Enterprise Administration &amp; Global Operations Hub
+          <h2 style={{ fontSize: 18, fontWeight: "bold", margin: 0 }}>
+            Executive Administration &amp; Global Operations
           </h2>
-          <div style={{ fontSize: 12, color: "var(--wt-text-muted)" }}>
-            Organization-wide oversight of all 3 departments, {EMPLOYEES.length} staff members, and real-time telemetry.
+          <div style={{ fontSize: 13, color: "#444444", marginTop: 2 }}>
+            Organization overview: 3 departments, {EMPLOYEES.length} staff members, {totalTasks} scheduled deliverables.
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-primary btn-sm" onClick={() => navigate("/admin/tasks/create")}>
-            <Plus size={13} /> Create Master Task
+          <button className="btn btn-primary" onClick={() => navigate("/admin/tasks/create")}>
+            + Create Task
           </button>
-          <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/monitoring")}>
-            Full Telemetry Hub →
+          <button className="btn btn-secondary" onClick={() => navigate("/admin/monitoring")}>
+            View Live Telemetry
           </button>
         </div>
       </div>
 
-      {/* Top 2 Quadrants */}
+      {/* 2x2 Grid */}
       <div className="wt-grid-2x2">
-        {/* Card 1: Enterprise Active/idle */}
+        {/* Card 1: Active vs Idle */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Company Active/idle (All Departments)</h2>
+            <h2 className="wt-card-title">Company Active / Idle Summary</h2>
           </div>
-          <div className="wt-stat-block-row">
-            <div className="wt-stat-side">
-              <div className="wt-count-callout">
-                <strong>15</strong> active employees <span style={{ color: "#64748b", fontSize: 11 }}>(out of 15)</span>
-              </div>
-              <table className="wt-mini-table">
-                <thead>
-                  <tr><th></th><th>Total time</th><th>Per empl/work day</th><th>%</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td><span className="wt-color-square sq-green" />Active</td><td>102:09:25</td><td>06:48:38</td><td><strong>85%</strong></td></tr>
-                  <tr><td><span className="wt-color-square sq-yellow" />Idle</td><td>25:42:25</td><td>01:42:50</td><td>21%</td></tr>
-                  <tr style={{ fontWeight: 700 }}><td>Total</td><td>127:51:50</td><td>08:31:28</td><td>107%</td></tr>
-                </tbody>
-              </table>
+          <div>
+            <div className="wt-count-callout">
+              Total active staff: <strong>{activeNow}</strong> of <strong>{EMPLOYEES.length}</strong>
             </div>
-            <div className="wt-donut-wrapper">
-              <svg viewBox="0 0 36 36" width="110" height="110">
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="74 100" strokeDashoffset="25" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="18 100" strokeDashoffset="-49" />
-              </svg>
-            </div>
+            <table className="wt-table" style={{ marginBottom: 8 }}>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Total Hours</th>
+                  <th>Per Empl / Day</th>
+                  <th>Ratio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Active Work</td>
+                  <td>102h 09m</td>
+                  <td>06h 48m</td>
+                  <td><strong>85%</strong></td>
+                </tr>
+                <tr>
+                  <td>Idle / Breaks</td>
+                  <td>25h 42m</td>
+                  <td>01h 42m</td>
+                  <td>21%</td>
+                </tr>
+                <tr style={{ fontWeight: "bold" }}>
+                  <td>Total Logged</td>
+                  <td>127h 51m</td>
+                  <td>08h 31m</td>
+                  <td>107%</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>More info</span>
+            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ Detailed Breakdown ]</span>
           </div>
         </div>
 
-        {/* Card 2: Enterprise Productivity */}
+        {/* Card 2: Productivity Index */}
         <div className="wt-card">
           <div className="wt-card-header">
             <h2 className="wt-card-title">Organization Productivity Index</h2>
           </div>
-          <div className="wt-stat-block-row">
-            <div className="wt-stat-side">
-              <div className="wt-count-callout">
-                <strong>15</strong> active employees <span style={{ color: "#64748b", fontSize: 11 }}>(out of 15)</span>
-              </div>
-              <table className="wt-mini-table">
-                <thead>
-                  <tr><th></th><th>Total time</th><th>Per empl/work day</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td><span className="wt-color-square sq-green" />Productive</td><td>99:20:29</td><td>06:37:22</td></tr>
-                  <tr><td><span className="wt-color-square sq-red" />Unproductive</td><td>02:00:28</td><td>00:08:02</td></tr>
-                  <tr><td><span className="wt-color-square sq-blue" /><a href="#!">Undefined</a></td><td>00:48:02</td><td>00:03:12</td></tr>
-                  <tr><td><span className="wt-color-square sq-yellow" />Idle</td><td>25:41:50</td><td>01:42:47</td></tr>
-                  <tr style={{ fontWeight: 700 }}><td>Total</td><td>127:50:49</td><td>08:31:23 (107%)</td></tr>
-                </tbody>
-              </table>
+          <div>
+            <div className="wt-count-callout">
+              Average Productivity Rating: <strong>91%</strong>
             </div>
-            <div className="wt-donut-wrapper">
-              <svg viewBox="0 0 36 36" width="110" height="110">
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="72 100" strokeDashoffset="25" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#ef4444" strokeWidth="6" strokeDasharray="4 100" strokeDashoffset="-47" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#3b82f6" strokeWidth="6" strokeDasharray="2 100" strokeDashoffset="-51" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="20 100" strokeDashoffset="-53" />
-              </svg>
-            </div>
+            <table className="wt-table" style={{ marginBottom: 8 }}>
+              <thead>
+                <tr>
+                  <th>Classification</th>
+                  <th>Total Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Productive Work</td>
+                  <td>99h 20m</td>
+                  <td>Normal</td>
+                </tr>
+                <tr>
+                  <td>Neutral Communication</td>
+                  <td>02h 00m</td>
+                  <td>Normal</td>
+                </tr>
+                <tr>
+                  <td>Idle / Break Time</td>
+                  <td>25h 41m</td>
+                  <td>Normal</td>
+                </tr>
+                <tr style={{ fontWeight: "bold" }}>
+                  <td>Total Monitored</td>
+                  <td>127h 50m</td>
+                  <td>Good</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "auto", paddingTop: 10, fontSize: 11.5 }}>
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>Assign productivity</span>
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>More info</span>
+          <div className="wt-card-footer-link">
+            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ Assign Weights ]</span>
           </div>
         </div>
       </div>
 
-      {/* Middle 2 Quadrants */}
+      {/* Hourly Chart & Attendance */}
       <div className="wt-grid-2x2">
-        {/* Card 3: Hourly Chart */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Active/idle per hour (average per employee/day)</h2>
+            <h2 className="wt-card-title">Hourly Activity Distribution (Company Average)</h2>
           </div>
           <div className="wt-hourly-chart">
             <div className="wt-hourly-bars">
               {hourlyData.map((d, i) => (
-                <div key={i} className="wt-hourly-col">
+                <div key={i} className="wt-hourly-col" title={d.hour + ": " + d.active + "m active, " + d.idle + "m idle"}>
                   <div className="wt-bar-idle" style={{ height: (d.idle / 60 * 100) + "%" }} />
                   <div className="wt-bar-active" style={{ height: (d.active / 60 * 100) + "%" }} />
                 </div>
               ))}
             </div>
             <div className="wt-hourly-labels">
-              <span>12:00 am</span><span>4:00 am</span><span>8:00 am</span><span>12:00 pm</span><span>4:00 pm</span><span>8:00 pm</span><span>11:00 pm</span>
+              <span>12:00 am</span><span>6:00 am</span><span>12:00 pm</span><span>6:00 pm</span><span>10:00 pm</span>
             </div>
             <div className="wt-hourly-legend">
-              <span><span className="wt-color-square sq-green" />Active</span>
-              <span><span className="wt-color-square sq-yellow" />Idle</span>
+              <span>[Solid Black: Active]</span>
+              <span>[Gray: Idle]</span>
             </div>
-          </div>
-          <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>More info</span>
           </div>
         </div>
 
-        {/* Card 4: Attendance */}
         <div className="wt-card">
           <div className="wt-card-header">
-            <h2 className="wt-card-title">Enterprise Attendance &amp; Punctuality</h2>
+            <h2 className="wt-card-title">Attendance &amp; Check-in Log</h2>
           </div>
-          <div className="wt-stat-block-row">
-            <div className="wt-stat-side">
-              <table className="wt-mini-table">
-                <thead><tr><th>Event</th><th>Events#</th><th>Empl/day</th><th>%</th></tr></thead>
-                <tbody>
-                  <tr><td><span className="wt-color-square sq-green" />Early</td><td>4</td><td>4</td><td>27%</td></tr>
-                  <tr><td><span className="wt-color-square sq-green" />On time</td><td>8</td><td>8</td><td><strong>53%</strong></td></tr>
-                  <tr><td><span className="wt-color-square sq-yellow" />Late</td><td>3</td><td>3</td><td>20%</td></tr>
-                  <tr><td>Off work</td><td>0</td><td>0</td><td>0%</td></tr>
-                  <tr style={{ fontWeight: 700 }}><td>Total</td><td>15</td><td>15</td><td>100%</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="wt-donut-wrapper">
-              <svg viewBox="0 0 36 36" width="110" height="110">
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#f1f5f9" strokeWidth="6" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#22c55e" strokeWidth="6" strokeDasharray="80 100" strokeDashoffset="25" />
-                <circle cx="18" cy="18" r="14" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="20 100" strokeDashoffset="-55" />
-              </svg>
-            </div>
-          </div>
+          <table className="wt-table">
+            <thead>
+              <tr>
+                <th>Arrival Status</th>
+                <th>Events</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Early Check-in</td>
+                <td>4</td>
+                <td>27%</td>
+              </tr>
+              <tr>
+                <td>On-time (09:00 AM)</td>
+                <td>8</td>
+                <td><strong>53%</strong></td>
+              </tr>
+              <tr>
+                <td>Late Check-in</td>
+                <td>3</td>
+                <td>20%</td>
+              </tr>
+              <tr style={{ fontWeight: "bold" }}>
+                <td>Total Checked In</td>
+                <td>15</td>
+                <td>100%</td>
+              </tr>
+            </tbody>
+          </table>
           <div className="wt-card-footer-link">
-            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>More info</span>
+            <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>[ Attendance Records ]</span>
           </div>
         </div>
       </div>
@@ -202,11 +217,11 @@ export default function AdminDashboard() {
       <div className="wt-card">
         <div className="wt-card-header">
           <div>
-            <h2 className="wt-card-title">Master Enterprise Deliverables &amp; Workload</h2>
-            <div className="wt-card-subtitle">{totalTasks} total tasks scheduled ({inProgressTasks} in progress, {completedTasks} completed)</div>
+            <h2 className="wt-card-title">Master Task Deliverables &amp; Workload Queue</h2>
+            <div className="wt-card-subtitle">{totalTasks} tasks ({inProgressTasks} in progress, {completedTasks} completed)</div>
           </div>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate("/admin/tasks")}>
-            View Full Queue
+            View All Tasks
           </button>
         </div>
 
@@ -214,8 +229,8 @@ export default function AdminDashboard() {
           <thead>
             <tr>
               <th>Task Title</th>
-              <th>Scope</th>
-              <th>Hours</th>
+              <th>Type / Scope</th>
+              <th>Estimated Hours</th>
               <th>Deadline</th>
               <th>Priority</th>
               <th>Status</th>
@@ -226,18 +241,10 @@ export default function AdminDashboard() {
               <tr key={task.id} style={{ cursor: "pointer" }} onClick={() => navigate("/admin/tasks")}>
                 <td><strong>{task.title}</strong></td>
                 <td>{task.task_type}</td>
-                <td>{task.estimated_hours}h</td>
+                <td>{task.estimated_hours} hrs</td>
                 <td>{task.deadline}</td>
-                <td>
-                  <span className={`badge ${task.priority === "critical" ? "badge-red" : task.priority === "high" ? "badge-amber" : "badge-blue"}`}>
-                    {task.priority}
-                  </span>
-                </td>
-                <td>
-                  <span className={`badge ${task.status === "done" ? "badge-green" : task.status === "in_progress" ? "badge-blue" : "badge-gray"}`}>
-                    {task.status}
-                  </span>
-                </td>
+                <td><StatusBadge value={task.priority} type="priority" /></td>
+                <td><StatusBadge value={task.status} /></td>
               </tr>
             ))}
           </tbody>

@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { Outlet, Navigate, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { 
-  ChevronDown, ChevronRight, LogOut, User, CheckSquare, 
-  HelpCircle, Settings, Layers, BarChart2, Laptop, Globe, Users
-} from "lucide-react";
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -46,70 +42,67 @@ export default function Layout() {
 
   // Determine current active page label for breadcrumb
   let pageTitle = "Dashboard";
-  let breadcrumbText = "WorkTime - Operations Overview";
+  let breadcrumbText = "Work Allocation System";
 
   if (location.pathname.includes("/monitoring")) {
-    pageTitle = "Active/idle";
-    breadcrumbText = "Company - Active/idle report";
+    pageTitle = "Active / Idle Monitoring";
+    breadcrumbText = "Activity & Performance Telemetry";
   } else if (location.pathname.includes("/dashboard")) {
-    pageTitle = "Summary";
-    breadcrumbText = `${user.role.toUpperCase()} - ${user.name}'s Executive Hub`;
+    pageTitle = "Summary Dashboard";
+    breadcrumbText = user.role.toUpperCase() + " Overview - " + user.name;
   } else if (location.pathname.includes("/tasks")) {
     pageTitle = "Task Allocation";
-    breadcrumbText = "Work Allocation System - Task Queue & Deliverables";
+    breadcrumbText = "Deliverables & Workload Queue";
   } else if (location.pathname.includes("/assignments") || location.pathname.includes("/availability")) {
     pageTitle = isEmp ? "My Availability" : "Staff Allocation";
-    breadcrumbText = isEmp ? "Employee - Working Schedule & Availability" : "Resource Allocation Matrix";
+    breadcrumbText = isEmp ? "Working Schedule" : "Resource Matrix";
   } else if (location.pathname.includes("/employees")) {
     pageTitle = "Staff Directory";
-    breadcrumbText = "Company - Employee Registry & Profiles";
+    breadcrumbText = "Employee Registry";
   } else if (location.pathname.includes("/analytics")) {
-    pageTitle = "In-office/remote";
-    breadcrumbText = "Company - In-office / Remote Performance Comparison";
+    pageTitle = "Workload & Analytics";
+    breadcrumbText = "Performance Reports";
   } else if (location.pathname.includes("/progress")) {
-    pageTitle = "Performance Report";
-    breadcrumbText = "Employee Performance & Progress Appraisal";
+    pageTitle = "Performance Progress Report";
+    breadcrumbText = "Appraisal Document";
   } else if (location.pathname.includes("/profile")) {
-    pageTitle = "Settings & Profile";
-    breadcrumbText = "System - User Profile & Configuration";
+    pageTitle = "User Profile";
+    breadcrumbText = "Account Settings";
   }
 
   return (
     <div className="wt-app-shell">
-      {/* LEFT WORKTIME SIDEBAR */}
+      {/* SIDEBAR */}
       <aside className="wt-sidebar">
-        {/* Brand Logo Box - routes to own dashboard */}
+        {/* Simple Text Header (No Logos or Images) */}
         <div className="wt-logo-box" onClick={() => navigate(dashboardRoute)}>
-          <div className="wt-clock-icon">
-            <div className="q1" />
-            <div className="q2" />
-            <div className="q3" />
-            <div className="q4" />
-          </div>
           <div className="wt-logo-text">
-            WORKTIME<sup>®</sup>
+            Work Allocation System
+          </div>
+          <div style={{ fontSize: 11, color: "#444444", marginTop: 2 }}>
+            Management Portal
           </div>
         </div>
 
-        {/* Sidebar Menu Items */}
+        {/* Navigation Menu */}
         <nav className="wt-nav-menu">
           {/* Summary */}
           <div className="wt-menu-group">
             <NavLink
               to={dashboardRoute}
-              className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}
+              className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}
             >
               <span>Summary</span>
             </NavLink>
           </div>
 
-          {/* What's now */}
+          {/* What's now / Telemetry */}
           <div className="wt-menu-group">
             <NavLink
               to={monitoringRoute}
-              className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}
+              className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}
             >
-              <span>What&apos;s now</span>
+              <span>Live Telemetry</span>
             </NavLink>
           </div>
 
@@ -117,131 +110,49 @@ export default function Layout() {
           <div className="wt-menu-group">
             <NavLink
               to={progressRoute}
-              className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}
+              className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}
             >
-              <span>Progress</span>
+              <span>Progress Reports</span>
             </NavLink>
           </div>
 
-          {/* Attendance (Dropdown Accordion) */}
+          {/* Attendance (Dropdown) */}
           <div className="wt-menu-group">
             <div className="wt-menu-header" onClick={() => toggleSection("attendance")}>
-              <span>Attendance</span>
-              {expandedSections.attendance ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              <span>Attendance [{expandedSections.attendance ? "-" : "+"}]</span>
             </div>
             {expandedSections.attendance && (
               <div className="wt-submenu">
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Summary</NavLink>
-                <NavLink to={monitoringRoute} className="wt-submenu-item">At work</NavLink>
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Off work</NavLink>
-                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Schedule" : "Timesheet/calendar"}</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Overtime</NavLink>
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Active/idle</NavLink>
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Login/logout</NavLink>
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Employee total time</NavLink>
-                <NavLink to={logRoute} className="wt-submenu-item">Full log</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Attendance Summary</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Active &amp; Idle Logs</NavLink>
+                <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Schedule" : "Timesheet & Schedule"}</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Overtime Tracking</NavLink>
+                <NavLink to={logRoute} className="wt-submenu-item">Activity Log</NavLink>
               </div>
             )}
           </div>
 
-          {/* Productivity */}
+          {/* Productivity (Dropdown) */}
           <div className="wt-menu-group">
             <div className="wt-menu-header" onClick={() => toggleSection("productivity")}>
-              <span>Productivity</span>
-              {expandedSections.productivity ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              <span>Productivity [{expandedSections.productivity ? "-" : "+"}]</span>
             </div>
             {expandedSections.productivity && (
               <div className="wt-submenu">
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Summary</NavLink>
-                <NavLink to={monitoringRoute} className="wt-submenu-item">Productive vs Idle</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Department Productivity</NavLink>
+                <NavLink to={monitoringRoute} className="wt-submenu-item">Productivity Index</NavLink>
+                <NavLink to={analyticsRoute} className="wt-submenu-item">Department Performance</NavLink>
               </div>
             )}
           </div>
 
-          {/* Internet */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("internet")}>
-              <span>Internet</span>
-              {expandedSections.internet ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </div>
-            {expandedSections.internet && (
-              <div className="wt-submenu">
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Top Websites</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">URL Category Breakdown</NavLink>
-              </div>
-            )}
-          </div>
-
-          {/* App/doc */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("appdoc")}>
-              <span>App/doc</span>
-              {expandedSections.appdoc ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </div>
-            {expandedSections.appdoc && (
-              <div className="wt-submenu">
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Top Applications</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Document Usage</NavLink>
-              </div>
-            )}
-          </div>
-
-          {/* Computer */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("computer")}>
-              <span>Computer</span>
-              {expandedSections.computer ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("tags")}>
-              <span>Tags</span>
-              {expandedSections.tags ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </div>
-          </div>
-
-          {/* Departments */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("departments")}>
-              <span>Departments</span>
-              {expandedSections.departments ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </div>
-            {expandedSections.departments && (
-              <div className="wt-submenu">
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Engineering</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Design</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Data</NavLink>
-              </div>
-            )}
-          </div>
-
-          {/* Offices / Remote (Image 1) */}
-          <div className="wt-menu-group">
-            <div className="wt-menu-header" onClick={() => toggleSection("offices")}>
-              <span>Offices</span>
-              {expandedSections.offices ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </div>
-            {expandedSections.offices && (
-              <div className="wt-submenu">
-                <NavLink to={analyticsRoute} className="wt-submenu-item">Summary</NavLink>
-                <NavLink to={employeesRoute} className="wt-submenu-item">Per employee</NavLink>
-                <NavLink to={analyticsRoute} className="wt-submenu-item">In-office/remote</NavLink>
-              </div>
-            )}
-          </div>
-
-          {/* Work Allocation & Task System */}
-          <div className="wt-menu-group" style={{ marginTop: 12, borderTop: "1px solid #454c55", paddingTop: 8 }}>
+          {/* Work Allocation & Tasks */}
+          <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid #000000", paddingTop: 6 }}>
             <div className="wt-menu-header" onClick={() => toggleSection("tasks")}>
-              <span>Work Allocation</span>
-              {expandedSections.tasks ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              <span>Work Allocation [{expandedSections.tasks ? "-" : "+"}]</span>
             </div>
             {expandedSections.tasks && (
               <div className="wt-submenu">
-                <NavLink to={tasksRoute} className="wt-submenu-item">{isEmp ? "My Tasks" : "Tasks Queue"}</NavLink>
+                <NavLink to={tasksRoute} className="wt-submenu-item">{isEmp ? "My Tasks" : "Task Queue"}</NavLink>
                 {isAdmin && <NavLink to="/admin/tasks/create" className="wt-submenu-item">Create Task</NavLink>}
                 <NavLink to={assignmentsRoute} className="wt-submenu-item">{isEmp ? "My Availability" : "Staff Allocation"}</NavLink>
                 {!isEmp && <NavLink to={employeesRoute} className="wt-submenu-item">Staff Directory</NavLink>}
@@ -251,36 +162,36 @@ export default function Layout() {
           </div>
 
           {/* Settings */}
-          <div className="wt-menu-group">
-            <NavLink to="/profile" className={({ isActive }) => `wt-menu-header${isActive ? " active" : ""}`}>
-              <span>Settings</span>
+          <div className="wt-menu-group" style={{ marginTop: 10, borderTop: "1px solid #000000", paddingTop: 6 }}>
+            <NavLink to="/profile" className={({ isActive }) => "wt-menu-header" + (isActive ? " active" : "")}>
+              <span>User Profile / Settings</span>
             </NavLink>
           </div>
         </nav>
       </aside>
 
-      {/* RIGHT MAIN CONTENT AREA */}
+      {/* MAIN CONTENT AREA */}
       <div className="wt-main-wrapper">
-        {/* Top Breadcrumb Header Bar */}
+        {/* Top Header Bar */}
         <header className="wt-topbar">
           <div className="wt-page-title-section">
             <h1 className="wt-page-title">{pageTitle}</h1>
             <div className="wt-breadcrumb">
-              <a href="#!">{breadcrumbText.split(" - ")[0]}</a> - {breadcrumbText.split(" - ")[1]} <HelpCircle size={13} style={{ verticalAlign: "middle", color: "#94a3b8", cursor: "pointer" }} />
+              [ {breadcrumbText} ]
             </div>
           </div>
 
-          {/* Right User Profile / Logout */}
+          {/* User Profile & Logout */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 12, color: "#475569" }}>
-              👤 <strong>{user.name}</strong> <span style={{ textTransform: "capitalize", color: "var(--wt-blue)", fontWeight: 700 }}>({user.role})</span>
+            <span style={{ fontSize: 13, color: "#000000" }}>
+              User: <strong>{user.name}</strong> ({user.role})
             </span>
             <button
               className="btn btn-secondary btn-sm"
               onClick={() => { logout(); navigate("/login"); }}
               title="Sign out"
             >
-              <LogOut size={12} /> Logout
+              Logout
             </button>
           </div>
         </header>
