@@ -62,15 +62,6 @@ export default function RemoteMonitoring() {
     return true;
   });
 
-  // Calculate dynamic stats for manager/admin
-  const totalEmployees = filteredEmployees.length;
-  const activeCount = filteredEmployees.filter(e => e.remote_status === "active").length;
-  const idleCount = filteredEmployees.filter(e => e.remote_status === "idle").length;
-  const meetingCount = filteredEmployees.filter(e => e.remote_status === "in_meeting").length;
-  const avgProductivity = totalEmployees > 0 
-    ? Math.round(filteredEmployees.reduce((sum, e) => sum + (e.productivity_score || 0), 0) / totalEmployees) 
-    : 0;
-
   // ─────────────────────────────────────────────────────────
   // 1. EMPLOYEE PERSONAL LIVE TELEMETRY VIEW
   // ─────────────────────────────────────────────────────────
@@ -274,30 +265,6 @@ export default function RemoteMonitoring() {
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Metric Quick Strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 16 }}>
-        <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-          <div style={{ fontSize: 12, color: "#555" }}>Staff Monitored</div>
-          <div style={{ fontSize: 18, fontWeight: "bold", marginTop: 2 }}>{totalEmployees}</div>
-        </div>
-        <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-          <div style={{ fontSize: 12, color: "#555" }}>Active Now</div>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: "var(--header)", marginTop: 2 }}>{activeCount}</div>
-        </div>
-        <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-          <div style={{ fontSize: 12, color: "#555" }}>In Meeting</div>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: "#6b8e6b", marginTop: 2 }}>{meetingCount}</div>
-        </div>
-        <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-          <div style={{ fontSize: 12, color: "#555" }}>Idle / Break</div>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: "#85a885", marginTop: 2 }}>{idleCount}</div>
-        </div>
-        <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-          <div style={{ fontSize: 12, color: "#555" }}>Avg Productivity</div>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: "var(--footer)", marginTop: 2 }}>{avgProductivity}%</div>
         </div>
       </div>
 
