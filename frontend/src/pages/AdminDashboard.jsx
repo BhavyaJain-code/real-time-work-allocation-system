@@ -44,26 +44,6 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      {/* Top Banner */}
-      <div style={{ border: "1px solid #000000", padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <h2 style={{ fontSize: 18, fontWeight: "bold", margin: 0 }}>
-            Executive Administration &amp; Global Operations
-          </h2>
-          <div style={{ fontSize: 13, color: "#444444", marginTop: 2 }}>
-            Organization overview: 3 departments, {EMPLOYEES.length} staff members, {totalTasks} scheduled deliverables.
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-primary" onClick={() => navigate("/admin/tasks/create")}>
-            + Create Task
-          </button>
-          <button className="btn btn-secondary" onClick={() => navigate("/admin/monitoring")}>
-            View Live Telemetry
-          </button>
-        </div>
-      </div>
-
       {/* 2x2 Telemetry & Active Status Grid */}
       <div className="wt-grid-2x2">
         {/* Card 1: Active/Idle */}
