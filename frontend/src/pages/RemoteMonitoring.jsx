@@ -28,7 +28,7 @@ export default function RemoteMonitoring() {
   return (
     <div>
       {/* Tab Selectors */}
-      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid #000000", marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid var(--border)", marginBottom: 16 }}>
         <button
           onClick={() => setActiveTab("active_idle")}
           className={"btn " + (activeTab === "active_idle" ? "btn-primary" : "btn-secondary")}
@@ -81,7 +81,7 @@ export default function RemoteMonitoring() {
               <div className="wt-hourly-chart">
                 <div className="wt-hourly-bars">
                   {hourlyData.map((d, i) => (
-                    <div key={i} className="wt-hourly-col">
+                    <div key={i} className="wt-hourly-col" title={d.hour + ": " + d.active + "m active, " + d.idle + "m idle"}>
                       <div className="wt-bar-idle" style={{ height: (d.idle / 60 * 100) + "%" }} />
                       <div className="wt-bar-active" style={{ height: (d.active / 60 * 100) + "%" }} />
                     </div>
@@ -91,8 +91,14 @@ export default function RemoteMonitoring() {
                   <span>12:00 am</span><span>6:00 am</span><span>12:00 pm</span><span>6:00 pm</span><span>10:00 pm</span>
                 </div>
                 <div className="wt-hourly-legend">
-                  <span>Solid: Active</span>
-                  <span>Light: Idle</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ display: "inline-block", width: 10, height: 10, backgroundColor: "var(--header)" }}></span>
+                    Active
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ display: "inline-block", width: 10, height: 10, backgroundColor: "var(--accent)" }}></span>
+                    Idle
+                  </span>
                 </div>
               </div>
             </div>

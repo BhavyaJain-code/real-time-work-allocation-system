@@ -12,6 +12,26 @@ export default function AdminDashboard() {
   const completedTasks = TASKS.filter(t => t.status === "done").length;
   const activeNow = EMPLOYEES.filter(e => e.remote_status === "active").length;
 
+  const hourlyData = [
+    { hour: "12am", active: 0, idle: 0 },
+    { hour: "2am", active: 0, idle: 0 },
+    { hour: "4am", active: 0, idle: 0 },
+    { hour: "6am", active: 2, idle: 2 },
+    { hour: "8am", active: 16, idle: 4 },
+    { hour: "9am", active: 48, idle: 4 },
+    { hour: "10am", active: 52, idle: 3 },
+    { hour: "11am", active: 38, idle: 5 },
+    { hour: "12pm", active: 37, idle: 6 },
+    { hour: "1pm", active: 14, idle: 4 },
+    { hour: "2pm", active: 16, idle: 3 },
+    { hour: "3pm", active: 12, idle: 4 },
+    { hour: "4pm", active: 8, idle: 3 },
+    { hour: "5pm", active: 4, idle: 2 },
+    { hour: "6pm", active: 3, idle: 2 },
+    { hour: "8pm", active: 1, idle: 1 },
+    { hour: "10pm", active: 0, idle: 0 },
+  ];
+
   const departmentsData = [
     {
       name: "Engineering",
@@ -135,6 +155,44 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Hourly Activity Graph */}
+      <div className="wt-card" style={{ marginBottom: 16 }}>
+        <div className="wt-card-header">
+          <div>
+            <h2 className="wt-card-title">Hourly Activity (24 Hours)</h2>
+            <div className="wt-card-subtitle">Real-time organizational telemetry: Active work vs. Idle intervals across all monitored hours</div>
+          </div>
+          <span className="wt-table-link" onClick={() => navigate("/admin/monitoring")}>Detailed Logs</span>
+        </div>
+        <div className="wt-hourly-chart">
+          <div className="wt-hourly-bars">
+            {hourlyData.map((d, i) => (
+              <div key={i} className="wt-hourly-col" title={d.hour + ": " + d.active + "m active, " + d.idle + "m idle"}>
+                <div className="wt-bar-idle" style={{ height: (d.idle / 60 * 100) + "%" }} />
+                <div className="wt-bar-active" style={{ height: (d.active / 60 * 100) + "%" }} />
+              </div>
+            ))}
+          </div>
+          <div className="wt-hourly-labels">
+            <span>12:00 am</span>
+            <span>6:00 am</span>
+            <span>12:00 pm</span>
+            <span>6:00 pm</span>
+            <span>10:00 pm</span>
+          </div>
+          <div className="wt-hourly-legend">
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span style={{ display: "inline-block", width: 12, height: 12, backgroundColor: "var(--header)" }}></span>
+              Active Work
+            </span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span style={{ display: "inline-block", width: 12, height: 12, backgroundColor: "var(--accent)" }}></span>
+              Idle / Breaks
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Department Performance Table (With Pop-up Modal) */}
       <div className="wt-card" style={{ marginBottom: 16 }}>
         <div className="wt-card-header">
@@ -230,7 +288,7 @@ export default function AdminDashboard() {
             <div className="modal-body">
               <div style={{ marginBottom: 12 }}>
                 <p style={{ margin: "0 0 8px 0", fontSize: 13 }}>{selectedDeptModal.description}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, border: "1px solid #000000", padding: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, border: "1px solid var(--border)", padding: 10 }}>
                   <div><strong>Department Lead:</strong> {selectedDeptModal.head}</div>
                   <div><strong>Total Monitored Staff:</strong> {selectedDeptModal.totalStaff}</div>
                   <div><strong>Active Staff Right Now:</strong> {selectedDeptModal.activeStaff}</div>
