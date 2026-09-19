@@ -13,13 +13,28 @@ export default function Register() {
   const [department, setDepartment] = useState("Engineering");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [touchedEmail, setTouchedEmail] = useState(false);
   const [showWeakModal, setShowWeakModal] = useState(false);
 
-  // Email format validation
+  // Strict Email format validation (RFC-compliant regex + valid TLD)
   const isEmailValid = useMemo(() => {
     if (!email) return false;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email.trim());
+    const trimmed = email.trim();
+    if (trimmed.length < 5 || trimmed.length > 254) return false;
+    
+    // Check basic structure: username@domain.tld
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+    if (!emailRegex.test(trimmed)) return false;
+
+    // Ensure TLD is at least 2 alphabetic characters (e.g., .com, .org, .io, .net, .in)
+    const parts = trimmed.split("@");
+    if (parts.length !== 2) return false;
+    const domainParts = parts[1].split(".");
+    if (domainParts.length < 2) return false;
+    const tld = domainParts[domainParts.length - 1];
+    if (!/^[a-zA-Z]{2,}$/.test(tld)) return false;
+
+    return true;
   }, [email]);
 
   // Password strength calculation
@@ -36,33 +51,36 @@ export default function Register() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setTouchedEmail(true);
 
     if (!name.trim()) {
       setError("Please enter your full name.");
       return;
     }
 
+    // 1. Strict Email Validation
     if (!email.trim() || !isEmailValid) {
-      setError("Please provide a valid email address (e.g. name@company.com).");
+      setError("Invalid Email Address: Please enter a valid email address format (e.g. name@company.com) with a valid domain extension.");
       return;
     }
 
-    // Check password security
+    // 2. Check if email already registered
+    const existing = USERS.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (existing) {
+      setError("An account with this email address already exists. Please sign in instead.");
+      return;
+    }
+
+    // 3. Check password security
     if (!passSecurity.isStrong) {
       setShowWeakModal(true);
       setError("Weak Password: You must set a strong password meeting all security requirements.");
       return;
     }
 
+    // 4. Check password match
     if (password !== confirmPass) {
-      setError("Passwords do not match. Please verify your confirmation.");
-      return;
-    }
-
-    // Check if email already registered
-    const existing = USERS.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
-    if (existing) {
-      setError("An account with this email address already exists. Please sign in instead.");
+      setError("Passwords do not match. Please verify your confirmation password.");
       return;
     }
 
@@ -70,7 +88,7 @@ export default function Register() {
     USERS.push({
       id: newUserId,
       name: name.trim(),
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       password: password,
       role: role,
       is_active: true,
@@ -196,18 +214,43 @@ export default function Register() {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: "bold", marginBottom: 3 }}>
-              Work Email Address:
-            </label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+              <label style={{ fontSize: 13, fontWeight: "bold" }}>
+                Work Email Address:
+              </label>
+              {email && (
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: "bold",
+                    color: isEmailValid ? "var(--footer)" : "#c0392b",
+                  }}
+                >
+                  {isEmailValid ? "✓ Valid Email Address" : "✕ Invalid Email Format"}
+                </span>
+              )}
+            </div>
             <input
               type="email"
               className="form-control"
-              style={{ width: "100%" }}
-              placeholder="e.g. evance@workflow.io"
+              style={{
+                width: "100%",
+                borderColor: touchedEmail && email ? (isEmailValid ? "var(--header)" : "#c0392b") : undefined
+              }}
+              placeholder="e.g. name@organization.com"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={e => {
+                setEmail(e.target.value);
+                if (!touchedEmail) setTouchedEmail(true);
+              }}
+              onBlur={() => setTouchedEmail(true)}
               required
             />
+            {touchedEmail && email && !isEmailValid && (
+              <div style={{ fontSize: 11, color: "#c0392b", marginTop: 3 }}>
+                Must be a complete address with a valid domain (e.g. user@company.com)
+              </div>
+            )}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
