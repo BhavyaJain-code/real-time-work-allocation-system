@@ -125,21 +125,6 @@ export default function Availability() {
     return emp.department === deptFilter;
   });
 
-  // Calculate quick stats
-  const totalStaff = filteredEmployees.length;
-  const availableCount = filteredEmployees.filter(e => {
-    const s = staffData.find(sd => sd.employeeId === e.id)?.status || e.availability_status;
-    return s === "available";
-  }).length;
-  const busyCount = filteredEmployees.filter(e => {
-    const s = staffData.find(sd => sd.employeeId === e.id)?.status || e.availability_status;
-    return s === "busy" || s === "in_meeting";
-  }).length;
-  const offCount = filteredEmployees.filter(e => {
-    const s = staffData.find(sd => sd.employeeId === e.id)?.status || e.availability_status;
-    return s === "offline" || s === "off";
-  }).length;
-
   // Handle approving or rejecting leave
   const handleLeaveDecision = (leaveId, newStatus) => {
     setLeaveRequests(prev => prev.map(l => l.id === leaveId ? { ...l, status: newStatus } : l));
@@ -225,32 +210,6 @@ export default function Availability() {
             Notice: {notification}
           </div>
         )}
-
-        {/* Quick Summary Metrics Strip */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 16 }}>
-          <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#555" }}>Total Staff</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", marginTop: 2 }}>{totalStaff}</div>
-          </div>
-          <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#555" }}>Available Now</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: "var(--header)", marginTop: 2 }}>{availableCount}</div>
-          </div>
-          <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#555" }}>Busy / In Focus</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: "var(--footer)", marginTop: 2 }}>{busyCount}</div>
-          </div>
-          <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#555" }}>Offline / Off-Duty</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: "#666", marginTop: 2 }}>{offCount}</div>
-          </div>
-          <div className="wt-card" style={{ padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 12, color: "#555" }}>Pending Leave Requests</div>
-            <div style={{ fontSize: 18, fontWeight: "bold", color: "var(--footer)", marginTop: 2 }}>
-              {leaveRequests.filter(l => l.status === "Pending").length}
-            </div>
-          </div>
-        </div>
 
         {/* Staff Availability Roster Table */}
         <div className="wt-card" style={{ marginBottom: 16 }}>
